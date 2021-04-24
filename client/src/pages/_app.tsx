@@ -2,7 +2,11 @@ import "../styles/globals.css";
 import { AppProps } from "next/app";
 import Link from "next/link";
 
-function MyApp({ Component, pageProps }: AppProps) {
+if (process.env.NEXT_PUBLIC_API_MOCKING === "enabled") {
+  require("../test/mocks");
+}
+
+function App({ Component, pageProps }: AppProps) {
   return (
     <>
       <nav>
@@ -26,4 +30,4 @@ function MyApp({ Component, pageProps }: AppProps) {
   );
 }
 
-export default MyApp;
+export default App;

@@ -2,8 +2,8 @@ import * as z from 'zod'
 
 export const factionSchema = z
   .object({
-    name: z.string(),
-    id: z.string(),
+    name: z.string().nonempty(),
+    id: z.string().nonempty(),
   })
   .nonstrict()
 

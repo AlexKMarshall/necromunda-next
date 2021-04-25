@@ -1,6 +1,11 @@
-import { useState } from 'react'
 import { useQuery, useMutation, useQueryClient } from 'react-query'
-import { CreateFactionDto, factionSchema } from '../../schemas'
+import { useForm } from 'react-hook-form'
+import { zodResolver } from '@hookform/resolvers/zod'
+import {
+  CreateFactionDto,
+  createFactionDtoSchema,
+  factionSchema,
+} from '../../schemas'
 
 function useQueryFactions() {
   const query = useQuery('factions', async () => {
@@ -38,7 +43,13 @@ function useCreateFaction() {
 export default function Factions() {
   const query = useQueryFactions()
   const mutation = useCreateFaction()
-  const [name, setName] = useState('')
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<CreateFactionDto>({
+    resolver: zodResolver(createFactionDtoSchema),
+  })
 
   return (
     <>
@@ -50,18 +61,10 @@ export default function Factions() {
           </li>
         ))}
       </ul>
-      <form
-        onSubmit={(e) => {
-          e.preventDefault()
-          mutation.mutate({ name })
-        }}
-      >
+      <form onSubmit={handleSubmit((faction) => mutation.mutate(faction))}>
         <label htmlFor="name">Name</label>
-        <input
-          id="name"
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-        />
+        <input id="name" {...register('name')} />
+        {!!errors.name && <span role="alert">{errors.name.message}</span>}
         <button type="submit">Add faction</button>
       </form>
     </>

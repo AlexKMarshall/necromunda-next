@@ -3,12 +3,12 @@ import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useMemo } from 'react'
 import { useTable } from 'react-table'
-import styled from 'styled-components'
 import {
   CreateFactionDto,
   createFactionDtoSchema,
   factionSchema,
 } from 'schemas'
+import { H1 } from 'components/lib'
 
 function useQueryFactions() {
   const query = useQuery('factions', async () => {
@@ -43,10 +43,6 @@ function useCreateFaction() {
   return mutation
 }
 
-const Header = styled.h1`
-  color: hotpink;
-`
-
 export default function Factions() {
   const query = useQueryFactions()
   const mutation = useCreateFaction()
@@ -73,7 +69,7 @@ export default function Factions() {
 
   return (
     <>
-      <Header>Factions</Header>
+      <H1>Factions</H1>
       <table {...getTableProps()}>
         <thead>
           {headerGroups.map((headerGroup) => (

@@ -4,6 +4,7 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { useMemo } from 'react'
 import { useTable } from 'react-table'
 import styled from 'styled-components'
+import { useId } from 'react-aria'
 import {
   CreateFactionDto,
   createFactionDtoSchema,
@@ -54,6 +55,8 @@ export default function Factions() {
   } = useForm<CreateFactionDto>({
     resolver: zodResolver(createFactionDtoSchema),
   })
+  const nameId = useId()
+  const nameErrorId = useId()
 
   const columns = useMemo(
     () => [
@@ -97,15 +100,33 @@ export default function Factions() {
           })}
         </tbody>
       </Table>
-      <form onSubmit={handleSubmit((faction) => mutation.mutate(faction))}>
-        <label htmlFor="name">Name</label>
-        <input id="name" {...register('name')} />
-        {!!errors.name && <span role="alert">{errors.name.message}</span>}
+      <Stack
+        as="form"
+        onSubmit={handleSubmit((faction) => mutation.mutate(faction))}
+      >
+        <Stack variant="small">
+          <label htmlFor={nameId}>Name</label>
+          <Input
+            id={nameId}
+            {...register('name')}
+            aria-invalid={!!errors.name}
+            aria-describedby={!!errors.name ? nameErrorId : ''}
+          />
+          {!!errors.name && (
+            <span role="alert" id={nameErrorId}>
+              {errors.name.message}
+            </span>
+          )}
+        </Stack>
         <button type="submit">Add faction</button>
-      </form>
+      </Stack>
     </Stack>
   )
 }
+
+const Input = styled.input`
+  border: ${(p) => (p['aria-invalid'] ? '2px solid red' : '')};
+`
 
 const Table = styled.table`
   border-collapse: collapse;

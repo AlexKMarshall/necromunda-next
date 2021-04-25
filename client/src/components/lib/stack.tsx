@@ -1,7 +1,14 @@
+import { ReactNode } from 'react'
 import styled from 'styled-components'
 
-export const Stack = styled.div`
-  --space: var(--s1);
+interface StackProps {
+  readonly variant?: 'regular' | 'small'
+}
+
+export const Stack = styled.div<StackProps>`
+  --space-regular: var(--s1);
+  --space-small: var(--s-1);
+
   display: flex;
   flex-direction: column;
   justify-content: flex-start;
@@ -12,6 +19,6 @@ export const Stack = styled.div`
   }
 
   & > * + * {
-    margin-top: var(--space);
+    margin-top: var(--space-${(p) => p.variant ?? 'regular'});
   }
 `

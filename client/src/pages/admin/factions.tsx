@@ -3,6 +3,7 @@ import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useMemo } from 'react'
 import { useTable } from 'react-table'
+import styled from 'styled-components'
 import {
   CreateFactionDto,
   createFactionDtoSchema,
@@ -55,7 +56,10 @@ export default function Factions() {
   })
 
   const columns = useMemo(
-    () => [{ Header: 'Name', accessor: 'name' as const }],
+    () => [
+      { Header: 'Name', accessor: 'name' as const },
+      { Header: 'Id', accessor: 'id' as const },
+    ],
     []
   )
 
@@ -70,12 +74,12 @@ export default function Factions() {
   return (
     <>
       <H1>Factions</H1>
-      <table {...getTableProps()}>
+      <Table {...getTableProps()}>
         <thead>
           {headerGroups.map((headerGroup) => (
             <tr {...headerGroup.getHeaderGroupProps()}>
               {headerGroup.headers.map((column) => (
-                <th {...column.getHeaderProps()}>{column.render('Header')}</th>
+                <Th {...column.getHeaderProps()}>{column.render('Header')}</Th>
               ))}
             </tr>
           ))}
@@ -84,15 +88,15 @@ export default function Factions() {
           {rows.map((row) => {
             prepareRow(row)
             return (
-              <tr {...row.getRowProps()}>
+              <Tr {...row.getRowProps()}>
                 {row.cells.map((cell) => (
-                  <td {...cell.getCellProps()}>{cell.render('Cell')}</td>
+                  <Td {...cell.getCellProps()}>{cell.render('Cell')}</Td>
                 ))}
-              </tr>
+              </Tr>
             )
           })}
         </tbody>
-      </table>
+      </Table>
       <form onSubmit={handleSubmit((faction) => mutation.mutate(faction))}>
         <label htmlFor="name">Name</label>
         <input id="name" {...register('name')} />
@@ -102,3 +106,30 @@ export default function Factions() {
     </>
   )
 }
+
+const Table = styled.table`
+  border-collapse: collapse;
+  border-spacing: unset;
+  border-color: var(--blue-grey-500);
+  border: 1px solid;
+
+  & td + td,
+  th + th {
+    border-left: 1px solid;
+  }
+`
+
+const Td = styled.td`
+  padding: var(--s-3);
+`
+const Th = styled.th`
+  padding: var(--s-3);
+`
+
+const Tr = styled.tr`
+  &:nth-child(odd) {
+    background-color: var(--blue-grey-900);
+    color: var(--blue-grey-50);
+    border-color: var(--blue-grey-50);
+  }
+`

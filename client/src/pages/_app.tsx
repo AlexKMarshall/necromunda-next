@@ -1,14 +1,17 @@
 import '../styles/globals.css'
 import { AppProps } from 'next/app'
 import Link from 'next/link'
+import { QueryClientProvider, QueryClient } from 'react-query'
 
 if (process.env.NEXT_PUBLIC_API_MOCKING === 'enabled') {
   require('../test/mocks')
 }
 
+const queryClient = new QueryClient()
+
 function App({ Component, pageProps }: AppProps) {
   return (
-    <>
+    <QueryClientProvider client={queryClient}>
       <nav>
         <ul>
           <li>
@@ -26,7 +29,7 @@ function App({ Component, pageProps }: AppProps) {
       <main>
         <Component {...pageProps} />
       </main>
-    </>
+    </QueryClientProvider>
   )
 }
 

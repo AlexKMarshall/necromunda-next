@@ -1,14 +1,14 @@
 import { useQuery, useMutation, useQueryClient } from 'react-query'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
+import { useMemo } from 'react'
+import { useTable } from 'react-table'
+import styled from 'styled-components'
 import {
   CreateFactionDto,
   createFactionDtoSchema,
   factionSchema,
-} from '../../schemas'
-import { useMemo } from 'react'
-import { useTable } from 'react-table'
-import styled from 'styled-components'
+} from 'schemas'
 
 function useQueryFactions() {
   const query = useQuery('factions', async () => {

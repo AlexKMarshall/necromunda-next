@@ -2,27 +2,29 @@ import { useState } from 'react'
 import { useQuery, useMutation, useQueryClient } from 'react-query'
 import { CreateFactionDto, factionSchema } from '../../schemas'
 
-export default function Factions() {
-  const queryClient = useQueryClient()
+function useQueryFactions() {
   const query = useQuery('factions', async () => {
     const response = await fetch('/factions')
     const data = await response.json()
-    console.log(data)
     return factionSchema.array().parse(data)
   })
-  const [name, setName] = useState('')
+
+  const factions = query.data ?? []
+  return { ...query, factions }
+}
+
+function useCreateFaction() {
+  const queryClient = useQueryClient()
 
   const mutation = useMutation(
     async (faction: CreateFactionDto) => {
-      const response = await fetch('/factions', {
+      return fetch('/factions', {
         method: 'POST',
         body: JSON.stringify(faction),
         headers: {
           'content-type': 'application/json',
         },
       })
-      const data = await response.json()
-      // return factionSchema.parse(data)
     },
     {
       onSuccess: () => {
@@ -30,12 +32,19 @@ export default function Factions() {
       },
     }
   )
+  return mutation
+}
+
+export default function Factions() {
+  const query = useQueryFactions()
+  const mutation = useCreateFaction()
+  const [name, setName] = useState('')
 
   return (
     <>
       <h1>Factions</h1>
       <ul>
-        {(query.data ?? []).map((f) => (
+        {query.factions.map((f) => (
           <li key={f.id}>
             {f.name} - {f.id}
           </li>

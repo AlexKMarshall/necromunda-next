@@ -6,6 +6,8 @@ import {
   createFactionDtoSchema,
   factionSchema,
 } from '../../schemas'
+import { useMemo } from 'react'
+import { useTable } from 'react-table'
 
 function useQueryFactions() {
   const query = useQuery('factions', async () => {
@@ -51,16 +53,45 @@ export default function Factions() {
     resolver: zodResolver(createFactionDtoSchema),
   })
 
+  const columns = useMemo(
+    () => [{ Header: 'Name', accessor: 'name' as const }],
+    []
+  )
+
+  const {
+    getTableProps,
+    getTableBodyProps,
+    headerGroups,
+    rows,
+    prepareRow,
+  } = useTable({ columns, data: query.factions })
+
   return (
     <>
       <h1>Factions</h1>
-      <ul>
-        {query.factions.map((f) => (
-          <li key={f.id}>
-            {f.name} - {f.id}
-          </li>
-        ))}
-      </ul>
+      <table {...getTableProps()}>
+        <thead>
+          {headerGroups.map((headerGroup) => (
+            <tr {...headerGroup.getHeaderGroupProps()}>
+              {headerGroup.headers.map((column) => (
+                <th {...column.getHeaderProps()}>{column.render('Header')}</th>
+              ))}
+            </tr>
+          ))}
+        </thead>
+        <tbody {...getTableBodyProps()}>
+          {rows.map((row) => {
+            prepareRow(row)
+            return (
+              <tr {...row.getRowProps()}>
+                {row.cells.map((cell) => (
+                  <td {...cell.getCellProps()}>{cell.render('Cell')}</td>
+                ))}
+              </tr>
+            )
+          })}
+        </tbody>
+      </table>
       <form onSubmit={handleSubmit((faction) => mutation.mutate(faction))}>
         <label htmlFor="name">Name</label>
         <input id="name" {...register('name')} />

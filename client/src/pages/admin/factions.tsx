@@ -9,7 +9,7 @@ import {
   createFactionDtoSchema,
   factionSchema,
 } from 'schemas'
-import { H1 } from 'components/lib'
+import { H1, Stack } from 'components/lib'
 
 function useQueryFactions() {
   const query = useQuery('factions', async () => {
@@ -72,7 +72,7 @@ export default function Factions() {
   } = useTable({ columns, data: query.factions })
 
   return (
-    <>
+    <Stack>
       <H1>Factions</H1>
       <Table {...getTableProps()}>
         <thead>
@@ -103,7 +103,7 @@ export default function Factions() {
         {!!errors.name && <span role="alert">{errors.name.message}</span>}
         <button type="submit">Add faction</button>
       </form>
-    </>
+    </Stack>
   )
 }
 

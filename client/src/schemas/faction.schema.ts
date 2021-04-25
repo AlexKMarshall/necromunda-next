@@ -1,11 +1,9 @@
 import * as z from 'zod'
 
-export const factionSchema = z
-  .object({
-    name: z.string().nonempty(),
-    id: z.string().nonempty(),
-  })
-  .nonstrict()
+export const factionSchema = z.object({
+  name: z.string().nonempty(),
+  id: z.string().nonempty(),
+})
 
 export type Faction = z.infer<typeof factionSchema>
 

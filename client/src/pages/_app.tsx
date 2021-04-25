@@ -1,7 +1,7 @@
-import '../styles/reset.css'
 import { AppProps } from 'next/app'
 import Link from 'next/link'
 import { QueryClientProvider, QueryClient } from 'react-query'
+import { Reset } from '../styles/reset'
 
 if (process.env.NEXT_PUBLIC_API_MOCKING === 'enabled') {
   require('../test/mocks')
@@ -29,6 +29,7 @@ function App({ Component, pageProps }: AppProps) {
       <main>
         <Component {...pageProps} />
       </main>
+      <Reset />
     </QueryClientProvider>
   )
 }

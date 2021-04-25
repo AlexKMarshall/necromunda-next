@@ -1,3 +1,6 @@
+import { createGlobalStyle } from 'styled-components'
+
+export const Reset = createGlobalStyle`
 *,
 *::before,
 *::after {
@@ -76,3 +79,5 @@ select {
     scroll-behavior: auto !important;
   }
 }
+
+`

@@ -8,6 +8,7 @@ import {
 } from '../../schemas'
 import { useMemo } from 'react'
 import { useTable } from 'react-table'
+import styled from 'styled-components'
 
 function useQueryFactions() {
   const query = useQuery('factions', async () => {
@@ -42,6 +43,10 @@ function useCreateFaction() {
   return mutation
 }
 
+const Header = styled.h1`
+  color: hotpink;
+`
+
 export default function Factions() {
   const query = useQueryFactions()
   const mutation = useCreateFaction()
@@ -68,7 +73,7 @@ export default function Factions() {
 
   return (
     <>
-      <h1>Factions</h1>
+      <Header>Factions</Header>
       <table {...getTableProps()}>
         <thead>
           {headerGroups.map((headerGroup) => (

@@ -137,7 +137,7 @@ function AddFactionForm({ onSubmit }: AddFactionFormProps) {
       })}
     >
       <Stack variant="small">
-        <label htmlFor={nameId}>Name</label>
+        <label htmlFor={nameId}>Name:</label>
         <Input
           id={nameId}
           {...register('name')}

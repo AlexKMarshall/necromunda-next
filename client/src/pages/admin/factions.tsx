@@ -16,7 +16,7 @@ import { H1, H2, Stack } from 'components/lib'
 
 function useQueryFactions() {
   const query = useQuery('factions', async () => {
-    const response = await fetch('/factions')
+    const response = await fetch('http://localhost:3000/factions')
     const data = await response.json()
     return factionSchema.array().parse(data)
   })
@@ -30,7 +30,7 @@ function useCreateFaction() {
 
   const mutation = useMutation(
     async (faction: CreateFactionDto) => {
-      return fetch('/factions', {
+      return fetch('http://localhost:3000/factions', {
         method: 'POST',
         body: JSON.stringify(faction),
         headers: {

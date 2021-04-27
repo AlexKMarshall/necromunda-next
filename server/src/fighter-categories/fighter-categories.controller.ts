@@ -1,5 +1,5 @@
 import { FighterCategory } from '.prisma/client'
-import { Body, Controller, Get, Post } from '@nestjs/common'
+import { Body, Controller, Delete, Get, Param, Post } from '@nestjs/common'
 import { FighterCategoriesService } from './fighter-categories.service'
 
 @Controller('fighter-categories')
@@ -9,16 +9,17 @@ export class FighterCategoriesController {
   ) {}
 
   @Get()
-  async getAllFighterCategories(): Promise<FighterCategory[]> {
+  async get(): Promise<FighterCategory[]> {
     return this.fighterCategoriesService.fighterCategories()
   }
 
   @Post()
-  async createFighterCategory(
-    @Body() fighterCategoryData: { name: FighterCategory['name'] },
-  ) {
-    return this.fighterCategoriesService.createFighterCategory(
-      fighterCategoryData,
-    )
+  async create(@Body() fighterCategoryData: { name: FighterCategory['name'] }) {
+    return this.fighterCategoriesService.create(fighterCategoryData)
+  }
+
+  @Delete(':id')
+  async remove(@Param('id') id: string) {
+    return this.fighterCategoriesService.remove({ id })
   }
 }

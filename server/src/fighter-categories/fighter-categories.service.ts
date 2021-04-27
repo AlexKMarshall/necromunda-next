@@ -26,19 +26,19 @@ export class FighterCategoriesService {
     return this.prisma.fighterCategory.findMany(params)
   }
 
-  async createFighterCategory(
+  async create(
     data: Prisma.FighterCategoryCreateInput,
   ): Promise<FighterCategory> {
     return this.prisma.fighterCategory.create({ data })
   }
 
-  async updateFighterCategory(
+  async update(
     params: Prisma.FighterCategoryUpdateArgs,
   ): Promise<FighterCategory> {
     return this.prisma.fighterCategory.update(params)
   }
 
-  async deleteFighterCategory(
+  async remove(
     where: Prisma.FighterCategoryWhereUniqueInput,
   ): Promise<FighterCategory> {
     return this.prisma.fighterCategory.delete({ where })

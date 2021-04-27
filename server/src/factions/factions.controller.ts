@@ -7,17 +7,17 @@ export class FactionsController {
   constructor(private readonly factionsService: FactionsService) {}
 
   @Get()
-  async getAllFactions(): Promise<Faction[]> {
+  async get(): Promise<Faction[]> {
     return this.factionsService.factions()
   }
 
   @Post()
-  async createFaction(@Body() factionData: { name: Faction['name'] }) {
-    return this.factionsService.createFaction(factionData)
+  async create(@Body() factionData: { name: Faction['name'] }) {
+    return this.factionsService.create(factionData)
   }
 
   @Delete(':id')
-  async removeFaction(@Param('id') id: string) {
-    return this.factionsService.deleteFaction({ id })
+  async remove(@Param('id') id: string) {
+    return this.factionsService.remove({ id })
   }
 }

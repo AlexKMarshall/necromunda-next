@@ -24,15 +24,18 @@ export class FactionsService {
     return this.prisma.faction.findMany(params)
   }
 
-  async createFaction(data: Prisma.FactionCreateInput): Promise<Faction> {
-    return this.prisma.faction.create({ data })
+  async create(faction: Prisma.FactionCreateInput): Promise<Faction> {
+    return this.prisma.faction.create({ data: faction })
   }
 
-  async updateFaction(params: Prisma.FactionUpdateArgs): Promise<Faction> {
-    return this.prisma.faction.update(params)
+  async update({
+    where,
+    data: data,
+  }: Prisma.FactionUpdateArgs): Promise<Faction> {
+    return this.prisma.faction.update({ where, data })
   }
 
-  async deleteFaction(where: Prisma.FactionWhereUniqueInput): Promise<Faction> {
+  async remove(where: Prisma.FactionWhereUniqueInput): Promise<Faction> {
     return this.prisma.faction.delete({ where })
   }
 }

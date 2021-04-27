@@ -2,7 +2,7 @@ import { useQuery, useMutation, useQueryClient } from 'react-query'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useMemo, useState } from 'react'
-import { useTable } from 'react-table'
+import { Row, useTable } from 'react-table'
 import styled from 'styled-components'
 import { useId } from 'react-aria'
 import { Dialog } from '@reach/dialog'
@@ -10,6 +10,7 @@ import '@reach/dialog/styles.css'
 import {
   CreateFighterCategoryDto,
   createFighterCategoryDtoSchema,
+  FighterCategory,
   fighterCategorySchema,
 } from 'schemas'
 import { H1, H2, Stack } from 'components/lib'
@@ -47,6 +48,27 @@ function useCreateFighterCategory() {
   return mutation
 }
 
+function useDeleteFighterCategory(fighterCategoryId: FighterCategory['id']) {
+  const queryClient = useQueryClient()
+
+  const mutation = useMutation(
+    async () => {
+      return fetch(
+        `http://localhost:3000/fighter-categories/${fighterCategoryId}`,
+        {
+          method: 'DELETE',
+        }
+      )
+    },
+    {
+      onSuccess: () => {
+        queryClient.invalidateQueries('fighter-categories')
+      },
+    }
+  )
+  return mutation
+}
+
 export default function FighterCategories() {
   const query = useQueryFighterCategories()
   const [showForm, setShowForm] = useState(false)
@@ -56,7 +78,16 @@ export default function FighterCategories() {
   const columns = useMemo(
     () => [
       { Header: 'Name', accessor: 'name' as const },
-      { Header: 'Id', accessor: 'id' as const },
+      {
+        Header: 'Actions',
+        accessor: 'id' as const,
+        Cell: ({ row: { original } }: { row: Row<FighterCategory> }) => (
+          <DeleteFighterCategoryButton
+            fighterCategoryId={original.id}
+            fighterCategoryName={original.name}
+          />
+        ),
+      },
     ],
     []
   )
@@ -109,6 +140,23 @@ export default function FighterCategories() {
         </tbody>
       </Table>
     </Stack>
+  )
+}
+
+interface DeleteFighterCategoryButtonProps {
+  fighterCategoryId: FighterCategory['id']
+  fighterCategoryName: FighterCategory['name']
+}
+
+function DeleteFighterCategoryButton({
+  fighterCategoryId,
+  fighterCategoryName,
+}: DeleteFighterCategoryButtonProps) {
+  const mutation = useDeleteFighterCategory(fighterCategoryId)
+  return (
+    <button type="button" onClick={() => mutation.mutate()}>
+      Delete {fighterCategoryName}
+    </button>
   )
 }
 

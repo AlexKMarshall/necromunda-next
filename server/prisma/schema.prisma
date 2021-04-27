@@ -14,3 +14,8 @@ model Faction {
   id   String @id @default(uuid())
   name String @unique
 }
+
+model FighterCategory {
+  id   String @id @default(uuid())
+  name String @unique
+}

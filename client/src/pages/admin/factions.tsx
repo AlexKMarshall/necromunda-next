@@ -2,7 +2,7 @@ import { useQuery, useMutation, useQueryClient } from 'react-query'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useMemo, useState } from 'react'
-import { useTable } from 'react-table'
+import { CellValue, Row, useTable } from 'react-table'
 import styled from 'styled-components'
 import { useId } from 'react-aria'
 import { Dialog } from '@reach/dialog'
@@ -11,6 +11,7 @@ import {
   CreateFactionDto,
   createFactionDtoSchema,
   factionSchema,
+  Faction,
 } from 'schemas'
 import { H1, H2, Stack } from 'components/lib'
 
@@ -47,6 +48,24 @@ function useCreateFaction() {
   return mutation
 }
 
+function useDeleteFaction(factionId: Faction['id']) {
+  const queryClient = useQueryClient()
+
+  const mutation = useMutation(
+    async () => {
+      return fetch(`http://localhost:3000/factions/${factionId}`, {
+        method: 'DELETE',
+      })
+    },
+    {
+      onSuccess: () => {
+        queryClient.invalidateQueries('factions')
+      },
+    }
+  )
+  return mutation
+}
+
 export default function Factions() {
   const query = useQueryFactions()
   const [showForm, setShowForm] = useState(false)
@@ -56,7 +75,16 @@ export default function Factions() {
   const columns = useMemo(
     () => [
       { Header: 'Name', accessor: 'name' as const },
-      { Header: 'Id', accessor: 'id' as const },
+      {
+        Header: 'Actions',
+        accessor: 'id' as const,
+        Cell: ({ row: { original } }: { row: Row<Faction> }) => (
+          <DeleteFactionButton
+            factionId={original.id}
+            factionName={original.name}
+          />
+        ),
+      },
     ],
     []
   )
@@ -109,6 +137,23 @@ export default function Factions() {
         </tbody>
       </Table>
     </Stack>
+  )
+}
+
+interface DeleteFactionButtonProps {
+  factionId: Faction['id']
+  factionName: Faction['name']
+}
+
+function DeleteFactionButton({
+  factionId,
+  factionName,
+}: DeleteFactionButtonProps) {
+  const mutation = useDeleteFaction(factionId)
+  return (
+    <button type="button" onClick={() => mutation.mutate()}>
+      Delete {factionName}
+    </button>
   )
 }
 

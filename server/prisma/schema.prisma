@@ -11,11 +11,42 @@ generator client {
 }
 
 model Faction {
-  id   String @id @default(uuid())
-  name String @unique
+  id           String        @id @default(uuid())
+  name         String        @unique
+  fighterTypes FighterType[]
 }
 
 model FighterCategory {
-  id   String @id @default(uuid())
-  name String @unique
+  id           String        @id @default(uuid())
+  name         String        @unique
+  fighterTypes FighterType[]
+}
+
+model FighterType {
+  id                String          @id @default(uuid())
+  name              String          @unique
+  faction           Faction         @relation(fields: [factionId], references: [id])
+  factionId         String
+  fighterCategory   FighterCategory @relation(fields: [fighterCategoryId], references: [id])
+  fighterCategoryId String
+  cost              Int
+  fighterStats      FighterStats    @relation(fields: [fighterStatsId], references: [id])
+  fighterStatsId    String
+}
+
+model FighterStats {
+  id             String       @id @default(uuid())
+  movement       Int
+  weaponSkill    Int
+  ballisticSkill Int
+  strength       Int
+  toughness      Int
+  wounds         Int
+  initiative     Int
+  attacks        Int
+  leadership     Int
+  cool           Int
+  will           Int
+  intelligence   Int
+  fighterType    FighterType?
 }

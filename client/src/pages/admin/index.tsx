@@ -13,6 +13,9 @@ export default function Admin() {
             <Link href="/admin/fighter-categories">
               <a>Fighter Categories</a>
             </Link>
+            <Link href="/admin/fighter-types">
+              <a>Fighter Types</a>
+            </Link>
           </li>
         </ul>
       </nav>

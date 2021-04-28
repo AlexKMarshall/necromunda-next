@@ -1,4 +1,4 @@
-import { useQuery, useMutation, useQueryClient } from 'react-query'
+import { useMutation, useQueryClient } from 'react-query'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useMemo, useState } from 'react'
@@ -11,20 +11,9 @@ import {
   CreateFighterCategoryDto,
   createFighterCategoryDtoSchema,
   FighterCategory,
-  fighterCategorySchema,
 } from 'schemas'
+import { useQueryFighterCategories } from 'hooks/fighter-categories'
 import { H1, H2, Stack } from 'components/lib'
-
-function useQueryFighterCategories() {
-  const query = useQuery('fighter-categories', async () => {
-    const response = await fetch('http://localhost:3000/fighter-categories')
-    const data = await response.json()
-    return fighterCategorySchema.array().parse(data)
-  })
-
-  const fighterCategories = query.data ?? []
-  return { ...query, fighterCategories }
-}
 
 function useCreateFighterCategory() {
   const queryClient = useQueryClient()

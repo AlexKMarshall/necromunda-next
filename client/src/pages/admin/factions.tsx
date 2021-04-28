@@ -1,30 +1,15 @@
-import { useQuery, useMutation, useQueryClient } from 'react-query'
+import { useMutation, useQueryClient } from 'react-query'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useMemo, useState } from 'react'
-import { CellValue, Row, useTable } from 'react-table'
+import { Row, useTable } from 'react-table'
 import styled from 'styled-components'
 import { useId } from 'react-aria'
 import { Dialog } from '@reach/dialog'
 import '@reach/dialog/styles.css'
-import {
-  CreateFactionDto,
-  createFactionDtoSchema,
-  factionSchema,
-  Faction,
-} from 'schemas'
+import { CreateFactionDto, createFactionDtoSchema, Faction } from 'schemas'
+import { useQueryFactions } from 'hooks/factions'
 import { H1, H2, Stack } from 'components/lib'
-
-function useQueryFactions() {
-  const query = useQuery('factions', async () => {
-    const response = await fetch('http://localhost:3000/factions')
-    const data = await response.json()
-    return factionSchema.array().parse(data)
-  })
-
-  const factions = query.data ?? []
-  return { ...query, factions }
-}
 
 function useCreateFaction() {
   const queryClient = useQueryClient()

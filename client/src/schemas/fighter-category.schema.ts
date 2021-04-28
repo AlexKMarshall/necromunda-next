@@ -14,3 +14,7 @@ export const createFighterCategoryDtoSchema = fighterCategorySchema.omit({
 export type CreateFighterCategoryDto = z.infer<
   typeof createFighterCategoryDtoSchema
 >
+
+export const connectFighterCategoryDtoSchema = fighterCategorySchema.pick({
+  id: true,
+})

@@ -14,7 +14,7 @@ export const fighterTypeSchema = z.object({
   name: z.string().nonempty(),
   faction: factionSchema,
   fighterCategory: fighterCategorySchema,
-  cost: z.number(),
+  cost: z.number().positive(),
   fighterStats: fighterStatsSchema,
 })
 

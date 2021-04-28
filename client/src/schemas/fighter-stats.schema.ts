@@ -2,18 +2,18 @@ import * as z from 'zod'
 
 export const fighterStatsSchema = z.object({
   id: z.string().nonempty(),
-  movement: z.number(),
-  weaponSkill: z.number(),
-  ballisticSkill: z.number(),
-  strength: z.number(),
-  toughness: z.number(),
-  wounds: z.number(),
-  initiative: z.number(),
-  attacks: z.number(),
-  leadership: z.number(),
-  cool: z.number(),
-  will: z.number(),
-  intelligence: z.number(),
+  movement: z.number().positive(),
+  weaponSkill: z.number().positive(),
+  ballisticSkill: z.number().positive(),
+  strength: z.number().positive(),
+  toughness: z.number().positive(),
+  wounds: z.number().positive(),
+  initiative: z.number().positive(),
+  attacks: z.number().positive(),
+  leadership: z.number().positive(),
+  cool: z.number().positive(),
+  will: z.number().positive(),
+  intelligence: z.number().positive(),
 })
 
 export type FighterStats = z.infer<typeof fighterStatsSchema>

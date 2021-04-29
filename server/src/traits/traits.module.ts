@@ -1,5 +1,5 @@
 import { Module } from '@nestjs/common'
-import { PrismaService } from 'src/prisma.service'
+import { PrismaService } from 'src/prisma/prisma.service'
 import { TraitsService } from './traits.service'
 import { TraitsController } from './traits.controller'
 

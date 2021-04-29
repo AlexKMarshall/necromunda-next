@@ -1,7 +1,6 @@
 import { FighterType, Prisma } from '.prisma/client'
 import { Injectable } from '@nestjs/common'
-import { PrismaService } from 'src/prisma.service'
-
+import { PrismaService } from 'src/prisma/prisma.service'
 export interface FighterTypeCreateInput
   extends Omit<
     Prisma.FighterTypeCreateInput,

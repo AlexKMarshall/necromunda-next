@@ -5,6 +5,7 @@ import { FactionsModule } from './factions/factions.module'
 import { FighterCategoriesModule } from './fighter-categories/fighter-categories.module'
 import { FighterTypesModule } from './fighter-types/fighter-types.module'
 import { TraitsModule } from './traits/traits.module'
+import { PrismaModule } from './prisma/prisma.module'
 
 @Module({
   imports: [
@@ -12,6 +13,7 @@ import { TraitsModule } from './traits/traits.module'
     FighterCategoriesModule,
     FighterTypesModule,
     TraitsModule,
+    PrismaModule,
   ],
   controllers: [AppController],
   providers: [AppService],

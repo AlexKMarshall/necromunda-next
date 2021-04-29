@@ -79,6 +79,7 @@ model WeaponStats {
   traits            TraitsOnWeaponStats[]
   weapon            Weapon                @relation(fields: [weaponId], references: [id])
   weaponId          String
+  isAmmo            Boolean               @default(false)
   isSoldSeparately  Boolean               @default(false)
 }
 

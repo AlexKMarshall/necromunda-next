@@ -10,6 +10,7 @@ import '@reach/dialog/styles.css'
 import { CreateFactionDto, createFactionDtoSchema, Faction } from 'schemas'
 import { useQueryFactions } from 'hooks/factions'
 import { H1, H2, Stack } from 'components/lib'
+import { Input, Table, Td, Th, Tr } from './styles'
 
 function useCreateFaction() {
   const queryClient = useQueryClient()
@@ -184,34 +185,3 @@ function AddFactionForm({ onSubmit }: AddFactionFormProps) {
     </Stack>
   )
 }
-
-const Input = styled.input`
-  border: ${(p) => (p['aria-invalid'] ? '2px solid red' : '')};
-`
-
-const Table = styled.table`
-  border-collapse: collapse;
-  border-spacing: unset;
-  border-color: var(--blue-grey-500);
-  border: 1px solid;
-
-  & td + td,
-  th + th {
-    border-left: 1px solid;
-  }
-`
-
-const Td = styled.td`
-  padding: var(--s-3);
-`
-const Th = styled.th`
-  padding: var(--s-3);
-`
-
-const Tr = styled.tr`
-  &:nth-child(odd) {
-    background-color: var(--blue-grey-900);
-    color: var(--blue-grey-50);
-    border-color: var(--blue-grey-50);
-  }
-`

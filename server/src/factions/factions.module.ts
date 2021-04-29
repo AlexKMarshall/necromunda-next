@@ -7,4 +7,4 @@ import { PrismaService } from 'src/prisma.service'
   providers: [FactionsService, PrismaService],
   controllers: [FactionsController],
 })
-export class FactionSModule {}
+export class FactionsModule {}

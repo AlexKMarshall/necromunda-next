@@ -1,4 +1,4 @@
-import { Faction, Prisma } from '.prisma/client'
+import { Faction, Prisma } from '@prisma/client'
 import { Injectable } from '@nestjs/common'
 import { PrismaService } from 'src/prisma.service'
 

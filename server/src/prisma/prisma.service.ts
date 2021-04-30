@@ -6,7 +6,14 @@ export class PrismaService
   extends PrismaClient
   implements OnModuleInit, OnModuleDestroy {
   constructor() {
-    super()
+    super({
+      datasources: {
+        db: {
+          url:
+            'postgresql://necromunda:my_password@localhost:5432/necromunda?schema=public',
+        },
+      },
+    })
   }
   async onModuleInit() {
     await this.$connect()

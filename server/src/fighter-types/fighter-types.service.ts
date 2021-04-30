@@ -15,36 +15,8 @@ export interface FighterTypeCreateInput
 export class FighterTypesService {
   constructor(private readonly prisma: PrismaService) {}
 
-  async fighterType(
-    fighterTypeWhereUniqueInput: Prisma.FighterTypeWhereUniqueInput,
-  ) {
-    return this.prisma.fighterType.findUnique({
-      where: fighterTypeWhereUniqueInput,
-      include: { fighterStats: true, fighterCategory: true, faction: true },
-    })
-  }
-
-  async fighterTypes({
-    skip,
-    take,
-    cursor,
-    where,
-    orderBy,
-  }: {
-    skip?: number
-    take?: number
-    cursor?: Prisma.FighterTypeWhereUniqueInput
-    where?: Prisma.FighterTypeWhereInput
-    orderBy?: Prisma.FighterTypeOrderByInput
-  } = {}) {
-    return this.prisma.fighterType.findMany({
-      include: { fighterStats: true, fighterCategory: true, faction: true },
-      skip,
-      take,
-      cursor,
-      where,
-      orderBy,
-    })
+  async fighterTypes() {
+    return this.prisma.fighterType.findMany()
   }
 
   async create({

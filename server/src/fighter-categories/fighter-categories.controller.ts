@@ -19,7 +19,7 @@ export class FighterCategoriesController {
   }
 
   @Delete(':id')
-  async remove(@Param('id') id: string) {
-    return this.fighterCategoriesService.remove({ id })
+  async delete(@Param('id') id: string) {
+    return this.fighterCategoriesService.delete({ id })
   }
 }

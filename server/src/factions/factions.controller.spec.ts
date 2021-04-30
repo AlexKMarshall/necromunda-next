@@ -52,7 +52,7 @@ describe('FactionsController', () => {
     const createdFactions = await controller.get()
     expect(createdFactions).toEqual([createResult])
 
-    await controller.remove(createResult.id)
+    await controller.delete(createResult.id)
 
     const finalFactions = await controller.get()
 

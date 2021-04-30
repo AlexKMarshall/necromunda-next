@@ -17,7 +17,7 @@ export class FactionsController {
   }
 
   @Delete(':id')
-  async remove(@Param('id') id: string) {
-    return this.factionsService.remove({ id })
+  async delete(@Param('id') id: string) {
+    return this.factionsService.delete({ id })
   }
 }

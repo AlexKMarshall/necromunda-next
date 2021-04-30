@@ -7,7 +7,7 @@ describe('FactionsService', () => {
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      imports: [PrismaModule.register()],
+      imports: [PrismaModule],
       providers: [FactionsService],
     }).compile()
 

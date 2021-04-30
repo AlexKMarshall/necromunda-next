@@ -13,7 +13,7 @@ import { PrismaModule } from './prisma/prisma.module'
     FighterCategoriesModule,
     FighterTypesModule,
     TraitsModule,
-    PrismaModule.register(),
+    PrismaModule,
   ],
   controllers: [AppController],
   providers: [AppService],

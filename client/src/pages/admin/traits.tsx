@@ -10,7 +10,7 @@ import '@reach/dialog/styles.css'
 import { CreateTraitDto, createTraitDtoSchema, Trait } from 'schemas'
 import { useQueryTraits, useCreateTrait, useDeleteTrait } from 'hooks/traits'
 import { H1, H2, Stack } from 'components/lib'
-import { Input, Table, Td, Th, Tr } from './styles'
+import { Input, Table, Td, Th, Tr } from 'styles/admin'
 
 export default function Traits() {
   const query = useQueryTraits()

@@ -10,7 +10,7 @@ import '@reach/dialog/styles.css'
 import { CreateFactionDto, createFactionDtoSchema, Faction } from 'schemas'
 import { useQueryFactions } from 'hooks/factions'
 import { H1, H2, Stack } from 'components/lib'
-import { Input, Table, Td, Th, Tr } from './styles'
+import { Input, Table, Td, Th, Tr } from 'styles/admin'
 
 function useCreateFaction() {
   const queryClient = useQueryClient()

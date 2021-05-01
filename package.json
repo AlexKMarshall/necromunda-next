@@ -1,0 +1,12 @@
+{
+  "name": "necromunda-next",
+  "version": "1.0.0",
+  "main": "index.js",
+  "repository": "https://github.com/AlexKMarshall/necromunda-next.git",
+  "author": "Alex Marshall <alex.k.marshall83@gmail.com>",
+  "license": "MIT",
+  "scripts": {
+    "build:server": "cd server && yarn build",
+    "build:client": "cd client && yarn build"
+  }
+}

@@ -17,7 +17,7 @@ import {
 import { H1, H2, Stack } from 'components/lib'
 import { useQueryFactions } from 'hooks/factions'
 import { useQueryFighterCategories } from 'hooks/fighter-categories'
-import { Input, Table, Td, Th, Tr } from './styles'
+import { Input, Table, Td, Th, Tr } from 'styles/admin'
 
 const QUERY_KEY_FIGHTER_TYPES = 'fighterTypes'
 

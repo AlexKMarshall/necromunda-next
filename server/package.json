@@ -46,7 +46,6 @@
     "eslint-config-prettier": "^8.1.0",
     "eslint-plugin-prettier": "^3.3.1",
     "jest": "^26.6.3",
-    "nanoid": "^3.1.22",
     "pg": "^8.6.0",
     "prettier": "^2.2.1",
     "prisma": "2.21.2",

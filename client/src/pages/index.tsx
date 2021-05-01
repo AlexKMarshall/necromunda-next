@@ -3,18 +3,6 @@ import { useEffect, useState } from 'react'
 import styles from '../styles/Home.module.css'
 
 export default function Home() {
-  const [data, setData] = useState<{ gangs: string } | null>(null)
-  const [status, setStatus] = useState<'idle' | 'loading' | 'success'>('idle')
-  useEffect(() => {
-    setStatus('loading')
-    fetch('/gangs')
-      .then((res) => res.json())
-      .then((data) => {
-        setData(data)
-        setStatus('success')
-      })
-  }, [])
-
   return (
     <div className={styles.container}>
       <Head>
@@ -26,8 +14,6 @@ export default function Home() {
         <h1 className={styles.title}>
           Welcome to <a href="https://nextjs.org">Next.js!</a>
         </h1>
-
-        {status === 'success' ? <p>{data?.gangs}</p> : 'loading...'}
 
         <p className={styles.description}>
           Get started by editing{' '}

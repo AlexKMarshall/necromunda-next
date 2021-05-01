@@ -7,5 +7,3 @@ export const db = factory({
     name: () => faker.lorem.word(),
   },
 })
-
-// export * as faction from './faction'

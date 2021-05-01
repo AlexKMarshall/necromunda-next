@@ -1,6 +1,6 @@
 import { rest } from 'msw'
 import { db } from './db'
-import { CreateFactionDto } from '../../schemas'
+import { CreateFactionDto } from 'schemas'
 
 export const handlers = [
   rest.get('/factions', (req, res, ctx) => {

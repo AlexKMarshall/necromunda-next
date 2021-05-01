@@ -11,6 +11,21 @@ export default function Admin() {
               <a>Factions</a>
             </Link>
           </li>
+          <li>
+            <Link href="/admin/fighter-categories">
+              <a>Fighter Categories</a>
+            </Link>
+          </li>
+          <li>
+            <Link href="/admin/fighter-types">
+              <a>Fighter Types</a>
+            </Link>
+          </li>
+          <li>
+            <Link href="/admin/traits">
+              <a>Traits</a>
+            </Link>
+          </li>
         </ul>
       </nav>
     </>

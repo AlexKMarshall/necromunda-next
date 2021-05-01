@@ -7,7 +7,8 @@ let connectionString: string
 beforeEach(async () => {
   // test setup inspired by https://github.com/ctrlplusb/prisma-pg-jest
   schema = `test-${process.env.JEST_WORKER_ID}`
-  connectionString = `postgresql://necromunda:my_password@localhost:5432/necromunda?schema=${schema}`
+  const [connStringNoSchema] = process.env.DATABASE_URL.split('?')
+  connectionString = `${connStringNoSchema}?schema=${schema}`
   process.env.DATABASE_URL = connectionString
 
   const client = new Client({ connectionString: connectionString })

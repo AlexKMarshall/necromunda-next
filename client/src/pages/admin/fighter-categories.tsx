@@ -14,7 +14,7 @@ import {
 } from 'schemas'
 import { useQueryFighterCategories } from 'hooks/fighter-categories'
 import { H1, H2, Stack } from 'components/lib'
-import { Input, Table, Td, Th, Tr } from './styles'
+import { Input, Table, Td, Th, Tr } from 'styles/admin'
 
 function useCreateFighterCategory() {
   const queryClient = useQueryClient()

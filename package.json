@@ -14,7 +14,7 @@
     "build:client": "cd client && yarn build",
     "test": "yarn test:server:unit",
     "test:server:unit": "cd server && yarn test:cov",
-    "test:server:e2e": "cd server && yarn test:e2e",
+    "test:server:e2e": "cd server && yarn test:e2e:cov",
     "start:db:ci": "cd server && yarn start:db:ci",
     "stop:db:ci": "cd server && yarn stop:db:ci"
   },

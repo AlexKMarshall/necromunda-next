@@ -4,7 +4,7 @@
 name: Node.js CI
 
 on:
-  [push, pull_request]
+  [pull_request]
   #push:
   # branches: [ main ]
   #pull_request:
@@ -28,7 +28,7 @@ jobs:
       - name: Install dependencies
         run: yarn --frozen-lockfile
       - name: Test
-        - run: yarn test
+        run: yarn test
       - name: Build
         run: yarn build
       - name: DB container

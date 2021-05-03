@@ -9,6 +9,8 @@ module.exports = {
   collectCoverageFrom: [
     '<rootDir>/**/*.tsx',
     '<rootDir>/**/*.ts',
+    '!.*\\.spec\\.ts$',
+    '!.*\\.test\\.ts$',
     '!**/test/**',
     '!**/node_modules/**',
   ],

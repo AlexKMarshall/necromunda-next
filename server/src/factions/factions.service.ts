@@ -1,5 +1,5 @@
 import { Faction, Prisma } from '@prisma/client'
-import { Injectable } from '@nestjs/common'
+import { ConflictException, Injectable } from '@nestjs/common'
 import { PrismaService } from '../prisma/prisma.service'
 
 @Injectable()
@@ -13,7 +13,17 @@ export class FactionsService {
   async create(
     faction: Prisma.FactionCreateWithoutFighterTypesInput,
   ): Promise<Faction> {
-    return this.prisma.faction.create({ data: faction })
+    try {
+      const createdFaction = await this.prisma.faction.create({ data: faction })
+      return createdFaction
+    } catch (error) {
+      if (error.code === 'P2002') {
+        throw new ConflictException(
+          `A faction with name "${faction.name}" already exists`,
+        )
+      }
+      throw error
+    }
   }
 
   async delete(where: Prisma.FactionWhereUniqueInput): Promise<Faction> {

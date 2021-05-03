@@ -12,9 +12,10 @@
     "build": "npm-run-all --parallel build:*",
     "build:server": "cd server && yarn build",
     "build:client": "cd client && yarn build",
-    "test": "yarn test:server:unit",
-    "test:server:unit": "cd server && yarn test",
-    "test:server:e2e": "cd server && yarn test:e2e",
+    "test": "yarn test:server:unit && yarn test:client:unit",
+    "test:client:unit": "cd client && yarn test:cov",
+    "test:server:unit": "cd server && yarn test:cov",
+    "test:server:e2e": "cd server && yarn test:e2e:cov",
     "start:db:ci": "cd server && yarn start:db:ci",
     "stop:db:ci": "cd server && yarn stop:db:ci"
   },

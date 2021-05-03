@@ -6,9 +6,17 @@
   "author": "Alex Marshall <alex.k.marshall83@gmail.com>",
   "license": "MIT",
   "scripts": {
+    "postinstall": "yarn install:server && yarn install:client",
+    "install:client": "cd client && yarn install",
+    "install:server": "cd server && yarn install",
     "build": "npm-run-all --parallel build:*",
     "build:server": "cd server && yarn build",
-    "build:client": "cd client && yarn build"
+    "build:client": "cd client && yarn build",
+    "test": "yarn test:server:unit",
+    "test:server:unit": "cd server && yarn test",
+    "test:server:e2e": "cd server && yarn test:e2e",
+    "start:db:ci": "cd server && yarn start:db:ci",
+    "stop:db:ci": "cd server && yarn stop:db:ci"
   },
   "devDependencies": {
     "npm-run-all": "^4.1.5"

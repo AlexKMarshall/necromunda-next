@@ -1,5 +1,5 @@
 import { FighterCategory, Prisma } from '.prisma/client'
-import { Injectable } from '@nestjs/common'
+import { ConflictException, Injectable } from '@nestjs/common'
 import { PrismaService } from 'src/prisma/prisma.service'
 
 @Injectable()
@@ -11,9 +11,22 @@ export class FighterCategoriesService {
   }
 
   async create(
-    data: Prisma.FighterCategoryCreateWithoutFighterTypesInput,
+    fighterCategory: Prisma.FighterCategoryCreateWithoutFighterTypesInput,
   ): Promise<FighterCategory> {
-    return this.prisma.fighterCategory.create({ data })
+    try {
+      const fc = await this.prisma.fighterCategory.create({
+        data: fighterCategory,
+      })
+      return fc
+    } catch (error) {
+      if (error.code === 'P2002') {
+        throw new ConflictException(
+          `A fighter category with name "${fighterCategory.name}" already exists`,
+        )
+      }
+
+      throw error
+    }
   }
 
   async delete(

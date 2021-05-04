@@ -1,6 +1,7 @@
 import 'test/setupTests'
 import { Test, TestingModule } from '@nestjs/testing'
 import { PrismaService } from 'src/prisma/prisma.service'
+import { buildCreateFactionDTO } from 'test/utils/mock-factories'
 
 const resolve = (error: any) => error
 let testModule: TestingModule
@@ -19,7 +20,7 @@ afterEach(async () => {
 })
 
 test('Can create a faction', async () => {
-  const faction = { name: 'Test Faction' }
+  const faction = buildCreateFactionDTO()
 
   const savedFaction = await prismaService.faction.create({ data: faction })
 
@@ -30,9 +31,11 @@ test('Can create a faction', async () => {
 })
 
 test('Creating faction with duplicate name throws P2002 error', async () => {
-  const faction = { name: 'A duplicate' }
+  const faction = buildCreateFactionDTO()
+  // create it once
   await prismaService.faction.create({ data: faction })
 
+  // create it again
   const result = await prismaService.faction
     .create({ data: faction })
     .catch(resolve)

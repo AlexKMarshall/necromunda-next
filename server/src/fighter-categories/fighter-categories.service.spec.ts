@@ -1,5 +1,9 @@
 import { Test, TestingModule } from '@nestjs/testing'
 import { PrismaService } from 'src/prisma/prisma.service'
+import {
+  buildCreateFactionDTO,
+  buildFighterCategory,
+} from 'test/utils/mock-factories'
 import { FighterCategoriesService } from './fighter-categories.service'
 
 const prismaMockFactory = () => ({
@@ -32,10 +36,7 @@ afterEach(() => {
 })
 
 it('should get fighter categories', async () => {
-  const mockFighterCategories = [
-    { id: '1', name: 'Name 1' },
-    { id: '2', name: 'Name 2' },
-  ]
+  const mockFighterCategories = [buildFighterCategory(), buildFighterCategory()]
   const mockFindMany = prismaMock.fighterCategory.findMany
   mockFindMany.mockResolvedValueOnce(mockFighterCategories)
   const fighterCategories = await fighterCategoriesService.fighterCategories()
@@ -45,19 +46,19 @@ it('should get fighter categories', async () => {
 })
 
 it('should create fighter categories', async () => {
-  const name = 'Name 1'
-  const mockFighterCategory = { id: '1', name }
+  const fighterCategory = buildFighterCategory()
+  const createFCDto = buildCreateFactionDTO(fighterCategory)
 
   const mockCreate = prismaMock.fighterCategory.create
-  mockCreate.mockResolvedValueOnce(mockFighterCategory)
-  const createdFC = await fighterCategoriesService.create({ name })
-  expect(createdFC).toEqual(mockFighterCategory)
+  mockCreate.mockResolvedValueOnce(fighterCategory)
+  const createdFC = await fighterCategoriesService.create(createFCDto)
+  expect(createdFC).toEqual(fighterCategory)
   expect(mockCreate).toHaveBeenCalledTimes(1)
-  expect(mockCreate).toHaveBeenCalledWith({ data: { name } })
+  expect(mockCreate).toHaveBeenCalledWith({ data: createFCDto })
 })
 
 it('should delete a fighter category', async () => {
-  const mockFighterCategory = { id: '1', name: 'name 1' }
+  const mockFighterCategory = buildFighterCategory()
 
   const mockDelete = prismaMock.fighterCategory.delete
   mockDelete.mockResolvedValueOnce(mockFighterCategory)

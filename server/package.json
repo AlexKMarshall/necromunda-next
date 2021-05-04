@@ -22,7 +22,8 @@
     "test:cov": "jest --coverage",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
     "test:e2e": "jest --config ./test/jest-e2e.json",
-    "test:e2e:cov": "jest --config ./test/jest-e2e.json --coverage --watchAll=false"
+    "test:e2e:cov": "jest --config ./test/jest-e2e.json --coverage --watchAll=false",
+    "test:db": "jest --config ./test/jest-db.json --watchAll=false"
   },
   "dependencies": {
     "@nestjs/common": "^7.6.15",
@@ -75,7 +76,8 @@
       "^.+\\.(t|j)s$": "ts-jest"
     },
     "collectCoverageFrom": [
-      "**/*.(t|j)s"
+      "**/*.(t|j)s",
+      "!**/*spec.ts"
     ],
     "coverageDirectory": "../coverage/unit",
     "testEnvironment": "node"

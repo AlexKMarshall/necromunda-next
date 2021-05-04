@@ -27,7 +27,7 @@ jobs:
           node-version: ${{ matrix.node-version }}
       - name: Install dependencies
         run: yarn --frozen-lockfile
-      - name: Test
+      - name: Unit test
         run: yarn test
       - name: Build
         run: yarn build
@@ -37,10 +37,12 @@ jobs:
           POSTGRES_DB: test
           POSTGRES_PASSWORD: ${{ secrets.TEST_DATABASE_PASSWORD }}
         run: yarn start:db:ci
-      - name: Run integration tests
+      - name: Run tests
         env:
           DATABASE_URL: postgresql://test:${{ secrets.TEST_DATABASE_PASSWORD }}@localhost:5432/test?schema=test
-        run: yarn test:server:e2e
+        run: |
+          yarn test:server:db 
+          yarn test:server:e2e
       - name: DB container down
         run: yarn stop:db:ci
       - uses: codecov/codecov-action@v1

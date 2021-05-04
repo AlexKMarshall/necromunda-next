@@ -73,17 +73,22 @@ it('should delete a fighter category', async () => {
 })
 
 it('should throw 409 when trying to create duplicate', async () => {
-  const mockFighterCategory = { name: 'faction name' }
+  const fighterCategory = buildFighterCategory()
   const mockCreate = prismaMock.fighterCategory.create
   mockCreate.mockRejectedValueOnce({ code: 'P2002' })
 
   const result = await fighterCategoriesService
-    .create(mockFighterCategory)
+    .create(fighterCategory)
     .catch((e) => e)
 
+  const errorMessage = result.response.message.replace(
+    fighterCategory.name,
+    '<fighter category name>',
+  )
+
   expect(result.response.statusCode).toBe(409)
-  expect(result.response.message).toMatchInlineSnapshot(
-    `"A fighter category with name \\"faction name\\" already exists"`,
+  expect(errorMessage).toMatchInlineSnapshot(
+    `"A fighter category with name \\"<fighter category name>\\" already exists"`,
   )
 })
 

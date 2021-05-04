@@ -1,6 +1,7 @@
 import 'test/setupTests'
 import { Test, TestingModule } from '@nestjs/testing'
 import { PrismaService } from 'src/prisma/prisma.service'
+import { buildCreateTraitDto } from 'test/utils/mock-factories'
 
 const resolve = (error: any) => error
 let testModule: TestingModule
@@ -19,7 +20,7 @@ afterEach(async () => {
 })
 
 test('Can create a trait', async () => {
-  const trait = { name: 'Test Trait' }
+  const trait = buildCreateTraitDto()
 
   const savedTrait = await prismaService.trait.create({ data: trait })
 
@@ -30,7 +31,7 @@ test('Can create a trait', async () => {
 })
 
 test('Creating trait with duplicate name throws P2002 error', async () => {
-  const trait = { name: 'A duplicate' }
+  const trait = buildCreateTraitDto()
   await prismaService.trait.create({ data: trait })
 
   const result = await prismaService.trait

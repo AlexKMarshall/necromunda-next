@@ -1,5 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing'
 import { PrismaService } from 'src/prisma/prisma.service'
+import { buildCreateTraitDto, buildTrait } from 'test/utils/mock-factories'
 import { TraitsService } from './traits.service'
 
 const prismaMockFactory = () => ({
@@ -30,12 +31,10 @@ afterEach(() => {
 })
 
 it('should get traits', async () => {
-  const mockTraits = [
-    { id: '1', name: 'Name 1' },
-    { id: '2', name: 'Name 2' },
-  ]
+  const mockTraits = [buildTrait(), buildTrait()]
   const mockFindMany = prismaMock.trait.findMany
   mockFindMany.mockResolvedValueOnce(mockTraits)
+
   const traits = await traitsService.traits()
   expect(traits).toEqual(mockTraits)
   expect(mockFindMany).toHaveBeenCalledTimes(1)
@@ -43,19 +42,19 @@ it('should get traits', async () => {
 })
 
 it('should create traits', async () => {
-  const name = 'Name 1'
-  const mockTrait = { id: '1', name }
+  const mockTrait = buildTrait()
+  const createTraitDto = buildCreateTraitDto(mockTrait)
 
   const mockCreate = prismaMock.trait.create
   mockCreate.mockResolvedValueOnce(mockTrait)
-  const createdTrait = await traitsService.create({ name })
+  const createdTrait = await traitsService.create(createTraitDto)
   expect(createdTrait).toEqual(mockTrait)
   expect(mockCreate).toHaveBeenCalledTimes(1)
-  expect(mockCreate).toHaveBeenCalledWith({ data: { name } })
+  expect(mockCreate).toHaveBeenCalledWith({ data: createTraitDto })
 })
 
 it('should delete a trait', async () => {
-  const mockTrait = { id: '1', name: 'name 1' }
+  const mockTrait = buildTrait()
 
   const mockDelete = prismaMock.trait.delete
   mockDelete.mockResolvedValueOnce(mockTrait)
@@ -66,20 +65,25 @@ it('should delete a trait', async () => {
 })
 
 it('should throw 409 when trying to create duplicate', async () => {
-  const mockTrait = { name: 'trait name' }
+  const mockTrait = buildCreateTraitDto()
   const mockCreate = prismaMock.trait.create
   mockCreate.mockRejectedValueOnce({ code: 'P2002' })
 
   const result = await traitsService.create(mockTrait).catch((e) => e)
 
+  const errorMessage = result.response.message.replace(
+    mockTrait.name,
+    '<trait name>',
+  )
+
   expect(result.response.statusCode).toBe(409)
-  expect(result.response.message).toMatchInlineSnapshot(
-    `"A trait with name \\"trait name\\" already exists"`,
+  expect(errorMessage).toMatchInlineSnapshot(
+    `"A trait with name \\"<trait name>\\" already exists"`,
   )
 })
 
 it('should re-throw unknown database error on create', async () => {
-  const mockTrait = { name: 'trait name' }
+  const mockTrait = buildCreateTraitDto()
   const mockCreate = prismaMock.trait.create
   const unknownError = new Error('unknown error')
   mockCreate.mockRejectedValueOnce(unknownError)

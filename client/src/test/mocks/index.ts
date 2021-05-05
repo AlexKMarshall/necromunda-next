@@ -1,9 +1,6 @@
-if (typeof window === 'undefined') {
+if (process.env.NODE_ENV === 'test') {
   const { server } = require('./server')
   server.listen()
-} else {
-  const { worker } = require('./browser')
-  worker.start()
 }
 
 export {}

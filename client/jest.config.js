@@ -6,6 +6,9 @@ module.exports = {
   transform: {
     '^.+\\.(js|jsx|ts|tsx)$': '<rootDir>/node_modules/babel-jest',
   },
+  moduleNameMapper: {
+    '\\.(css|less)$': '<rootDir>/__mocks__/styleMock.js',
+  },
   collectCoverageFrom: [
     '<rootDir>/**/*.tsx',
     '<rootDir>/**/*.ts',

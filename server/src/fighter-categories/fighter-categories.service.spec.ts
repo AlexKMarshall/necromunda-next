@@ -1,7 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing'
 import { PrismaService } from 'src/prisma/prisma.service'
 import {
-  buildCreateFactionDTO,
+  buildCreateFighterCategoryDto,
   buildFighterCategory,
 } from 'test/utils/mock-factories'
 import { FighterCategoriesService } from './fighter-categories.service'
@@ -47,7 +47,7 @@ it('should get fighter categories', async () => {
 
 it('should create fighter categories', async () => {
   const fighterCategory = buildFighterCategory()
-  const createFCDto = buildCreateFactionDTO(fighterCategory)
+  const createFCDto = buildCreateFighterCategoryDto(fighterCategory)
 
   const mockCreate = prismaMock.fighterCategory.create
   mockCreate.mockResolvedValueOnce(fighterCategory)

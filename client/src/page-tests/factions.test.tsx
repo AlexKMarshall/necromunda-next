@@ -19,6 +19,8 @@ describe('Factions', () => {
   it('renders without crashing', () => {
     render(<Factions />, { wrapper: Providers })
 
-    screen.debug()
+    expect(
+      screen.getByRole('heading', { name: /factions/i })
+    ).toBeInTheDocument()
   })
 })

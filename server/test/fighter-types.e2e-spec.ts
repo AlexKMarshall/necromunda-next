@@ -5,8 +5,6 @@ import { AppModule } from '../src/app.module'
 import {
   buildCreateFactionDTO,
   buildCreateFighterTypeDto,
-  buildCreateTraitDto,
-  buildFaction,
   buildFighterCategory,
 } from './utils/mock-factories'
 import { FactionsService } from 'src/factions/factions.service'

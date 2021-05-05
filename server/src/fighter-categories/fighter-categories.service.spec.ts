@@ -1,5 +1,9 @@
 import { Test, TestingModule } from '@nestjs/testing'
 import { PrismaService } from 'src/prisma/prisma.service'
+import {
+  buildCreateFighterCategoryDto,
+  buildFighterCategory,
+} from 'test/utils/mock-factories'
 import { FighterCategoriesService } from './fighter-categories.service'
 
 const prismaMockFactory = () => ({
@@ -32,10 +36,7 @@ afterEach(() => {
 })
 
 it('should get fighter categories', async () => {
-  const mockFighterCategories = [
-    { id: '1', name: 'Name 1' },
-    { id: '2', name: 'Name 2' },
-  ]
+  const mockFighterCategories = [buildFighterCategory(), buildFighterCategory()]
   const mockFindMany = prismaMock.fighterCategory.findMany
   mockFindMany.mockResolvedValueOnce(mockFighterCategories)
   const fighterCategories = await fighterCategoriesService.fighterCategories()
@@ -45,19 +46,19 @@ it('should get fighter categories', async () => {
 })
 
 it('should create fighter categories', async () => {
-  const name = 'Name 1'
-  const mockFighterCategory = { id: '1', name }
+  const fighterCategory = buildFighterCategory()
+  const createFCDto = buildCreateFighterCategoryDto(fighterCategory)
 
   const mockCreate = prismaMock.fighterCategory.create
-  mockCreate.mockResolvedValueOnce(mockFighterCategory)
-  const createdFC = await fighterCategoriesService.create({ name })
-  expect(createdFC).toEqual(mockFighterCategory)
+  mockCreate.mockResolvedValueOnce(fighterCategory)
+  const createdFC = await fighterCategoriesService.create(createFCDto)
+  expect(createdFC).toEqual(fighterCategory)
   expect(mockCreate).toHaveBeenCalledTimes(1)
-  expect(mockCreate).toHaveBeenCalledWith({ data: { name } })
+  expect(mockCreate).toHaveBeenCalledWith({ data: createFCDto })
 })
 
 it('should delete a fighter category', async () => {
-  const mockFighterCategory = { id: '1', name: 'name 1' }
+  const mockFighterCategory = buildFighterCategory()
 
   const mockDelete = prismaMock.fighterCategory.delete
   mockDelete.mockResolvedValueOnce(mockFighterCategory)
@@ -72,22 +73,27 @@ it('should delete a fighter category', async () => {
 })
 
 it('should throw 409 when trying to create duplicate', async () => {
-  const mockFighterCategory = { name: 'faction name' }
+  const fighterCategory = buildCreateFighterCategoryDto()
   const mockCreate = prismaMock.fighterCategory.create
   mockCreate.mockRejectedValueOnce({ code: 'P2002' })
 
   const result = await fighterCategoriesService
-    .create(mockFighterCategory)
+    .create(fighterCategory)
     .catch((e) => e)
 
+  const errorMessage = result.response.message.replace(
+    fighterCategory.name,
+    '<fighter category name>',
+  )
+
   expect(result.response.statusCode).toBe(409)
-  expect(result.response.message).toMatchInlineSnapshot(
-    `"A fighter category with name \\"faction name\\" already exists"`,
+  expect(errorMessage).toMatchInlineSnapshot(
+    `"A fighter category with name \\"<fighter category name>\\" already exists"`,
   )
 })
 
 it('should re-throw unknown database error on create', async () => {
-  const mockFighterCategory = { name: 'fc name' }
+  const mockFighterCategory = buildCreateFighterCategoryDto()
   const mockCreate = prismaMock.fighterCategory.create
   const unknownError = new Error('unknown error')
   mockCreate.mockRejectedValueOnce(unknownError)

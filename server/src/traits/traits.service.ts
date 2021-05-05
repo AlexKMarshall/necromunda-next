@@ -1,5 +1,5 @@
 import { Prisma, Trait } from '.prisma/client'
-import { Injectable } from '@nestjs/common'
+import { ConflictException, Injectable } from '@nestjs/common'
 import { PrismaService } from 'src/prisma/prisma.service'
 @Injectable()
 export class TraitsService {
@@ -10,7 +10,17 @@ export class TraitsService {
   }
 
   async create(trait: Prisma.TraitCreateInput): Promise<Trait> {
-    return this.prisma.trait.create({ data: trait })
+    try {
+      const createdTrait = await this.prisma.trait.create({ data: trait })
+      return createdTrait
+    } catch (error) {
+      if (error.code === 'P2002') {
+        throw new ConflictException(
+          `A trait with name "${trait.name}" already exists`,
+        )
+      }
+      throw error
+    }
   }
 
   async delete(where: Prisma.TraitWhereUniqueInput): Promise<Trait> {

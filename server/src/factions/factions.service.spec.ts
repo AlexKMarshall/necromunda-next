@@ -1,6 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing'
 import { PrismaService } from 'src/prisma/prisma.service'
 import { FactionsService } from './factions.service'
+import { buildCreateFactionDTO, buildFaction } from 'test/utils/mock-factories'
 
 const prismaMockFactory = () => ({
   faction: {
@@ -30,35 +31,36 @@ afterEach(() => {
 })
 
 it('should get factions', async () => {
-  const mockFactions = [
-    { id: '1', name: 'Name 1' },
-    { id: '2', name: 'Name 2' },
-  ]
+  const mockFactions = [buildFaction(), buildFaction()]
   const mockFindMany = prismaMock.faction.findMany
   mockFindMany.mockResolvedValueOnce(mockFactions)
+
   const factions = await factionsService.factions()
+
   expect(factions).toEqual(mockFactions)
   expect(mockFindMany).toHaveBeenCalledTimes(1)
   expect(mockFindMany).toHaveBeenCalledWith()
 })
 
 it('should create factions', async () => {
-  const name = 'Name 1'
-  const mockFaction = { id: '1', name }
+  const faction = buildFaction()
+  const createFactionDTO = buildCreateFactionDTO(faction)
 
   const mockCreate = prismaMock.faction.create
-  mockCreate.mockResolvedValueOnce(mockFaction)
-  const createdFaction = await factionsService.create({ name })
-  expect(createdFaction).toEqual(mockFaction)
+  mockCreate.mockResolvedValueOnce(faction)
+
+  const createdFaction = await factionsService.create(createFactionDTO)
+  expect(createdFaction).toEqual(faction)
   expect(mockCreate).toHaveBeenCalledTimes(1)
-  expect(mockCreate).toHaveBeenCalledWith({ data: { name } })
+  expect(mockCreate).toHaveBeenCalledWith({ data: createFactionDTO })
 })
 
 it('should delete a faction', async () => {
-  const mockFaction = { id: '1', name: 'name 1' }
+  const mockFaction = buildFaction()
 
   const mockDelete = prismaMock.faction.delete
   mockDelete.mockResolvedValueOnce(mockFaction)
+
   const deletedFaction = await factionsService.delete({ id: mockFaction.id })
   expect(deletedFaction).toEqual(mockFaction)
   expect(mockDelete).toHaveBeenCalledTimes(1)
@@ -66,25 +68,29 @@ it('should delete a faction', async () => {
 })
 
 it('should throw 409 when trying to create duplicate', async () => {
-  const mockFaction = { name: 'faction name' }
+  const createFactionDto = buildCreateFactionDTO()
   const mockCreate = prismaMock.faction.create
   mockCreate.mockRejectedValueOnce({ code: 'P2002' })
 
-  const result = await factionsService.create(mockFaction).catch((e) => e)
+  const result = await factionsService.create(createFactionDto).catch((e) => e)
 
+  const errorMessage = result.response.message.replace(
+    createFactionDto.name,
+    '<faction name>',
+  )
   expect(result.response.statusCode).toBe(409)
-  expect(result.response.message).toMatchInlineSnapshot(
-    `"A faction with name \\"faction name\\" already exists"`,
+  expect(errorMessage).toMatchInlineSnapshot(
+    `"A faction with name \\"<faction name>\\" already exists"`,
   )
 })
 
 it('should re-throw unknown database error on create', async () => {
-  const mockFaction = { name: 'faction name' }
+  const factionDTO = buildCreateFactionDTO()
   const mockCreate = prismaMock.faction.create
   const unknownError = new Error('unknown error')
   mockCreate.mockRejectedValueOnce(unknownError)
 
-  const result = await factionsService.create(mockFaction).catch((e) => e)
+  const result = await factionsService.create(factionDTO).catch((e) => e)
 
   expect(result).toEqual(unknownError)
 })

@@ -1,5 +1,5 @@
 import { FighterType, Prisma } from '.prisma/client'
-import { Injectable } from '@nestjs/common'
+import { ConflictException, Injectable } from '@nestjs/common'
 import { PrismaService } from 'src/prisma/prisma.service'
 export interface FighterTypeCreateInput
   extends Omit<
@@ -16,7 +16,9 @@ export class FighterTypesService {
   constructor(private readonly prisma: PrismaService) {}
 
   async fighterTypes() {
-    return this.prisma.fighterType.findMany()
+    return this.prisma.fighterType.findMany({
+      include: { fighterStats: true, fighterCategory: true, faction: true },
+    })
   }
 
   async create({
@@ -25,21 +27,31 @@ export class FighterTypesService {
     fighterStats,
     ...fighterType
   }: FighterTypeCreateInput) {
-    return this.prisma.fighterType.create({
-      data: {
-        ...fighterType,
-        fighterStats: {
-          create: fighterStats,
+    try {
+      const createdFT = await this.prisma.fighterType.create({
+        data: {
+          ...fighterType,
+          fighterStats: {
+            create: fighterStats,
+          },
+          faction: {
+            connect: faction,
+          },
+          fighterCategory: {
+            connect: fighterCategory,
+          },
         },
-        faction: {
-          connect: faction,
-        },
-        fighterCategory: {
-          connect: fighterCategory,
-        },
-      },
-      include: { fighterStats: true, fighterCategory: true, faction: true },
-    })
+        include: { fighterStats: true, fighterCategory: true, faction: true },
+      })
+      return createdFT
+    } catch (error) {
+      if (error.code === 'P2002') {
+        throw new ConflictException(
+          `A fighter type with name "${fighterType.name} already exists`,
+        )
+      }
+      throw error
+    }
   }
 
   async delete(

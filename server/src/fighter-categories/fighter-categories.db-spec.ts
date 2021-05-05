@@ -1,6 +1,7 @@
 import 'test/setupTests'
 import { Test, TestingModule } from '@nestjs/testing'
 import { PrismaService } from 'src/prisma/prisma.service'
+import { buildCreateFighterCategoryDto } from 'test/utils/mock-factories'
 
 const resolve = (error: any) => error
 let testModule: TestingModule
@@ -19,7 +20,7 @@ afterEach(async () => {
 })
 
 test('Can create a fighter category', async () => {
-  const fighterCategory = { name: 'Test FC' }
+  const fighterCategory = buildCreateFighterCategoryDto()
 
   const savedFC = await prismaService.fighterCategory.create({
     data: fighterCategory,
@@ -32,7 +33,7 @@ test('Can create a fighter category', async () => {
 })
 
 test('Creating fighter category with duplicate name throws P2002 error', async () => {
-  const fighterCategory = { name: 'A duplicate' }
+  const fighterCategory = buildCreateFighterCategoryDto()
   await prismaService.fighterCategory.create({ data: fighterCategory })
 
   const result = await prismaService.fighterCategory

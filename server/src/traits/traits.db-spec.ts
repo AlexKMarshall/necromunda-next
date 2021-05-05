@@ -1,7 +1,7 @@
 import 'test/setupTests'
 import { Test, TestingModule } from '@nestjs/testing'
 import { PrismaService } from 'src/prisma/prisma.service'
-import { buildCreateFactionDTO } from 'test/utils/mock-factories'
+import { buildCreateTraitDto } from 'test/utils/mock-factories'
 
 const resolve = (error: any) => error
 let testModule: TestingModule
@@ -19,31 +19,29 @@ afterEach(async () => {
   await testModule.close()
 })
 
-test('Can create a faction', async () => {
-  const faction = buildCreateFactionDTO()
+test('Can create a trait', async () => {
+  const trait = buildCreateTraitDto()
 
-  const savedFaction = await prismaService.faction.create({ data: faction })
+  const savedTrait = await prismaService.trait.create({ data: trait })
 
-  expect(savedFaction).toMatchObject({
+  expect(savedTrait).toMatchObject({
     id: expect.any(String),
-    name: faction.name,
+    name: trait.name,
   })
 })
 
-test('Creating faction with duplicate name throws P2002 error', async () => {
-  const faction = buildCreateFactionDTO()
-  // create it once
-  await prismaService.faction.create({ data: faction })
+test('Creating trait with duplicate name throws P2002 error', async () => {
+  const trait = buildCreateTraitDto()
+  await prismaService.trait.create({ data: trait })
 
-  // create it again
-  const result = await prismaService.faction
-    .create({ data: faction })
+  const result = await prismaService.trait
+    .create({ data: trait })
     .catch(resolve)
 
   expect(result.code).toBe('P2002')
   expect(result.message).toMatchInlineSnapshot(`
     "
-    Invalid \`prisma.faction.create()\` invocation:
+    Invalid \`prisma.trait.create()\` invocation:
 
 
       Unique constraint failed on the fields: (\`name\`)"

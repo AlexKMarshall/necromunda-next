@@ -73,7 +73,7 @@ it('should delete a fighter category', async () => {
 })
 
 it('should throw 409 when trying to create duplicate', async () => {
-  const fighterCategory = buildFighterCategory()
+  const fighterCategory = buildCreateFighterCategoryDto()
   const mockCreate = prismaMock.fighterCategory.create
   mockCreate.mockRejectedValueOnce({ code: 'P2002' })
 
@@ -93,7 +93,7 @@ it('should throw 409 when trying to create duplicate', async () => {
 })
 
 it('should re-throw unknown database error on create', async () => {
-  const mockFighterCategory = { name: 'fc name' }
+  const mockFighterCategory = buildCreateFighterCategoryDto()
   const mockCreate = prismaMock.fighterCategory.create
   const unknownError = new Error('unknown error')
   mockCreate.mockRejectedValueOnce(unknownError)

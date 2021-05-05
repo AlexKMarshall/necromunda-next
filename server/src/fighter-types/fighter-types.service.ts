@@ -16,7 +16,9 @@ export class FighterTypesService {
   constructor(private readonly prisma: PrismaService) {}
 
   async fighterTypes() {
-    return this.prisma.fighterType.findMany()
+    return this.prisma.fighterType.findMany({
+      include: { fighterStats: true, fighterCategory: true, faction: true },
+    })
   }
 
   async create({

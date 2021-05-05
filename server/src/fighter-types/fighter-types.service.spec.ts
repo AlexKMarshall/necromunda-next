@@ -40,7 +40,9 @@ it('should get fighter types', async () => {
   const fighterTypes = await fighterTypesService.fighterTypes()
   expect(fighterTypes).toEqual(mockFighterTypes)
   expect(mockFindMany).toHaveBeenCalledTimes(1)
-  expect(mockFindMany).toHaveBeenCalledWith()
+  expect(mockFindMany).toHaveBeenCalledWith({
+    include: { faction: true, fighterCategory: true, fighterStats: true },
+  })
 })
 
 it('should create fighter types', async () => {

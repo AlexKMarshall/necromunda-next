@@ -1,7 +1,6 @@
 import {
   render,
   screen,
-  waitFor,
   waitForElementToBeRemoved,
   within,
 } from '@testing-library/react'
@@ -12,6 +11,7 @@ import { QueryClient, QueryClientProvider } from 'react-query'
 import { server } from 'test/mocks/server'
 import Factions from '../pages/admin/factions'
 import { buildFaction } from 'test/mocks/test-factories'
+import { CreateFactionDto, Faction } from 'schemas'
 
 const Providers: React.ComponentType = ({
   children,
@@ -23,10 +23,6 @@ const Providers: React.ComponentType = ({
     <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
   )
 }
-
-afterEach(async () => {
-  // queryClient.clear()
-})
 
 describe('Factions', () => {
   it('shows a list of factions', async () => {
@@ -65,6 +61,43 @@ describe('Factions', () => {
     })
   })
 
+  it('allows creating a faction', async () => {
+    const faction = buildFaction()
+    const serverFactions: Faction[] = []
+    server.use(
+      rest.get('http://localhost:3000/factions', (req, res, ctx) => {
+        return res(ctx.json(serverFactions))
+      }),
+      rest.post<CreateFactionDto>(
+        'http://localhost:3000/factions',
+        (req, res, ctx) => {
+          const {
+            body: { name },
+          } = req
+          const createdFaction = { ...faction, name }
+          serverFactions.push(createdFaction)
+          return res(ctx.status(201), ctx.json(createdFaction))
+        }
+      )
+    )
+
+    render(<Factions />, { wrapper: Providers })
+
+    userEvent.click(screen.getByRole('button', { name: /add faction/i }))
+
+    expect(
+      screen.getByRole('heading', { name: /add new faction/i })
+    ).toBeInTheDocument()
+
+    userEvent.type(screen.getByRole('textbox', { name: /name/i }), faction.name)
+    userEvent.click(screen.getByRole('button', { name: /add faction/i }))
+
+    await waitForElementToBeRemoved(screen.getByRole('dialog'))
+
+    const newFaction = await screen.findByRole('cell', { name: faction.name })
+    expect(newFaction).toBeInTheDocument()
+  })
+
   it('allows deleting a faction', async () => {
     let serverFactions = [buildFaction(), buildFaction()]
     const initialFactions = [...serverFactions]
@@ -100,7 +133,5 @@ describe('Factions', () => {
 
     expect(screen.queryByText(faction1.name)).not.toBeInTheDocument()
     expect(screen.getByText(faction2.name)).toBeInTheDocument()
-
-    // screen.debug()
   })
 })

@@ -3,6 +3,7 @@ import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useMemo, useState } from 'react'
 import { Row, useTable } from 'react-table'
+import { nanoid } from 'nanoid'
 import styled from 'styled-components'
 import { useId } from 'react-aria'
 import { Dialog } from '@reach/dialog'
@@ -26,7 +27,21 @@ function useCreateFaction() {
       })
     },
     {
-      onSuccess: () => {
+      onMutate: async (createFactionDto) => {
+        await queryClient.cancelQueries('factions')
+        const previousFactions =
+          queryClient.getQueryData<Faction[]>('factions') ?? []
+
+        const pendingFaction = { ...createFactionDto, id: nanoid() }
+
+        queryClient.setQueryData<Faction[]>('factions', [
+          ...previousFactions,
+          pendingFaction,
+        ])
+
+        return { previousFactions }
+      },
+      onSettled: () => {
         queryClient.invalidateQueries('factions')
       },
     }

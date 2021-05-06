@@ -1,13 +1,14 @@
 import { nanoid } from 'nanoid'
 import { useMutation, useQuery, useQueryClient } from 'react-query'
 import { CreateFactionDto, Faction, factionSchema } from 'schemas'
+import { client } from './client'
 
 const QUERY_KEY_FACTIONS = 'factions'
 
 export function useQueryFactions() {
   const query = useQuery(QUERY_KEY_FACTIONS, async () => {
     try {
-      const response = await fetch('http://localhost:3000/factions')
+      const response = await client('factions')
       const data = await response.json()
       return factionSchema.array().parse(data)
     } catch (e) {
@@ -25,12 +26,8 @@ export function useCreateFaction() {
 
   const mutation = useMutation(
     async (faction: CreateFactionDto) => {
-      return fetch('http://localhost:3000/factions', {
-        method: 'POST',
-        body: JSON.stringify(faction),
-        headers: {
-          'content-type': 'application/json',
-        },
+      return client('factions', {
+        data: faction,
       })
     },
     {
@@ -61,7 +58,7 @@ export function useDeleteFaction(factionId: Faction['id']) {
 
   const mutation = useMutation(
     () => {
-      return fetch(`http://localhost:3000/factions/${factionId}`, {
+      return client(`factions/${factionId}`, {
         method: 'DELETE',
       })
     },

@@ -1,5 +1,6 @@
 import { nanoid } from 'nanoid'
 import { useMutation, useQuery, useQueryClient } from 'react-query'
+import { client } from 'hooks/client'
 import {
   CreateFighterCategoryDto,
   FighterCategory,
@@ -10,7 +11,7 @@ const QUERY_KEY = 'fighterCategories'
 
 export function useQueryFighterCategories() {
   const query = useQuery(QUERY_KEY, async () => {
-    const response = await fetch('http://localhost:3000/fighter-categories')
+    const response = await client('fighter-categories')
     const data = await response.json()
     return fighterCategorySchema.array().parse(data)
   })
@@ -24,12 +25,8 @@ export function useCreateFighterCategory() {
 
   const mutation = useMutation(
     async (fighterCategory: CreateFighterCategoryDto) => {
-      return fetch('http://localhost:3000/fighter-categories', {
-        method: 'POST',
-        body: JSON.stringify(fighterCategory),
-        headers: {
-          'content-type': 'application/json',
-        },
+      return client('fighter-categories', {
+        data: fighterCategory,
       })
     },
     {
@@ -62,12 +59,9 @@ export function useDeleteFighterCategory(
 
   const mutation = useMutation(
     async () => {
-      return fetch(
-        `http://localhost:3000/fighter-categories/${fighterCategoryId}`,
-        {
-          method: 'DELETE',
-        }
-      )
+      return client(`fighter-categories/${fighterCategoryId}`, {
+        method: 'DELETE',
+      })
     },
     {
       onSuccess: () => {

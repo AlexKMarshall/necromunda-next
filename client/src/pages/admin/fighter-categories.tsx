@@ -12,52 +12,14 @@ import {
   createFighterCategoryDtoSchema,
   FighterCategory,
 } from 'schemas'
-import { useQueryFighterCategories } from 'hooks/fighter-categories'
+import {
+  useQueryFighterCategories,
+  useCreateFighterCategory,
+  useDeleteFighterCategory,
+} from 'hooks/fighter-categories'
 import { H1, H2, Stack } from 'components/lib'
 import { Input, Table, Td, Th, Tr } from 'styles/admin'
-
-function useCreateFighterCategory() {
-  const queryClient = useQueryClient()
-
-  const mutation = useMutation(
-    async (fighterCategory: CreateFighterCategoryDto) => {
-      return fetch('http://localhost:3000/fighter-categories', {
-        method: 'POST',
-        body: JSON.stringify(fighterCategory),
-        headers: {
-          'content-type': 'application/json',
-        },
-      })
-    },
-    {
-      onSuccess: () => {
-        queryClient.invalidateQueries('fighter-categories')
-      },
-    }
-  )
-  return mutation
-}
-
-function useDeleteFighterCategory(fighterCategoryId: FighterCategory['id']) {
-  const queryClient = useQueryClient()
-
-  const mutation = useMutation(
-    async () => {
-      return fetch(
-        `http://localhost:3000/fighter-categories/${fighterCategoryId}`,
-        {
-          method: 'DELETE',
-        }
-      )
-    },
-    {
-      onSuccess: () => {
-        queryClient.invalidateQueries('fighter-categories')
-      },
-    }
-  )
-  return mutation
-}
+import { nanoid } from 'nanoid'
 
 export default function FighterCategories() {
   const query = useQueryFighterCategories()
@@ -75,6 +37,7 @@ export default function FighterCategories() {
           <DeleteFighterCategoryButton
             fighterCategoryId={original.id}
             fighterCategoryName={original.name}
+            key={original.id}
           />
         ),
       },
@@ -116,7 +79,7 @@ export default function FighterCategories() {
             </tr>
           ))}
         </thead>
-        <tbody {...getTableBodyProps()}>
+        <tbody {...getTableBodyProps()} data-testid="table-body">
           {rows.map((row) => {
             prepareRow(row)
             return (
@@ -129,6 +92,7 @@ export default function FighterCategories() {
           })}
         </tbody>
       </Table>
+      {query.isLoading ? <div>Loading...</div> : null}
     </Stack>
   )
 }

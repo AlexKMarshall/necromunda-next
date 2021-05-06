@@ -54,10 +54,10 @@ describe('Fighter Categories', () => {
     )
 
     expect(rows).toHaveLength(fighterCategories.length)
-    fighterCategories.forEach((faction, index) => {
+    fighterCategories.forEach((fighterCategory, index) => {
       const row = rows[index]
 
-      expect(within(row).getByText(faction.name)).toBeInTheDocument()
+      expect(within(row).getByText(fighterCategory.name)).toBeInTheDocument()
     })
   })
 

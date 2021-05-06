@@ -38,13 +38,25 @@ function useDeleteFaction(factionId: Faction['id']) {
   const queryClient = useQueryClient()
 
   const mutation = useMutation(
-    async () => {
+    () => {
       return fetch(`http://localhost:3000/factions/${factionId}`, {
         method: 'DELETE',
       })
     },
     {
-      onSuccess: () => {
+      onMutate: async () => {
+        await queryClient.cancelQueries('factions')
+        const previousFactions =
+          queryClient.getQueryData<Faction[]>('factions') ?? []
+
+        queryClient.setQueryData(
+          'factions',
+          previousFactions.filter((f) => f.id !== factionId)
+        )
+
+        return { previousFactions }
+      },
+      onSettled: () => {
         queryClient.invalidateQueries('factions')
       },
     }
@@ -68,6 +80,7 @@ export default function Factions() {
           <DeleteFactionButton
             factionId={original.id}
             factionName={original.name}
+            key={original.id}
           />
         ),
       },
@@ -109,7 +122,7 @@ export default function Factions() {
             </tr>
           ))}
         </thead>
-        <tbody {...getTableBodyProps()}>
+        <tbody {...getTableBodyProps()} data-testid="table-body">
           {rows.map((row) => {
             prepareRow(row)
             return (
@@ -122,6 +135,7 @@ export default function Factions() {
           })}
         </tbody>
       </Table>
+      {query.isLoading ? <div>Loading...</div> : null}
     </Stack>
   )
 }
@@ -138,7 +152,7 @@ function DeleteFactionButton({
   const mutation = useDeleteFaction(factionId)
   return (
     <button type="button" onClick={() => mutation.mutate()}>
-      Delete {factionName}
+      {mutation.isLoading ? 'deleting...' : `Delete ${factionName}`}
     </button>
   )
 }

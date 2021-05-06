@@ -18,4 +18,5 @@ module.exports = {
     '!**/node_modules/**',
   ],
   coverageDirectory: './coverage/unit',
+  testEnvironment: 'jsdom',
 }

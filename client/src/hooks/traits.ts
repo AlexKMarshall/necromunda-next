@@ -1,3 +1,4 @@
+import { nanoid } from 'nanoid'
 import { useMutation, useQuery, useQueryClient } from 'react-query'
 import { CreateTraitDto, Trait, traitSchema } from 'schemas'
 import { client } from './client'
@@ -26,7 +27,21 @@ export function useCreateTrait() {
       })
     },
     {
-      onSuccess: () => {
+      onMutate: async (createTraitDto) => {
+        await queryClient.cancelQueries(QUERY_KEY)
+        const previousTraits =
+          queryClient.getQueryData<Trait[]>(QUERY_KEY) ?? []
+
+        const pendingTrait = { ...createTraitDto, id: nanoid() }
+
+        queryClient.setQueryData<Trait[]>(QUERY_KEY, [
+          ...previousTraits,
+          pendingTrait,
+        ])
+
+        return { previousTraits }
+      },
+      onSettled: () => {
         queryClient.invalidateQueries(QUERY_KEY)
       },
     }
@@ -44,7 +59,19 @@ export function useDeleteTrait(traitId: Trait['id']) {
       })
     },
     {
-      onSuccess: () => {
+      onMutate: async () => {
+        await queryClient.cancelQueries(QUERY_KEY)
+        const previousTraits =
+          queryClient.getQueryData<Trait[]>(QUERY_KEY) ?? []
+
+        queryClient.setQueryData<Trait[]>(
+          QUERY_KEY,
+          previousTraits.filter((t) => t.id !== traitId)
+        )
+
+        return { previousTraits }
+      },
+      onSettled: () => {
         queryClient.invalidateQueries(QUERY_KEY)
       },
     }

@@ -4,11 +4,12 @@ import { CreateFactionDto, Faction, factionSchema } from 'schemas'
 import { client } from './client'
 
 const QUERY_KEY_FACTIONS = 'factions'
+const endpoint = 'factions'
 
 export function useQueryFactions() {
   const query = useQuery(QUERY_KEY_FACTIONS, async () => {
     try {
-      const response = await client('factions')
+      const response = await client(endpoint)
       const data = await response.json()
       return factionSchema.array().parse(data)
     } catch (e) {
@@ -26,7 +27,7 @@ export function useCreateFaction() {
 
   const mutation = useMutation(
     async (faction: CreateFactionDto) => {
-      return client('factions', {
+      return client(endpoint, {
         data: faction,
       })
     },
@@ -58,7 +59,7 @@ export function useDeleteFaction(factionId: Faction['id']) {
 
   const mutation = useMutation(
     () => {
-      return client(`factions/${factionId}`, {
+      return client(`${endpoint}/${factionId}`, {
         method: 'DELETE',
       })
     },

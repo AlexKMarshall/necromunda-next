@@ -8,10 +8,11 @@ import {
 } from 'schemas'
 
 const QUERY_KEY = 'fighterCategories'
+const endpoint = 'fighter-categories'
 
 export function useQueryFighterCategories() {
   const query = useQuery(QUERY_KEY, async () => {
-    const response = await client('fighter-categories')
+    const response = await client(endpoint)
     const data = await response.json()
     return fighterCategorySchema.array().parse(data)
   })
@@ -25,7 +26,7 @@ export function useCreateFighterCategory() {
 
   const mutation = useMutation(
     async (fighterCategory: CreateFighterCategoryDto) => {
-      return client('fighter-categories', {
+      return client(endpoint, {
         data: fighterCategory,
       })
     },
@@ -59,7 +60,7 @@ export function useDeleteFighterCategory(
 
   const mutation = useMutation(
     async () => {
-      return client(`fighter-categories/${fighterCategoryId}`, {
+      return client(`${endpoint}/${fighterCategoryId}`, {
         method: 'DELETE',
       })
     },

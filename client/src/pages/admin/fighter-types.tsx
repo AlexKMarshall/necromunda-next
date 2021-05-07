@@ -3,7 +3,6 @@ import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useMemo, useState } from 'react'
 import { Row, useTable, Column } from 'react-table'
-import styled from 'styled-components'
 import { useId } from 'react-aria'
 import { Dialog } from '@reach/dialog'
 import '@reach/dialog/styles.css'
@@ -18,14 +17,20 @@ import { H1, H2, Stack } from 'components/lib'
 import { useQueryFactions } from 'hooks/factions'
 import { useQueryFighterCategories } from 'hooks/fighter-categories'
 import { Input, Table, Td, Th, Tr } from 'styles/admin'
+import { client } from 'hooks/client'
 
 const QUERY_KEY_FIGHTER_TYPES = 'fighterTypes'
 
 function useQueryFighterTypes() {
   const query = useQuery(QUERY_KEY_FIGHTER_TYPES, async () => {
-    const response = await fetch('http://localhost:3000/fighter-types')
-    const data = await response.json()
-    return fighterTypeSchema.array().parse(data)
+    try {
+      const response = await client('fighter-types')
+      const data = await response.json()
+      return fighterTypeSchema.array().parse(data)
+    } catch (e) {
+      console.error(e)
+      return Promise.reject(e)
+    }
   })
 
   const fighterTypes = query.data ?? []
@@ -91,25 +96,64 @@ export default function FighterTypes() {
         Header: 'Fighter Category',
         accessor: (row) => row.fighterCategory.name,
       },
-      { Header: 'M', accessor: ({ fighterStats }) => fighterStats.movement },
       {
-        Header: 'WS',
+        Header: <span aria-label="Movement">M</span>,
+        id: 'm',
+        accessor: ({ fighterStats }) => fighterStats.movement,
+      },
+      {
+        Header: <span aria-label="Weapon skill">WS</span>,
+        id: 'ws',
         accessor: ({ fighterStats }) => fighterStats.weaponSkill,
       },
       {
-        Header: 'BS',
+        Header: <span aria-label="Ballistic skill">BS</span>,
+        id: 'bs',
         accessor: ({ fighterStats }) => fighterStats.ballisticSkill,
       },
-      { Header: 'S', accessor: ({ fighterStats }) => fighterStats.strength },
-      { Header: 'T', accessor: ({ fighterStats }) => fighterStats.toughness },
-      { Header: 'W', accessor: ({ fighterStats }) => fighterStats.wounds },
-      { Header: 'I', accessor: ({ fighterStats }) => fighterStats.initiative },
-      { Header: 'A', accessor: ({ fighterStats }) => fighterStats.attacks },
-      { Header: 'LD', accessor: ({ fighterStats }) => fighterStats.initiative },
-      { Header: 'CL', accessor: ({ fighterStats }) => fighterStats.cool },
-      { Header: 'WIL', accessor: ({ fighterStats }) => fighterStats.will },
       {
-        Header: 'INT',
+        Header: <span aria-label="strength">S</span>,
+        id: 's',
+        accessor: ({ fighterStats }) => fighterStats.strength,
+      },
+      {
+        Header: <span aria-label="toughness">T</span>,
+        id: 't',
+        accessor: ({ fighterStats }) => fighterStats.toughness,
+      },
+      {
+        Header: <span aria-label="wounds">W</span>,
+        id: 'w',
+        accessor: ({ fighterStats }) => fighterStats.wounds,
+      },
+      {
+        Header: <span aria-label="initiative">I</span>,
+        id: 'i',
+        accessor: ({ fighterStats }) => fighterStats.initiative,
+      },
+      {
+        Header: <span aria-label="attacks">A</span>,
+        id: 'a',
+        accessor: ({ fighterStats }) => fighterStats.attacks,
+      },
+      {
+        Header: <span aria-label="leadership">LD</span>,
+        id: 'ld',
+        accessor: ({ fighterStats }) => fighterStats.leadership,
+      },
+      {
+        Header: <span aria-label="cool">CL</span>,
+        id: 'cl',
+        accessor: ({ fighterStats }) => fighterStats.cool,
+      },
+      {
+        Header: <span aria-label="will">WIL</span>,
+        id: 'wil',
+        accessor: ({ fighterStats }) => fighterStats.will,
+      },
+      {
+        Header: <span aria-label="intelligence">INT</span>,
+        id: 'int',
         accessor: ({ fighterStats }) => fighterStats.intelligence,
       },
 
@@ -161,7 +205,7 @@ export default function FighterTypes() {
             </tr>
           ))}
         </thead>
-        <tbody {...getTableBodyProps()}>
+        <tbody {...getTableBodyProps()} data-testid="table-body">
           {rows.map((row) => {
             prepareRow(row)
             return (
@@ -174,6 +218,7 @@ export default function FighterTypes() {
           })}
         </tbody>
       </Table>
+      {query.isLoading ? <div>Loading...</div> : null}
     </Stack>
   )
 }

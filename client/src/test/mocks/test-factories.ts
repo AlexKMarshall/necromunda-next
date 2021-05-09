@@ -4,6 +4,7 @@ import {
   FighterCategory,
   FighterStats,
   FighterType,
+  SkillType,
   Trait,
 } from 'schemas'
 
@@ -71,6 +72,14 @@ export function buildFighterType({
     faction,
     fighterCategory,
     fighterStats,
+    ...overrides,
+  }
+}
+
+export function buildSkillType(overrides: Partial<SkillType> = {}): SkillType {
+  return {
+    id: faker.datatype.uuid(),
+    name: faker.unique(faker.hacker.adjective),
     ...overrides,
   }
 }

@@ -3,6 +3,7 @@ import {
   FighterCategory,
   FighterStats,
   Prisma,
+  SkillType,
   Trait,
 } from '@prisma/client'
 import * as faker from 'faker'
@@ -128,4 +129,20 @@ export function buildCreateFighterTypeDto(
     fighterCategory: { id: fighterCategory.id },
     fighterStats,
   }
+}
+
+export function buildSkillType(overrides: Partial<SkillType> = {}): SkillType {
+  return {
+    id: faker.datatype.uuid(),
+    name: faker.unique(faker.hacker.noun),
+    ...overrides,
+  }
+}
+
+export function buildCreateSkillTypeDto(
+  overrides: Partial<Prisma.SkillTypeCreateWithoutSkillsInput> = {},
+): Prisma.SkillTypeCreateWithoutSkillsInput {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const { id, ...skillType } = buildSkillType(overrides)
+  return skillType
 }

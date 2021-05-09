@@ -98,3 +98,16 @@ model TraitsOnWeaponStats {
 
   @@id([weaponStatsId, traitId])
 }
+
+model SkillType {
+  id     String  @id @default(uuid())
+  name   String  @unique
+  skills Skill[]
+}
+
+model Skill {
+  id     String    @id @default(uuid())
+  name   String    @unique
+  type   SkillType @relation(fields: [typeId], references: [id])
+  typeId String
+}

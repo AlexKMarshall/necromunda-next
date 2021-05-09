@@ -74,11 +74,11 @@ describe('Skill Types', () => {
     const headerRow = screen.getAllByRole('row')[0]
     const getCellValueFactory = buildGetCellValueFactory(headerRow)
 
-    skillTypes.forEach((faction, index) => {
+    skillTypes.forEach((skillType, index) => {
       const row = rows[index]
       const getCellValue = getCellValueFactory(row)
 
-      expect(getCellValue(nameHeader)).toHaveTextContent(faction.name)
+      expect(getCellValue(nameHeader)).toHaveTextContent(skillType.name)
     })
   })
 

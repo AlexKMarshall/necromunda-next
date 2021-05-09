@@ -483,10 +483,14 @@ function AddFighterTypeForm({ onSubmit }: AddFighterTypeFormProps) {
           aria-describedby={!!errors.faction?.id ? factionErrorFieldId : ''}
         >
           {factions.length === 0 ? (
-            <option value="">Loading...</option>
+            <option key="loading-factions" value="">
+              Loading...
+            </option>
           ) : (
             <>
-              <option value="">Please select</option>
+              <option key="empty-faction" value="">
+                Please select
+              </option>
               {factions.map((f) => (
                 <option key={f.id} value={f.id}>
                   {f.name}

@@ -3,11 +3,13 @@ import {
   FighterCategory,
   FighterStats,
   Prisma,
+  Skill,
   SkillType,
   Trait,
 } from '@prisma/client'
 import * as faker from 'faker'
 import { FighterTypeCreateInput } from 'src/fighter-types/fighter-types.service'
+import { SkillCreateInput } from 'src/skills/skills.service'
 
 export function buildFaction(overrides: Partial<Faction> = {}): Faction {
   return {
@@ -134,7 +136,7 @@ export function buildCreateFighterTypeDto(
 export function buildSkillType(overrides: Partial<SkillType> = {}): SkillType {
   return {
     id: faker.datatype.uuid(),
-    name: faker.unique(faker.hacker.noun),
+    name: faker.unique(faker.hacker.adjective),
     ...overrides,
   }
 }
@@ -145,4 +147,32 @@ export function buildCreateSkillTypeDto(
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const { id, ...skillType } = buildSkillType(overrides)
   return skillType
+}
+
+const fullSkill = Prisma.validator<Prisma.SkillArgs>()({
+  include: { type: true },
+})
+
+type FullSkill = Prisma.SkillGetPayload<typeof fullSkill>
+
+export function buildSkill(overrides: Partial<FullSkill> = {}): FullSkill {
+  const skillType = buildSkillType()
+  return {
+    id: faker.datatype.uuid(),
+    name: faker.unique(faker.hacker.noun),
+    type: skillType,
+    typeId: skillType.id,
+    ...overrides,
+  }
+}
+
+export function buildCreateSkillDto(
+  overrides: Partial<FullSkill> = {},
+): SkillCreateInput {
+  const { type, name } = buildSkill(overrides)
+
+  return {
+    name,
+    type: { id: type.id },
+  }
 }

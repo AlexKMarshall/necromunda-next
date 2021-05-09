@@ -10,7 +10,11 @@ import React from 'react'
 import { QueryClient, QueryClientProvider } from 'react-query'
 import { server } from 'test/mocks/server'
 import FighterTypes from '../pages/admin/fighter-types'
-import { buildFighterType } from 'test/mocks/test-factories'
+import {
+  buildFaction,
+  buildFighterCategory,
+  buildFighterType,
+} from 'test/mocks/test-factories'
 import { CreateFighterTypeDto, FighterType } from 'schemas'
 
 const Providers: React.ComponentType = ({
@@ -47,7 +51,7 @@ function buildGetCellValueFactory(headerRow: HTMLElement) {
 }
 
 describe('Fighter Types', () => {
-  it.only('shows a list of fighter types', async () => {
+  it('shows a list of fighter types', async () => {
     const fighterTypes = [buildFighterType(), buildFighterType()]
     server.use(
       rest.get('http://localhost:3000/fighter-types', (req, res, ctx) => {
@@ -157,89 +161,92 @@ describe('Fighter Types', () => {
     })
   })
 
-  // it('allows creating a fighter category', async () => {
-  //   const fighterCategory = buildFighterType()
-  //   const serverFighterCategories: FighterType[] = []
-  //   server.use(
-  //     rest.get('http://localhost:3000/fighter-categories', (req, res, ctx) => {
-  //       return res(ctx.json(serverFighterCategories))
-  //     }),
-  //     rest.post<CreateFighterTypeDto>(
-  //       'http://localhost:3000/fighter-categories',
-  //       (req, res, ctx) => {
-  //         const {
-  //           body: { name },
-  //         } = req
-  //         const createdFC = { ...fighterCategory, name }
-  //         serverFighterCategories.push(createdFC)
-  //         return res(ctx.status(201), ctx.json(createdFC))
-  //       }
-  //     )
-  //   )
+  it('allows creating a fighter category', async () => {
+    const factions = [buildFaction(), buildFaction(), buildFaction()]
+    const fighterCategories = [
+      buildFighterCategory(),
+      buildFighterCategory(),
+      buildFighterCategory(),
+    ]
+    const fighterType = buildFighterType({
+      faction: factions[1],
+      fighterCategory: fighterCategories[1],
+    })
+    const serverFighterTypes: FighterType[] = []
+    server.use(
+      rest.get('http://localhost:3000/fighter-types', (req, res, ctx) => {
+        return res(ctx.json(serverFighterTypes))
+      }),
+      rest.post<CreateFighterTypeDto>(
+        'http://localhost:3000/fighter-types',
+        (req, res, ctx) => {
+          const {
+            body: { name },
+          } = req
+          const createdFC = { ...fighterType, name }
+          serverFighterTypes.push(createdFC)
+          return res(ctx.status(201), ctx.json(createdFC))
+        }
+      ),
+      rest.get('http://localhost:3000/factions', (req, res, ctx) => {
+        return res(ctx.json(factions))
+      }),
+      rest.get('http://localhost:3000/fighter-categories', (req, res, ctx) => {
+        return res(ctx.json(fighterCategories))
+      })
+    )
 
-  //   render(<FighterTypes />, { wrapper: Providers })
+    render(<FighterTypes />, { wrapper: Providers })
 
-  //   userEvent.click(
-  //     screen.getByRole('button', { name: /add fighter category/i })
-  //   )
+    userEvent.click(screen.getByRole('button', { name: /add fighter type/i }))
 
-  //   expect(
-  //     screen.getByRole('heading', { name: /add new fighter category/i })
-  //   ).toBeInTheDocument()
+    expect(
+      screen.getByRole('heading', { name: /add new fighter type/i })
+    ).toBeInTheDocument()
 
-  //   userEvent.type(
-  //     screen.getByRole('textbox', { name: /name/i }),
-  //     fighterCategory.name
-  //   )
-  //   userEvent.click(
-  //     screen.getByRole('button', { name: /add fighter category/i })
-  //   )
+    userEvent.type(
+      screen.getByRole('textbox', { name: /name/i }),
+      fighterType.name
+    )
+  })
 
-  //   await waitForElementToBeRemoved(screen.getByRole('dialog'))
+  it.skip('allows deleting a fighter type', async () => {
+    let serverFTs = [buildFighterType(), buildFighterType()]
+    const initialFTs = [...serverFTs]
+    server.use(
+      rest.get('http://localhost:3000/fighter-types', (req, res, ctx) => {
+        return res(ctx.json(serverFTs))
+      }),
+      rest.delete(
+        'http://localhost:3000/fighter-types/:id',
+        (req, res, ctx) => {
+          const {
+            params: { id },
+          } = req
 
-  //   const newFC = await screen.findByRole('cell', {
-  //     name: fighterCategory.name,
-  //   })
-  //   expect(newFC).toBeInTheDocument()
-  // })
+          const deletedFC = serverFTs.find((f) => f.id === id)
+          serverFTs = serverFTs.filter((f) => f.id !== id)
 
-  // it('allows deleting a fighter category', async () => {
-  //   let serverFCs = [buildFighterType(), buildFighterType()]
-  //   const initialFCs = [...serverFCs]
-  //   server.use(
-  //     rest.get('http://localhost:3000/fighter-categories', (req, res, ctx) => {
-  //       return res(ctx.json(serverFCs))
-  //     }),
-  //     rest.delete(
-  //       'http://localhost:3000/fighter-categories/:id',
-  //       (req, res, ctx) => {
-  //         const {
-  //           params: { id },
-  //         } = req
+          return res(ctx.json(deletedFC))
+        }
+      )
+    )
 
-  //         const deletedFC = serverFCs.find((f) => f.id === id)
-  //         serverFCs = serverFCs.filter((f) => f.id !== id)
+    render(<FighterTypes />, { wrapper: Providers })
 
-  //         return res(ctx.json(deletedFC))
-  //       }
-  //     )
-  //   )
+    await waitForElementToBeRemoved(() => screen.getByText(/loading/i))
 
-  //   render(<FighterTypes />, { wrapper: Providers })
+    const [ft1, ft2] = initialFTs
 
-  //   await waitForElementToBeRemoved(() => screen.getByText(/loading/i))
+    const deleteFT1Button = screen.getByRole('button', {
+      name: new RegExp(`${ft1.name}`, 'i'),
+    })
 
-  //   const [fc1, fc2] = initialFCs
+    userEvent.click(deleteFT1Button)
 
-  //   const deleteFC1Button = screen.getByRole('button', {
-  //     name: new RegExp(`${fc1.name}`, 'i'),
-  //   })
+    await waitForElementToBeRemoved(deleteFT1Button)
 
-  //   userEvent.click(deleteFC1Button)
-
-  //   await waitForElementToBeRemoved(deleteFC1Button)
-
-  //   expect(screen.queryByText(fc1.name)).not.toBeInTheDocument()
-  //   expect(screen.getByText(fc2.name)).toBeInTheDocument()
-  // })
+    expect(screen.queryByText(ft1.name)).not.toBeInTheDocument()
+    expect(screen.getByText(ft2.name)).toBeInTheDocument()
+  })
 })

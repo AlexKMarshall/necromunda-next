@@ -10,7 +10,7 @@ import {
 export function buildFaction(overrides: Partial<Faction> = {}): Faction {
   return {
     id: faker.datatype.uuid(),
-    name: faker.company.bsNoun(),
+    name: faker.unique(faker.company.bsNoun),
     ...overrides,
   }
 }
@@ -20,7 +20,7 @@ export function buildFighterCategory(
 ): FighterCategory {
   return {
     id: faker.datatype.uuid(),
-    name: faker.company.bsBuzz(),
+    name: faker.unique(faker.company.bsBuzz),
     ...overrides,
   }
 }
@@ -28,7 +28,7 @@ export function buildFighterCategory(
 export function buildTrait(overrides: Partial<Trait> = {}): Trait {
   return {
     id: faker.datatype.uuid(),
-    name: faker.company.bsAdjective(),
+    name: faker.unique(faker.company.bsAdjective),
     ...overrides,
   }
 }
@@ -66,7 +66,7 @@ export function buildFighterType({
 
   return {
     id: faker.datatype.uuid(),
-    name: faker.company.catchPhraseNoun(),
+    name: faker.unique(faker.company.catchPhraseNoun),
     cost: faker.datatype.number({ min: 25, max: 150 }),
     faction,
     fighterCategory,

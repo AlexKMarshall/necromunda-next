@@ -64,15 +64,31 @@ function useDeleteFighterType(fighterTypeId: FighterType['id']) {
 
   const mutation = useMutation(
     async () => {
-      return fetch(
-        `http://localhost:3000/fighter-categories/${fighterTypeId}`,
-        {
-          method: 'DELETE',
-        }
-      )
+      return fetch(`http://localhost:3000/fighter-types/${fighterTypeId}`, {
+        method: 'DELETE',
+      })
     },
     {
-      onSuccess: () => {
+      onMutate: async () => {
+        console.log('on mutate ', fighterTypeId)
+        await queryClient.cancelQueries(QUERY_KEY_FIGHTER_TYPES)
+
+        const previousFighterTypes =
+          queryClient.getQueryData<FighterType[]>(QUERY_KEY_FIGHTER_TYPES) ?? []
+
+        queryClient.setQueryData<FighterType[]>(
+          QUERY_KEY_FIGHTER_TYPES,
+          previousFighterTypes.filter((ft) => ft.id !== fighterTypeId)
+        )
+
+        console.log(
+          'set up the cache ',
+          previousFighterTypes.filter((ft) => ft.id !== fighterTypeId)
+        )
+
+        return { previousFighterTypes }
+      },
+      onSettled: () => {
         queryClient.invalidateQueries(QUERY_KEY_FIGHTER_TYPES)
       },
     }
@@ -276,10 +292,10 @@ function AddFighterTypeForm({ onSubmit }: AddFighterTypeFormProps) {
   const nameErrorFieldId = useId()
   const costFieldId = useId()
   const costErrorFieldId = useId()
-  const { factions } = useQueryFactions()
+  const { factions, ...queryFactions } = useQueryFactions()
   const factionFieldId = useId()
   const factionErrorFieldId = useId()
-  const { fighterCategories } = useQueryFighterCategories()
+  const { fighterCategories, ...queryFCs } = useQueryFighterCategories()
   const fighterCategoryFieldId = useId()
   const fighterCategoryErrorFieldId = useId()
 
@@ -424,8 +440,6 @@ function AddFighterTypeForm({ onSubmit }: AddFighterTypeFormProps) {
       as="form"
       onSubmit={(e: any) => {
         const watchAll = watch()
-        console.log(watchAll)
-        console.log(errors)
         handleSubmit((fighterType) => {
           mutation.mutate(fighterType)
           onSubmit?.()
@@ -468,12 +482,18 @@ function AddFighterTypeForm({ onSubmit }: AddFighterTypeFormProps) {
           aria-invalid={!!errors.faction?.id}
           aria-describedby={!!errors.faction?.id ? factionErrorFieldId : ''}
         >
-          <option value="">Please select</option>
-          {factions.map((f) => (
-            <option key={f.id} value={f.id}>
-              {f.name}
-            </option>
-          ))}
+          {factions.length === 0 ? (
+            <option value="">Loading...</option>
+          ) : (
+            <>
+              <option value="">Please select</option>
+              {factions.map((f) => (
+                <option key={f.id} value={f.id}>
+                  {f.name}
+                </option>
+              ))}
+            </>
+          )}
         </select>
         {!!errors.faction?.id && (
           <span role="alert" id={factionErrorFieldId}>

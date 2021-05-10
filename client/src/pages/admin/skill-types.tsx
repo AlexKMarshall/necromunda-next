@@ -1,28 +1,25 @@
-import { useMutation, useQueryClient } from 'react-query'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useMemo, useState } from 'react'
 import { Row, useTable } from 'react-table'
-import styled from 'styled-components'
 import { useId } from 'react-aria'
 import { Dialog } from '@reach/dialog'
 import '@reach/dialog/styles.css'
 import {
-  CreateFighterCategoryDto,
-  createFighterCategoryDtoSchema,
-  FighterCategory,
+  CreateSkillTypeDto,
+  createSkillTypeDtoSchema,
+  SkillType,
 } from 'schemas'
 import {
-  useQueryFighterCategories,
-  useCreateFighterCategory,
-  useDeleteFighterCategory,
-} from 'hooks/fighter-categories'
+  useQuerySkillTypes,
+  useCreateSkillType,
+  useDeleteSkillType,
+} from 'hooks/skill-types'
 import { H1, H2, Stack } from 'components/lib'
 import { Input, Table, Td, Th, Tr } from 'styles/admin'
-import { nanoid } from 'nanoid'
 
-export default function FighterCategories() {
-  const query = useQueryFighterCategories()
+export default function SkillTypes() {
+  const query = useQuerySkillTypes()
   const [showForm, setShowForm] = useState(false)
   const openForm = () => setShowForm(true)
   const closeForm = () => setShowForm(false)
@@ -33,10 +30,10 @@ export default function FighterCategories() {
       {
         Header: 'Actions',
         accessor: 'id' as const,
-        Cell: ({ row: { original } }: { row: Row<FighterCategory> }) => (
-          <DeleteFighterCategoryButton
-            fighterCategoryId={original.id}
-            fighterCategoryName={original.name}
+        Cell: ({ row: { original } }: { row: Row<SkillType> }) => (
+          <DeleteSkillTypeButton
+            id={original.id}
+            name={original.name}
             key={original.id}
           />
         ),
@@ -51,22 +48,22 @@ export default function FighterCategories() {
     headerGroups,
     rows,
     prepareRow,
-  } = useTable({ columns, data: query.fighterCategories })
+  } = useTable({ columns, data: query.skillTypes })
 
   const dialogTitleId = useId()
 
   return (
     <Stack>
-      <H1>Fighter Categories</H1>
-      <button onClick={openForm}>Add Fighter Category</button>
+      <H1>Skill Types</H1>
+      <button onClick={openForm}>Add Skill Type</button>
       <Dialog
         isOpen={showForm}
         onDismiss={closeForm}
         aria-labelledby={dialogTitleId}
       >
         <Stack>
-          <H2 id={dialogTitleId}>Add New Fighter Category</H2>
-          <AddFighterCategoryForm onSubmit={closeForm} />
+          <H2 id={dialogTitleId}>Add New Skill Type</H2>
+          <AddSkillTypeForm onSubmit={closeForm} />
         </Stack>
       </Dialog>
       <Table {...getTableProps()}>
@@ -97,35 +94,32 @@ export default function FighterCategories() {
   )
 }
 
-interface DeleteFighterCategoryButtonProps {
-  fighterCategoryId: FighterCategory['id']
-  fighterCategoryName: FighterCategory['name']
+interface DeleteSkillTypeButtonProps {
+  id: SkillType['id']
+  name: SkillType['name']
 }
 
-function DeleteFighterCategoryButton({
-  fighterCategoryId,
-  fighterCategoryName,
-}: DeleteFighterCategoryButtonProps) {
-  const mutation = useDeleteFighterCategory(fighterCategoryId)
+function DeleteSkillTypeButton({ id, name }: DeleteSkillTypeButtonProps) {
+  const mutation = useDeleteSkillType(id)
   return (
     <button type="button" onClick={() => mutation.mutate()}>
-      Delete {fighterCategoryName}
+      {mutation.isLoading ? 'deleting...' : `Delete ${name}`}
     </button>
   )
 }
 
-interface AddFighterCategoryFormProps {
+interface AddSkillTypeFormProps {
   onSubmit?: () => void
 }
 
-function AddFighterCategoryForm({ onSubmit }: AddFighterCategoryFormProps) {
-  const mutation = useCreateFighterCategory()
+function AddSkillTypeForm({ onSubmit }: AddSkillTypeFormProps) {
+  const mutation = useCreateSkillType()
   const {
     register,
     handleSubmit,
     formState: { errors },
-  } = useForm<CreateFighterCategoryDto>({
-    resolver: zodResolver(createFighterCategoryDtoSchema),
+  } = useForm<CreateSkillTypeDto>({
+    resolver: zodResolver(createSkillTypeDtoSchema),
   })
   const nameId = useId()
   const nameErrorId = useId()
@@ -152,7 +146,7 @@ function AddFighterCategoryForm({ onSubmit }: AddFighterCategoryFormProps) {
           </span>
         )}
       </Stack>
-      <button type="submit">Add fighter category</button>
+      <button type="submit">Add skill type</button>
     </Stack>
   )
 }

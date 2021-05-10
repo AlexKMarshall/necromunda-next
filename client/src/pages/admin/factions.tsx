@@ -1,83 +1,18 @@
-import { useMutation, useQueryClient } from 'react-query'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useMemo, useState } from 'react'
 import { Row, useTable } from 'react-table'
-import { nanoid } from 'nanoid'
-import styled from 'styled-components'
 import { useId } from 'react-aria'
 import { Dialog } from '@reach/dialog'
 import '@reach/dialog/styles.css'
 import { CreateFactionDto, createFactionDtoSchema, Faction } from 'schemas'
-import { useQueryFactions } from 'hooks/factions'
+import {
+  useQueryFactions,
+  useCreateFaction,
+  useDeleteFaction,
+} from 'hooks/factions'
 import { H1, H2, Stack } from 'components/lib'
 import { Input, Table, Td, Th, Tr } from 'styles/admin'
-
-function useCreateFaction() {
-  const queryClient = useQueryClient()
-
-  const mutation = useMutation(
-    async (faction: CreateFactionDto) => {
-      return fetch('http://localhost:3000/factions', {
-        method: 'POST',
-        body: JSON.stringify(faction),
-        headers: {
-          'content-type': 'application/json',
-        },
-      })
-    },
-    {
-      onMutate: async (createFactionDto) => {
-        await queryClient.cancelQueries('factions')
-        const previousFactions =
-          queryClient.getQueryData<Faction[]>('factions') ?? []
-
-        const pendingFaction = { ...createFactionDto, id: nanoid() }
-
-        queryClient.setQueryData<Faction[]>('factions', [
-          ...previousFactions,
-          pendingFaction,
-        ])
-
-        return { previousFactions }
-      },
-      onSettled: () => {
-        queryClient.invalidateQueries('factions')
-      },
-    }
-  )
-  return mutation
-}
-
-function useDeleteFaction(factionId: Faction['id']) {
-  const queryClient = useQueryClient()
-
-  const mutation = useMutation(
-    () => {
-      return fetch(`http://localhost:3000/factions/${factionId}`, {
-        method: 'DELETE',
-      })
-    },
-    {
-      onMutate: async () => {
-        await queryClient.cancelQueries('factions')
-        const previousFactions =
-          queryClient.getQueryData<Faction[]>('factions') ?? []
-
-        queryClient.setQueryData(
-          'factions',
-          previousFactions.filter((f) => f.id !== factionId)
-        )
-
-        return { previousFactions }
-      },
-      onSettled: () => {
-        queryClient.invalidateQueries('factions')
-      },
-    }
-  )
-  return mutation
-}
 
 export default function Factions() {
   const query = useQueryFactions()

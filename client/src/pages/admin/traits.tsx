@@ -1,9 +1,7 @@
-import { useMutation, useQueryClient } from 'react-query'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useMemo, useState } from 'react'
 import { Row, useTable } from 'react-table'
-import styled from 'styled-components'
 import { useId } from 'react-aria'
 import { Dialog } from '@reach/dialog'
 import '@reach/dialog/styles.css'
@@ -25,7 +23,11 @@ export default function Traits() {
         Header: 'Actions',
         accessor: 'id' as const,
         Cell: ({ row: { original } }: { row: Row<Trait> }) => (
-          <DeleteTraitButton traitId={original.id} traitName={original.name} />
+          <DeleteTraitButton
+            traitId={original.id}
+            traitName={original.name}
+            key={original.id}
+          />
         ),
       },
     ],
@@ -66,7 +68,7 @@ export default function Traits() {
             </tr>
           ))}
         </thead>
-        <tbody {...getTableBodyProps()}>
+        <tbody {...getTableBodyProps()} data-testid="table-body">
           {rows.map((row) => {
             prepareRow(row)
             return (
@@ -79,6 +81,7 @@ export default function Traits() {
           })}
         </tbody>
       </Table>
+      {query.isLoading ? <div>Loading...</div> : null}
     </Stack>
   )
 }

@@ -40,7 +40,7 @@ export function useCreateSkill() {
           queryClient.getQueryData<Skill[]>(QUERY_KEY) ?? []
 
         const skillType = skillTypes.find(
-          (st) => (st.id = createSkillDto.type.id)
+          (st) => st.id === createSkillDto.type.id
         ) ?? { id: createSkillDto.type.id, name: 'Pending' }
 
         const pendingSkill = {

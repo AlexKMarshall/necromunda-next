@@ -3,8 +3,9 @@ import {
   screen,
   waitForElementToBeRemoved,
   within,
-} from '@testing-library/react'
-import userEvent from '@testing-library/user-event'
+  userEvent,
+  buildGetCellValueFactory,
+} from 'test/utils'
 import { rest } from 'msw'
 import React from 'react'
 import { QueryClient, QueryClientProvider } from 'react-query'
@@ -14,41 +15,8 @@ import { buildSkill, buildSkillType } from 'test/mocks/test-factories'
 import { CreateSkillDto, Skill } from 'schemas'
 import { apiBaseUrl, endpoints } from 'config'
 
-const Providers: React.ComponentType = ({
-  children,
-}: {
-  children?: React.ReactNode
-}) => {
-  const queryClient = new QueryClient()
-  return (
-    <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
-  )
-}
-
 const skillsUrl = `${apiBaseUrl}/${endpoints.skills}`
 const skillTypesUrl = `${apiBaseUrl}/${endpoints.skillTypes}`
-
-/** Pass this a header row element to get back a function
- *  that you can call with a data row element to get back
- *  a further function that you can call with a header cell
- *  to get back the cell in the row you're looking at for that column
- *
- *  Essentially a curried version of getCellValue(headerRow, dataRow, columnHeader)
- */
-function buildGetCellValueFactory(headerRow: HTMLElement) {
-  const headerCellsArray = within(headerRow).getAllByRole('columnheader')
-  function getColIndex(headerCell: HTMLElement) {
-    return headerCellsArray.indexOf(headerCell)
-  }
-
-  return function getCellValueFactory(dataRow: HTMLElement) {
-    const dataCells = within(dataRow).getAllByRole('cell')
-    return function getCellValue(headerCell: HTMLElement) {
-      const colIndex = getColIndex(headerCell)
-      return dataCells[colIndex]
-    }
-  }
-}
 
 describe('Skills', () => {
   it('shows a list of skills', async () => {
@@ -59,7 +27,7 @@ describe('Skills', () => {
       })
     )
 
-    render(<Skills />, { wrapper: Providers })
+    render(<Skills />)
 
     expect(screen.getByRole('heading', { name: /skills/i })).toBeInTheDocument()
 
@@ -109,7 +77,7 @@ describe('Skills', () => {
       })
     )
 
-    render(<Skills />, { wrapper: Providers })
+    render(<Skills />)
 
     await waitForElementToBeRemoved(screen.getAllByText(/loading/i))
 
@@ -156,7 +124,7 @@ describe('Skills', () => {
       })
     )
 
-    render(<Skills />, { wrapper: Providers })
+    render(<Skills />)
 
     await waitForElementToBeRemoved(() => screen.getByText(/loading/i))
 

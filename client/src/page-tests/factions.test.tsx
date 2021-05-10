@@ -3,27 +3,14 @@ import {
   screen,
   waitForElementToBeRemoved,
   within,
-} from '@testing-library/react'
-import userEvent from '@testing-library/user-event'
+  userEvent,
+} from 'test/utils'
 import { rest } from 'msw'
-import React from 'react'
-import { QueryClient, QueryClientProvider } from 'react-query'
 import { server } from 'test/mocks/server'
 import Factions from '../pages/admin/factions'
 import { buildFaction } from 'test/mocks/test-factories'
 import { CreateFactionDto, Faction } from 'schemas'
 import { apiBaseUrl, endpoints } from 'config'
-
-const Providers: React.ComponentType = ({
-  children,
-}: {
-  children?: React.ReactNode
-}) => {
-  const queryClient = new QueryClient()
-  return (
-    <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
-  )
-}
 
 const factionsUrl = `${apiBaseUrl}/${endpoints.factions}`
 
@@ -36,7 +23,7 @@ describe('Factions', () => {
       })
     )
 
-    render(<Factions />, { wrapper: Providers })
+    render(<Factions />)
 
     expect(
       screen.getByRole('heading', { name: /factions/i })
@@ -81,7 +68,7 @@ describe('Factions', () => {
       })
     )
 
-    render(<Factions />, { wrapper: Providers })
+    render(<Factions />)
 
     userEvent.click(screen.getByRole('button', { name: /add faction/i }))
 
@@ -117,7 +104,7 @@ describe('Factions', () => {
       })
     )
 
-    render(<Factions />, { wrapper: Providers })
+    render(<Factions />)
 
     await waitForElementToBeRemoved(() => screen.getByText(/loading/i))
 

@@ -3,27 +3,14 @@ import {
   screen,
   waitForElementToBeRemoved,
   within,
-} from '@testing-library/react'
-import userEvent from '@testing-library/user-event'
+  userEvent,
+} from 'test/utils'
 import { rest } from 'msw'
-import React from 'react'
-import { QueryClient, QueryClientProvider } from 'react-query'
 import { server } from 'test/mocks/server'
 import Traits from '../pages/admin/traits'
 import { buildTrait } from 'test/mocks/test-factories'
 import { CreateTraitDto, Trait } from 'schemas'
 import { apiBaseUrl, endpoints } from 'config'
-
-const Providers: React.ComponentType = ({
-  children,
-}: {
-  children?: React.ReactNode
-}) => {
-  const queryClient = new QueryClient()
-  return (
-    <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
-  )
-}
 
 const traitsUrl = `${apiBaseUrl}/${endpoints.traits}`
 
@@ -36,7 +23,7 @@ describe('Traits', () => {
       })
     )
 
-    render(<Traits />, { wrapper: Providers })
+    render(<Traits />)
 
     expect(screen.getByRole('heading', { name: /traits/i })).toBeInTheDocument()
 
@@ -79,7 +66,7 @@ describe('Traits', () => {
       })
     )
 
-    render(<Traits />, { wrapper: Providers })
+    render(<Traits />)
 
     userEvent.click(screen.getByRole('button', { name: /add trait/i }))
 
@@ -115,7 +102,7 @@ describe('Traits', () => {
       })
     )
 
-    render(<Traits />, { wrapper: Providers })
+    render(<Traits />)
 
     await waitForElementToBeRemoved(() => screen.getByText(/loading/i))
 

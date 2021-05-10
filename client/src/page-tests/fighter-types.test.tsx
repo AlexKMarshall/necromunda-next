@@ -3,8 +3,9 @@ import {
   screen,
   waitForElementToBeRemoved,
   within,
-} from '@testing-library/react'
-import userEvent from '@testing-library/user-event'
+  buildGetCellValueFactory,
+  userEvent,
+} from 'test/utils'
 import { rest } from 'msw'
 import React from 'react'
 import { QueryClient, QueryClientProvider } from 'react-query'
@@ -18,42 +19,9 @@ import {
 import { CreateFighterTypeDto, FighterStats, FighterType } from 'schemas'
 import { apiBaseUrl, endpoints } from 'config'
 
-const Providers: React.ComponentType = ({
-  children,
-}: {
-  children?: React.ReactNode
-}) => {
-  const queryClient = new QueryClient()
-  return (
-    <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
-  )
-}
-
 const fighterTypesUrl = `${apiBaseUrl}/${endpoints.fighterTypes}`
 const factionsUrl = `${apiBaseUrl}/${endpoints.factions}`
 const fighterCategoriesUrl = `${apiBaseUrl}/${endpoints.fighterCategories}`
-
-/** Pass this a header row element to get back a function
- *  that you can call with a data row element to get back
- *  a further function that you can call with a header cell
- *  to get back the cell in the row you're looking at for that column
- *
- *  Essentially a curried version of getCellValue(headerRow, dataRow, columnHeader)
- */
-function buildGetCellValueFactory(headerRow: HTMLElement) {
-  const headerCellsArray = within(headerRow).getAllByRole('columnheader')
-  function getColIndex(headerCell: HTMLElement) {
-    return headerCellsArray.indexOf(headerCell)
-  }
-
-  return function getCellValueFactory(dataRow: HTMLElement) {
-    const dataCells = within(dataRow).getAllByRole('cell')
-    return function getCellValue(headerCell: HTMLElement) {
-      const colIndex = getColIndex(headerCell)
-      return dataCells[colIndex]
-    }
-  }
-}
 
 describe('Fighter Types', () => {
   it('shows a list of fighter types', async () => {
@@ -64,7 +32,7 @@ describe('Fighter Types', () => {
       })
     )
 
-    render(<FighterTypes />, { wrapper: Providers })
+    render(<FighterTypes />)
 
     expect(
       screen.getByRole('heading', { name: /fighter types/i })
@@ -227,7 +195,7 @@ describe('Fighter Types', () => {
       })
     )
 
-    render(<FighterTypes />, { wrapper: Providers })
+    render(<FighterTypes />)
 
     userEvent.click(screen.getByRole('button', { name: /add fighter type/i }))
 
@@ -425,7 +393,7 @@ describe('Fighter Types', () => {
       })
     )
 
-    render(<FighterTypes />, { wrapper: Providers })
+    render(<FighterTypes />)
 
     await waitForElementToBeRemoved(() => screen.getByText(/loading/i))
 

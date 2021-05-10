@@ -3,27 +3,14 @@ import {
   screen,
   waitForElementToBeRemoved,
   within,
-} from '@testing-library/react'
-import userEvent from '@testing-library/user-event'
+  userEvent,
+} from 'test/utils'
 import { rest } from 'msw'
-import React from 'react'
-import { QueryClient, QueryClientProvider } from 'react-query'
 import { server } from 'test/mocks/server'
 import FighterCategories from '../pages/admin/fighter-categories'
 import { buildFighterCategory } from 'test/mocks/test-factories'
 import { CreateFighterCategoryDto, FighterCategory } from 'schemas'
 import { apiBaseUrl, endpoints } from 'config'
-
-const Providers: React.ComponentType = ({
-  children,
-}: {
-  children?: React.ReactNode
-}) => {
-  const queryClient = new QueryClient()
-  return (
-    <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
-  )
-}
 
 const fighterCategoriesUrl = `${apiBaseUrl}/${endpoints.fighterCategories}`
 
@@ -36,7 +23,7 @@ describe('Fighter Categories', () => {
       })
     )
 
-    render(<FighterCategories />, { wrapper: Providers })
+    render(<FighterCategories />)
 
     expect(
       screen.getByRole('heading', { name: /fighter categories/i })
@@ -84,7 +71,7 @@ describe('Fighter Categories', () => {
       )
     )
 
-    render(<FighterCategories />, { wrapper: Providers })
+    render(<FighterCategories />)
 
     userEvent.click(
       screen.getByRole('button', { name: /add fighter category/i })
@@ -129,7 +116,7 @@ describe('Fighter Categories', () => {
       })
     )
 
-    render(<FighterCategories />, { wrapper: Providers })
+    render(<FighterCategories />)
 
     await waitForElementToBeRemoved(() => screen.getByText(/loading/i))
 

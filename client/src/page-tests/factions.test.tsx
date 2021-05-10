@@ -4,6 +4,7 @@ import {
   waitForElementToBeRemoved,
   within,
   userEvent,
+  buildGetCellValueFactory,
 } from 'test/utils'
 import { rest } from 'msw'
 import { server } from 'test/mocks/server'
@@ -31,23 +32,22 @@ describe('Factions', () => {
 
     await waitForElementToBeRemoved(() => screen.getByText(/loading/i))
 
-    expect(
-      screen.getByRole('columnheader', { name: /name/i })
-    ).toBeInTheDocument()
-    expect(
-      screen.getByRole('columnheader', { name: /actions/i })
-    ).toBeInTheDocument()
-
     const table = screen.getByRole('table')
+    const headerRow = within(table).getAllByRole('row')[0]
+    const nameHeader = within(headerRow).getByRole('columnheader', {
+      name: /name/i,
+    })
     const rows = within(within(table).getByTestId('table-body')).getAllByRole(
       'row'
     )
 
+    const getCellValueFactory = buildGetCellValueFactory(headerRow)
+
     expect(rows).toHaveLength(factions.length)
     factions.forEach((faction, index) => {
-      const row = rows[index]
+      const getCellValue = getCellValueFactory(rows[index])
 
-      expect(within(row).getByText(faction.name)).toBeInTheDocument()
+      expect(getCellValue(nameHeader)).toHaveTextContent(faction.name)
     })
   })
 
@@ -70,13 +70,13 @@ describe('Factions', () => {
 
     render(<Factions />)
 
-    userEvent.click(screen.getByRole('button', { name: /add faction/i }))
+    userEvent.click(screen.getByText(/add faction/i))
 
     expect(
       screen.getByRole('heading', { name: /add new faction/i })
     ).toBeInTheDocument()
 
-    userEvent.type(screen.getByRole('textbox', { name: /name/i }), faction.name)
+    userEvent.type(screen.getByLabelText(/name/i), faction.name)
     userEvent.click(screen.getByRole('button', { name: /add faction/i }))
 
     await waitForElementToBeRemoved(screen.getByRole('dialog'))

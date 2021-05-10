@@ -7,8 +7,6 @@ import {
   userEvent,
 } from 'test/utils'
 import { rest } from 'msw'
-import React from 'react'
-import { QueryClient, QueryClientProvider } from 'react-query'
 import { server } from 'test/mocks/server'
 import FighterTypes from '../pages/admin/fighter-types'
 import {
@@ -40,18 +38,12 @@ describe('Fighter Types', () => {
 
     await waitForElementToBeRemoved(() => screen.getByText(/loading/i))
 
-    expect(
-      screen.getByRole('columnheader', { name: /name/i })
-    ).toBeInTheDocument()
-    expect(
-      screen.getByRole('columnheader', { name: /actions/i })
-    ).toBeInTheDocument()
-
     const table = screen.getByRole('table')
     const rows = within(within(table).getByTestId('table-body')).getAllByRole(
       'row'
     )
     expect(rows).toHaveLength(fighterTypes.length)
+    const headerRow = screen.getAllByRole('row')[0]
 
     const nameHeader = screen.getByRole('columnheader', { name: /name/i })
     const costHeader = screen.getByRole('columnheader', { name: /cost/i })
@@ -78,7 +70,6 @@ describe('Fighter Types', () => {
       name: /intelligence/i,
     })
 
-    const headerRow = screen.getAllByRole('row')[0]
     const getCellValueFactory = buildGetCellValueFactory(headerRow)
 
     fighterTypes.forEach((fighterType, index) => {
@@ -199,85 +190,80 @@ describe('Fighter Types', () => {
 
     userEvent.click(screen.getByRole('button', { name: /add fighter type/i }))
 
-    expect(
-      screen.getByRole('heading', { name: /add new fighter type/i })
-    ).toBeInTheDocument()
+    const modal = screen.getByRole('dialog', { name: /add new fighter type/i })
 
     await waitForElementToBeRemoved(screen.getAllByText(/loading/i), {
       timeout: 5000,
     })
 
+    userEvent.type(within(modal).getByLabelText(/name/i), fighterType.name)
     userEvent.type(
-      screen.getByRole('textbox', { name: /name/i }),
-      fighterType.name
-    )
-    userEvent.type(
-      screen.getByRole('textbox', { name: /cost/i }),
+      within(modal).getByLabelText(/cost/i),
       fighterType.cost.toString()
     )
-    const factionsSelect = screen.getByRole('combobox', { name: /faction/i })
+    const factionsSelect = within(modal).getByLabelText(/faction/i)
     userEvent.selectOptions(
       factionsSelect,
       within(factionsSelect).getByText(fighterType.faction.name)
     )
-    const categorySelect = screen.getByRole('combobox', { name: /category/i })
+    const categorySelect = within(modal).getByLabelText(/category/i)
     userEvent.selectOptions(
       categorySelect,
       within(categorySelect).getByText(fighterType.fighterCategory.name)
     )
 
     userEvent.type(
-      screen.getByRole('textbox', { name: /movement/i }),
+      within(modal).getByLabelText(/movement/i),
       fighterType.fighterStats.movement.toString()
     )
     userEvent.type(
-      screen.getByRole('textbox', { name: /weapon skill/i }),
+      within(modal).getByLabelText(/weapon skill/i),
       fighterType.fighterStats.weaponSkill.toString()
     )
     userEvent.type(
-      screen.getByRole('textbox', { name: /ballistic skill/i }),
+      within(modal).getByLabelText(/ballistic skill/i),
       fighterType.fighterStats.ballisticSkill.toString()
     )
     userEvent.type(
-      screen.getByRole('textbox', { name: /strength/i }),
+      within(modal).getByLabelText(/strength/i),
       fighterType.fighterStats.strength.toString()
     )
     userEvent.type(
-      screen.getByRole('textbox', { name: /toughness/i }),
+      within(modal).getByLabelText(/toughness/i),
       fighterType.fighterStats.toughness.toString()
     )
     userEvent.type(
-      screen.getByRole('textbox', { name: /wounds/i }),
+      within(modal).getByLabelText(/wounds/i),
       fighterType.fighterStats.wounds.toString()
     )
     userEvent.type(
-      screen.getByRole('textbox', { name: /initiative/i }),
+      within(modal).getByLabelText(/initiative/i),
       fighterType.fighterStats.initiative.toString()
     )
     userEvent.type(
-      screen.getByRole('textbox', { name: /attacks/i }),
+      within(modal).getByLabelText(/attacks/i),
       fighterType.fighterStats.attacks.toString()
     )
     userEvent.type(
-      screen.getByRole('textbox', { name: /leadership/i }),
+      within(modal).getByLabelText(/leadership/i),
       fighterType.fighterStats.leadership.toString()
     )
     userEvent.type(
-      screen.getByRole('textbox', { name: /cool/i }),
+      within(modal).getByLabelText(/cool/i),
       fighterType.fighterStats.cool.toString()
     )
     userEvent.type(
-      screen.getByRole('textbox', { name: /will/i }),
+      within(modal).getByLabelText(/will/i),
       fighterType.fighterStats.will.toString()
     )
     userEvent.type(
-      screen.getByRole('textbox', { name: /intelligence/i }),
+      within(modal).getByLabelText(/intelligence/i),
       fighterType.fighterStats.intelligence.toString()
     )
 
     userEvent.click(screen.getByRole('button', { name: /add fighter type/i }))
 
-    await waitForElementToBeRemoved(screen.getByRole('dialog'))
+    await waitForElementToBeRemoved(modal)
 
     expect(screen.getByText(fighterType.name)).toBeInTheDocument()
     const headerRow = screen.getAllByRole('row')[0]

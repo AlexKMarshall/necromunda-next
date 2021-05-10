@@ -1,8 +1,6 @@
 import {
-  getByRole,
   render,
   screen,
-  waitFor,
   waitForElementToBeRemoved,
   within,
 } from '@testing-library/react'
@@ -18,7 +16,7 @@ import {
   buildFighterType,
 } from 'test/mocks/test-factories'
 import { CreateFighterTypeDto, FighterStats, FighterType } from 'schemas'
-import SkillTypes from 'pages/admin/skill-types'
+import { apiBaseUrl, endpoints } from 'config'
 
 const Providers: React.ComponentType = ({
   children,
@@ -30,6 +28,10 @@ const Providers: React.ComponentType = ({
     <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
   )
 }
+
+const fighterTypesUrl = `${apiBaseUrl}/${endpoints.fighterTypes}`
+const factionsUrl = `${apiBaseUrl}/${endpoints.factions}`
+const fighterCategoriesUrl = `${apiBaseUrl}/${endpoints.fighterCategories}`
 
 /** Pass this a header row element to get back a function
  *  that you can call with a data row element to get back
@@ -57,7 +59,7 @@ describe('Fighter Types', () => {
   it('shows a list of fighter types', async () => {
     const fighterTypes = [buildFighterType(), buildFighterType()]
     server.use(
-      rest.get('http://localhost:3000/fighter-types', (req, res, ctx) => {
+      rest.get(fighterTypesUrl, (req, res, ctx) => {
         return res(ctx.json(fighterTypes))
       })
     )
@@ -177,53 +179,50 @@ describe('Fighter Types', () => {
     })
     const serverFighterTypes: FighterType[] = []
     server.use(
-      rest.get('http://localhost:3000/fighter-types', (req, res, ctx) => {
+      rest.get(fighterTypesUrl, (req, res, ctx) => {
         return res(ctx.json(serverFighterTypes))
       }),
-      rest.post<CreateFighterTypeDto>(
-        'http://localhost:3000/fighter-types',
-        (req, res, ctx) => {
-          const { body: ftDto } = req
-          const defaultFighterStats: FighterStats = {
-            id: 'abc',
-            movement: 1,
-            weaponSkill: 1,
-            ballisticSkill: 1,
-            strength: 1,
-            toughness: 1,
-            wounds: 1,
-            initiative: 1,
-            attacks: 1,
-            leadership: 1,
-            cool: 1,
-            will: 1,
-            intelligence: 1,
-          }
-          const faction = factions.find((f) => f.id === ftDto.faction.id) ?? {
-            id: '',
-            name: 'pending',
-          }
-          const fighterCategory = fighterCategories.find(
-            (fc) => fc.id === ftDto.fighterCategory.id
-          ) ?? { id: '', name: 'Pending' }
-          const createdFT = {
-            ...ftDto,
-            faction,
-            fighterCategory,
-            fighterStats: {
-              ...defaultFighterStats,
-              id: fighterType.fighterStats.id,
-            },
-            id: fighterType.id,
-          }
-          serverFighterTypes.push(createdFT)
-          return res(ctx.status(201), ctx.json(createdFT))
+      rest.post<CreateFighterTypeDto>(fighterTypesUrl, (req, res, ctx) => {
+        const { body: ftDto } = req
+        const defaultFighterStats: FighterStats = {
+          id: 'abc',
+          movement: 1,
+          weaponSkill: 1,
+          ballisticSkill: 1,
+          strength: 1,
+          toughness: 1,
+          wounds: 1,
+          initiative: 1,
+          attacks: 1,
+          leadership: 1,
+          cool: 1,
+          will: 1,
+          intelligence: 1,
         }
-      ),
-      rest.get('http://localhost:3000/factions', (req, res, ctx) => {
+        const faction = factions.find((f) => f.id === ftDto.faction.id) ?? {
+          id: '',
+          name: 'pending',
+        }
+        const fighterCategory = fighterCategories.find(
+          (fc) => fc.id === ftDto.fighterCategory.id
+        ) ?? { id: '', name: 'Pending' }
+        const createdFT = {
+          ...ftDto,
+          faction,
+          fighterCategory,
+          fighterStats: {
+            ...defaultFighterStats,
+            id: fighterType.fighterStats.id,
+          },
+          id: fighterType.id,
+        }
+        serverFighterTypes.push(createdFT)
+        return res(ctx.status(201), ctx.json(createdFT))
+      }),
+      rest.get(factionsUrl, (req, res, ctx) => {
         return res(ctx.json(factions))
       }),
-      rest.get('http://localhost:3000/fighter-categories', (req, res, ctx) => {
+      rest.get(fighterCategoriesUrl, (req, res, ctx) => {
         return res(ctx.json(fighterCategories))
       })
     )
@@ -411,22 +410,19 @@ describe('Fighter Types', () => {
     let serverFTs = [buildFighterType(), buildFighterType()]
     const initialFTs = [...serverFTs]
     server.use(
-      rest.get('http://localhost:3000/fighter-types', (req, res, ctx) => {
+      rest.get(fighterTypesUrl, (req, res, ctx) => {
         return res(ctx.json(serverFTs))
       }),
-      rest.delete(
-        'http://localhost:3000/fighter-types/:id',
-        (req, res, ctx) => {
-          const {
-            params: { id },
-          } = req
+      rest.delete(`${fighterTypesUrl}/:id`, (req, res, ctx) => {
+        const {
+          params: { id },
+        } = req
 
-          const deletedFC = serverFTs.find((f) => f.id === id)
-          serverFTs = serverFTs.filter((f) => f.id !== id)
+        const deletedFC = serverFTs.find((f) => f.id === id)
+        serverFTs = serverFTs.filter((f) => f.id !== id)
 
-          return res(ctx.json(deletedFC))
-        }
-      )
+        return res(ctx.json(deletedFC))
+      })
     )
 
     render(<FighterTypes />, { wrapper: Providers })

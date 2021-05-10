@@ -1,16 +1,17 @@
+import { endpoints, queryKeys } from 'config'
 import { nanoid } from 'nanoid'
 import { useMutation, useQuery, useQueryClient } from 'react-query'
 import { CreateSkillDto, Skill, skillSchema } from 'schemas'
 import { client } from './client'
 import { useQuerySkillTypes } from './skill-types'
 
-const QUERY_KEY = 'skills'
-const endpoint = 'skills'
+const skillsQueryKey = queryKeys.skills
+const skillsEndpoint = endpoints.skills
 
 export function useQuerySkills() {
-  const query = useQuery(QUERY_KEY, async () => {
+  const query = useQuery(skillsQueryKey, async () => {
     try {
-      const response = await client(endpoint)
+      const response = await client(skillsEndpoint)
       const data = await response.json()
       return skillSchema.array().parse(data)
     } catch (e) {
@@ -29,15 +30,15 @@ export function useCreateSkill() {
 
   const mutation = useMutation(
     async (skill: CreateSkillDto) => {
-      return client(endpoint, {
+      return client(skillsEndpoint, {
         data: skill,
       })
     },
     {
       onMutate: async (createSkillDto) => {
-        await queryClient.cancelQueries(QUERY_KEY)
+        await queryClient.cancelQueries(skillsQueryKey)
         const previousSkills =
-          queryClient.getQueryData<Skill[]>(QUERY_KEY) ?? []
+          queryClient.getQueryData<Skill[]>(skillsQueryKey) ?? []
 
         const skillType = skillTypes.find(
           (st) => st.id === createSkillDto.type.id
@@ -49,7 +50,7 @@ export function useCreateSkill() {
           type: skillType,
         }
 
-        queryClient.setQueryData<Skill[]>(QUERY_KEY, [
+        queryClient.setQueryData<Skill[]>(skillsQueryKey, [
           ...previousSkills,
           pendingSkill,
         ])
@@ -57,7 +58,7 @@ export function useCreateSkill() {
         return { previousSkills }
       },
       onSettled: () => {
-        queryClient.invalidateQueries(QUERY_KEY)
+        queryClient.invalidateQueries(skillsQueryKey)
       },
     }
   )
@@ -69,25 +70,25 @@ export function useDeleteSkill(skillId: Skill['id']) {
 
   const mutation = useMutation(
     () => {
-      return client(`${endpoint}/${skillId}`, {
+      return client(`${skillsEndpoint}/${skillId}`, {
         method: 'DELETE',
       })
     },
     {
       onMutate: async () => {
-        await queryClient.cancelQueries(QUERY_KEY)
+        await queryClient.cancelQueries(skillsQueryKey)
         const previousSkills =
-          queryClient.getQueryData<Skill[]>(QUERY_KEY) ?? []
+          queryClient.getQueryData<Skill[]>(skillsQueryKey) ?? []
 
         queryClient.setQueryData(
-          QUERY_KEY,
+          skillsQueryKey,
           previousSkills.filter((f) => f.id !== skillId)
         )
 
         return { previousFactions: previousSkills }
       },
       onSettled: () => {
-        queryClient.invalidateQueries(QUERY_KEY)
+        queryClient.invalidateQueries(skillsQueryKey)
       },
     }
   )

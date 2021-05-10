@@ -12,6 +12,7 @@ import { server } from 'test/mocks/server'
 import Traits from '../pages/admin/traits'
 import { buildTrait } from 'test/mocks/test-factories'
 import { CreateTraitDto, Trait } from 'schemas'
+import { apiBaseUrl, endpoints } from 'config'
 
 const Providers: React.ComponentType = ({
   children,
@@ -24,11 +25,13 @@ const Providers: React.ComponentType = ({
   )
 }
 
+const traitsUrl = `${apiBaseUrl}/${endpoints.traits}`
+
 describe('Traits', () => {
   it('shows a list of traits', async () => {
     const traits = [buildTrait(), buildTrait()]
     server.use(
-      rest.get('http://localhost:3000/traits', (req, res, ctx) => {
+      rest.get(traitsUrl, (req, res, ctx) => {
         return res(ctx.json(traits))
       })
     )
@@ -63,20 +66,17 @@ describe('Traits', () => {
     const trait = buildTrait()
     const serverTraits: Trait[] = []
     server.use(
-      rest.get('http://localhost:3000/traits', (req, res, ctx) => {
+      rest.get(traitsUrl, (req, res, ctx) => {
         return res(ctx.json(serverTraits))
       }),
-      rest.post<CreateTraitDto>(
-        'http://localhost:3000/traits',
-        (req, res, ctx) => {
-          const {
-            body: { name },
-          } = req
-          const createdTrait = { ...trait, name }
-          serverTraits.push(createdTrait)
-          return res(ctx.status(201), ctx.json(createdTrait))
-        }
-      )
+      rest.post<CreateTraitDto>(traitsUrl, (req, res, ctx) => {
+        const {
+          body: { name },
+        } = req
+        const createdTrait = { ...trait, name }
+        serverTraits.push(createdTrait)
+        return res(ctx.status(201), ctx.json(createdTrait))
+      })
     )
 
     render(<Traits />, { wrapper: Providers })
@@ -100,10 +100,10 @@ describe('Traits', () => {
     let serverTraits = [buildTrait(), buildTrait()]
     const initialTraits = [...serverTraits]
     server.use(
-      rest.get('http://localhost:3000/traits', (req, res, ctx) => {
+      rest.get(traitsUrl, (req, res, ctx) => {
         return res(ctx.json(serverTraits))
       }),
-      rest.delete('http://localhost:3000/traits/:id', (req, res, ctx) => {
+      rest.delete(`${traitsUrl}/:id`, (req, res, ctx) => {
         const {
           params: { id },
         } = req

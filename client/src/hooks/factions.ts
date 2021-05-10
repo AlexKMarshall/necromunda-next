@@ -2,14 +2,15 @@ import { nanoid } from 'nanoid'
 import { useMutation, useQuery, useQueryClient } from 'react-query'
 import { CreateFactionDto, Faction, factionSchema } from 'schemas'
 import { client } from './client'
+import { queryKeys, endpoints } from 'config'
 
-const QUERY_KEY_FACTIONS = 'factions'
-const endpoint = 'factions'
+const factionsQueryKey = queryKeys.factions
+const factionsEndpoint = endpoints.factions
 
 export function useQueryFactions() {
-  const query = useQuery(QUERY_KEY_FACTIONS, async () => {
+  const query = useQuery(factionsQueryKey, async () => {
     try {
-      const response = await client(endpoint)
+      const response = await client(factionsEndpoint)
       const data = await response.json()
       return factionSchema.array().parse(data)
     } catch (e) {
@@ -27,19 +28,19 @@ export function useCreateFaction() {
 
   const mutation = useMutation(
     async (faction: CreateFactionDto) => {
-      return client(endpoint, {
+      return client(factionsEndpoint, {
         data: faction,
       })
     },
     {
       onMutate: async (createFactionDto) => {
-        await queryClient.cancelQueries(QUERY_KEY_FACTIONS)
+        await queryClient.cancelQueries(factionsQueryKey)
         const previousFactions =
-          queryClient.getQueryData<Faction[]>(QUERY_KEY_FACTIONS) ?? []
+          queryClient.getQueryData<Faction[]>(factionsQueryKey) ?? []
 
-        const pendingFaction = { ...createFactionDto, id: nanoid() }
+        const pendingFaction: Faction = { ...createFactionDto, id: nanoid() }
 
-        queryClient.setQueryData<Faction[]>(QUERY_KEY_FACTIONS, [
+        queryClient.setQueryData<Faction[]>(factionsQueryKey, [
           ...previousFactions,
           pendingFaction,
         ])
@@ -47,7 +48,7 @@ export function useCreateFaction() {
         return { previousFactions }
       },
       onSettled: () => {
-        queryClient.invalidateQueries(QUERY_KEY_FACTIONS)
+        queryClient.invalidateQueries(factionsQueryKey)
       },
     }
   )
@@ -59,25 +60,25 @@ export function useDeleteFaction(factionId: Faction['id']) {
 
   const mutation = useMutation(
     () => {
-      return client(`${endpoint}/${factionId}`, {
+      return client(`${factionsEndpoint}/${factionId}`, {
         method: 'DELETE',
       })
     },
     {
       onMutate: async () => {
-        await queryClient.cancelQueries(QUERY_KEY_FACTIONS)
+        await queryClient.cancelQueries(factionsQueryKey)
         const previousFactions =
-          queryClient.getQueryData<Faction[]>(QUERY_KEY_FACTIONS) ?? []
+          queryClient.getQueryData<Faction[]>(factionsQueryKey) ?? []
 
         queryClient.setQueryData(
-          QUERY_KEY_FACTIONS,
+          factionsQueryKey,
           previousFactions.filter((f) => f.id !== factionId)
         )
 
         return { previousFactions }
       },
       onSettled: () => {
-        queryClient.invalidateQueries(QUERY_KEY_FACTIONS)
+        queryClient.invalidateQueries(factionsQueryKey)
       },
     }
   )

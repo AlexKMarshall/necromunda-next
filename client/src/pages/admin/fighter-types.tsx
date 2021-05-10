@@ -1,4 +1,3 @@
-import { useQuery, useMutation, useQueryClient } from 'react-query'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useMemo, useState } from 'react'
@@ -9,116 +8,17 @@ import '@reach/dialog/styles.css'
 import {
   CreateFighterTypeDto,
   createFighterTypeDtoSchema,
-  FighterStats,
   FighterType,
-  fighterTypeSchema,
 } from 'schemas'
 import { H1, H2, Stack } from 'components/lib'
 import { useQueryFactions } from 'hooks/factions'
 import { useQueryFighterCategories } from 'hooks/fighter-categories'
 import { Input, Table, Td, Th, Tr } from 'styles/admin'
-import { client } from 'hooks/client'
-import { nanoid } from 'nanoid'
-
-const QUERY_KEY = 'fighterTypes'
-
-function useQueryFighterTypes() {
-  const query = useQuery(QUERY_KEY, async () => {
-    try {
-      const response = await client('fighter-types')
-      const data = await response.json()
-      return fighterTypeSchema.array().parse(data)
-    } catch (e) {
-      console.error(e)
-      return Promise.reject(e)
-    }
-  })
-
-  const fighterTypes = query.data ?? []
-  return { ...query, fighterTypes }
-}
-
-function useCreateFighterType() {
-  const queryClient = useQueryClient()
-  const { factions } = useQueryFactions()
-  const { fighterCategories } = useQueryFighterCategories()
-
-  const mutation = useMutation(
-    async (fighterType: CreateFighterTypeDto) => {
-      return fetch('http://localhost:3000/fighter-types', {
-        method: 'POST',
-        body: JSON.stringify(fighterType),
-        headers: {
-          'content-type': 'application/json',
-        },
-      })
-    },
-    {
-      onMutate: async (createFtDto) => {
-        await queryClient.cancelQueries(QUERY_KEY)
-        const previousFTs =
-          queryClient.getQueryData<FighterType[]>(QUERY_KEY) ?? []
-
-        const faction = factions.find(
-          (f) => f.id === createFtDto.faction.id
-        ) ?? { id: createFtDto.faction.id, name: 'Pending' }
-        const category = fighterCategories.find(
-          (fc) => fc.id === createFtDto.fighterCategory.id
-        ) ?? { id: createFtDto.fighterCategory.id, name: 'Pending' }
-
-        const pendingFT: FighterType = {
-          ...createFtDto,
-          id: nanoid(),
-          faction,
-          fighterCategory: category,
-          fighterStats: { ...createFtDto.fighterStats, id: nanoid() },
-        }
-
-        queryClient.setQueryData<FighterType[]>(QUERY_KEY, [
-          ...previousFTs,
-          pendingFT,
-        ])
-
-        return { previousFTs }
-      },
-      onSettled: () => {
-        queryClient.invalidateQueries(QUERY_KEY)
-      },
-    }
-  )
-  return mutation
-}
-
-function useDeleteFighterType(fighterTypeId: FighterType['id']) {
-  const queryClient = useQueryClient()
-
-  const mutation = useMutation(
-    async () => {
-      return fetch(`http://localhost:3000/fighter-types/${fighterTypeId}`, {
-        method: 'DELETE',
-      })
-    },
-    {
-      onMutate: async () => {
-        await queryClient.cancelQueries(QUERY_KEY)
-
-        const previousFighterTypes =
-          queryClient.getQueryData<FighterType[]>(QUERY_KEY) ?? []
-
-        queryClient.setQueryData<FighterType[]>(
-          QUERY_KEY,
-          previousFighterTypes.filter((ft) => ft.id !== fighterTypeId)
-        )
-
-        return { previousFighterTypes }
-      },
-      onSettled: () => {
-        queryClient.invalidateQueries(QUERY_KEY)
-      },
-    }
-  )
-  return mutation
-}
+import {
+  useQueryFighterTypes,
+  useDeleteFighterType,
+  useCreateFighterType,
+} from 'hooks/fighter-types'
 
 export default function FighterTypes() {
   const query = useQueryFighterTypes()

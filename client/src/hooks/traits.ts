@@ -1,14 +1,15 @@
+import { endpoints, queryKeys } from 'config'
 import { nanoid } from 'nanoid'
 import { useMutation, useQuery, useQueryClient } from 'react-query'
 import { CreateTraitDto, Trait, traitSchema } from 'schemas'
 import { client } from './client'
 
-const QUERY_KEY = 'traits'
-const ENDPOINT = 'traits'
+const traitsQueryKey = queryKeys.traits
+const traitsEndpoint = endpoints.traits
 
 export function useQueryTraits() {
-  const query = useQuery(QUERY_KEY, async () => {
-    const response = await client(ENDPOINT)
+  const query = useQuery(traitsQueryKey, async () => {
+    const response = await client(traitsEndpoint)
     const data = await response.json()
     return traitSchema.array().parse(data)
   })
@@ -22,19 +23,19 @@ export function useCreateTrait() {
 
   const mutation = useMutation(
     async (trait: CreateTraitDto) => {
-      return client(ENDPOINT, {
+      return client(traitsEndpoint, {
         data: trait,
       })
     },
     {
       onMutate: async (createTraitDto) => {
-        await queryClient.cancelQueries(QUERY_KEY)
+        await queryClient.cancelQueries(traitsQueryKey)
         const previousTraits =
-          queryClient.getQueryData<Trait[]>(QUERY_KEY) ?? []
+          queryClient.getQueryData<Trait[]>(traitsQueryKey) ?? []
 
         const pendingTrait = { ...createTraitDto, id: nanoid() }
 
-        queryClient.setQueryData<Trait[]>(QUERY_KEY, [
+        queryClient.setQueryData<Trait[]>(traitsQueryKey, [
           ...previousTraits,
           pendingTrait,
         ])
@@ -42,7 +43,7 @@ export function useCreateTrait() {
         return { previousTraits }
       },
       onSettled: () => {
-        queryClient.invalidateQueries(QUERY_KEY)
+        queryClient.invalidateQueries(traitsQueryKey)
       },
     }
   )
@@ -54,25 +55,25 @@ export function useDeleteTrait(traitId: Trait['id']) {
 
   const mutation = useMutation(
     async () => {
-      return client(`${ENDPOINT}/${traitId}`, {
+      return client(`${traitsEndpoint}/${traitId}`, {
         method: 'DELETE',
       })
     },
     {
       onMutate: async () => {
-        await queryClient.cancelQueries(QUERY_KEY)
+        await queryClient.cancelQueries(traitsQueryKey)
         const previousTraits =
-          queryClient.getQueryData<Trait[]>(QUERY_KEY) ?? []
+          queryClient.getQueryData<Trait[]>(traitsQueryKey) ?? []
 
         queryClient.setQueryData<Trait[]>(
-          QUERY_KEY,
+          traitsQueryKey,
           previousTraits.filter((t) => t.id !== traitId)
         )
 
         return { previousTraits }
       },
       onSettled: () => {
-        queryClient.invalidateQueries(QUERY_KEY)
+        queryClient.invalidateQueries(traitsQueryKey)
       },
     }
   )

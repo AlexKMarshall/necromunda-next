@@ -1,8 +1,8 @@
+import { apiBaseUrl } from 'config'
+
 type ClientOptions<ReqBody> = RequestInit & {
   data?: ReqBody
 }
-
-const API_BASE_URL = 'http://localhost:3000/'
 
 export function client<ReqBody>(
   endpoint: string,
@@ -23,5 +23,5 @@ export function client<ReqBody>(
     ...options,
   }
 
-  return fetch(`${API_BASE_URL}${endpoint}`, fetchOptions)
+  return fetch(`${apiBaseUrl}/${endpoint}`, fetchOptions)
 }

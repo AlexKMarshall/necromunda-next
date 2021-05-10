@@ -6,13 +6,14 @@ import {
   FighterCategory,
   fighterCategorySchema,
 } from 'schemas'
+import { endpoints, queryKeys } from 'config'
 
-const QUERY_KEY = 'fighterCategories'
-const endpoint = 'fighter-categories'
+const fighterCategoriesQueryKey = queryKeys.fighterCategories
+const fighterCategoriesEndpoint = endpoints.fighterCategories
 
 export function useQueryFighterCategories() {
-  const query = useQuery(QUERY_KEY, async () => {
-    const response = await client(endpoint)
+  const query = useQuery(fighterCategoriesQueryKey, async () => {
+    const response = await client(fighterCategoriesEndpoint)
     const data = await response.json()
     return fighterCategorySchema.array().parse(data)
   })
@@ -26,19 +27,21 @@ export function useCreateFighterCategory() {
 
   const mutation = useMutation(
     async (fighterCategory: CreateFighterCategoryDto) => {
-      return client(endpoint, {
+      return client(fighterCategoriesEndpoint, {
         data: fighterCategory,
       })
     },
     {
       onMutate: async (createFCDto) => {
-        await queryClient.cancelQueries(QUERY_KEY)
+        await queryClient.cancelQueries(fighterCategoriesQueryKey)
         const previousFCs =
-          queryClient.getQueryData<FighterCategory[]>(QUERY_KEY) ?? []
+          queryClient.getQueryData<FighterCategory[]>(
+            fighterCategoriesQueryKey
+          ) ?? []
 
-        const pendingFC = { ...createFCDto, id: nanoid() }
+        const pendingFC: FighterCategory = { ...createFCDto, id: nanoid() }
 
-        queryClient.setQueryData<FighterCategory[]>(QUERY_KEY, [
+        queryClient.setQueryData<FighterCategory[]>(fighterCategoriesQueryKey, [
           ...previousFCs,
           pendingFC,
         ])
@@ -46,7 +49,7 @@ export function useCreateFighterCategory() {
         return { previousFCs }
       },
       onSettled: () => {
-        queryClient.invalidateQueries(QUERY_KEY)
+        queryClient.invalidateQueries(fighterCategoriesQueryKey)
       },
     }
   )
@@ -60,13 +63,13 @@ export function useDeleteFighterCategory(
 
   const mutation = useMutation(
     async () => {
-      return client(`${endpoint}/${fighterCategoryId}`, {
+      return client(`${fighterCategoriesEndpoint}/${fighterCategoryId}`, {
         method: 'DELETE',
       })
     },
     {
       onSuccess: () => {
-        queryClient.invalidateQueries(QUERY_KEY)
+        queryClient.invalidateQueries(fighterCategoriesQueryKey)
       },
     }
   )

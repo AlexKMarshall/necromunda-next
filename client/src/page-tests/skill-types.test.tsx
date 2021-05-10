@@ -12,6 +12,7 @@ import { server } from 'test/mocks/server'
 import SkillTypes from '../pages/admin/skill-types'
 import { buildSkillType } from 'test/mocks/test-factories'
 import { CreateSkillTypeDto, SkillType } from 'schemas'
+import { apiBaseUrl, endpoints } from 'config'
 
 const Providers: React.ComponentType = ({
   children,
@@ -23,6 +24,8 @@ const Providers: React.ComponentType = ({
     <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
   )
 }
+
+const skillTypesUrl = `${apiBaseUrl}/${endpoints.skillTypes}`
 
 /** Pass this a header row element to get back a function
  *  that you can call with a data row element to get back
@@ -50,7 +53,7 @@ describe('Skill Types', () => {
   it('shows a list of skill types', async () => {
     const skillTypes = [buildSkillType(), buildSkillType()]
     server.use(
-      rest.get('http://localhost:3000/skill-types', (req, res, ctx) => {
+      rest.get(skillTypesUrl, (req, res, ctx) => {
         return res(ctx.json(skillTypes))
       })
     )
@@ -86,20 +89,17 @@ describe('Skill Types', () => {
     const skillType = buildSkillType()
     const serverSkillTypes: SkillType[] = []
     server.use(
-      rest.get('http://localhost:3000/skill-types', (req, res, ctx) => {
+      rest.get(skillTypesUrl, (req, res, ctx) => {
         return res(ctx.json(serverSkillTypes))
       }),
-      rest.post<CreateSkillTypeDto>(
-        'http://localhost:3000/skill-types',
-        (req, res, ctx) => {
-          const {
-            body: { name },
-          } = req
-          const createdSkillType = { ...skillType, name }
-          serverSkillTypes.push(createdSkillType)
-          return res(ctx.status(201), ctx.json(createdSkillType))
-        }
-      )
+      rest.post<CreateSkillTypeDto>(skillTypesUrl, (req, res, ctx) => {
+        const {
+          body: { name },
+        } = req
+        const createdSkillType = { ...skillType, name }
+        serverSkillTypes.push(createdSkillType)
+        return res(ctx.status(201), ctx.json(createdSkillType))
+      })
     )
 
     render(<SkillTypes />, { wrapper: Providers })
@@ -128,10 +128,10 @@ describe('Skill Types', () => {
     let serverSkillTypes = [buildSkillType(), buildSkillType()]
     const initialSkillTypes = [...serverSkillTypes]
     server.use(
-      rest.get('http://localhost:3000/skill-types', (req, res, ctx) => {
+      rest.get(skillTypesUrl, (req, res, ctx) => {
         return res(ctx.json(serverSkillTypes))
       }),
-      rest.delete('http://localhost:3000/skill-types/:id', (req, res, ctx) => {
+      rest.delete(`${skillTypesUrl}/:id`, (req, res, ctx) => {
         const {
           params: { id },
         } = req

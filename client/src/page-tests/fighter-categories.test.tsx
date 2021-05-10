@@ -12,6 +12,7 @@ import { server } from 'test/mocks/server'
 import FighterCategories from '../pages/admin/fighter-categories'
 import { buildFighterCategory } from 'test/mocks/test-factories'
 import { CreateFighterCategoryDto, FighterCategory } from 'schemas'
+import { apiBaseUrl, endpoints } from 'config'
 
 const Providers: React.ComponentType = ({
   children,
@@ -24,11 +25,13 @@ const Providers: React.ComponentType = ({
   )
 }
 
+const fighterCategoriesUrl = `${apiBaseUrl}/${endpoints.fighterCategories}`
+
 describe('Fighter Categories', () => {
   it('shows a list of fighter categories', async () => {
     const fighterCategories = [buildFighterCategory(), buildFighterCategory()]
     server.use(
-      rest.get('http://localhost:3000/fighter-categories', (req, res, ctx) => {
+      rest.get(fighterCategoriesUrl, (req, res, ctx) => {
         return res(ctx.json(fighterCategories))
       })
     )
@@ -65,11 +68,11 @@ describe('Fighter Categories', () => {
     const fighterCategory = buildFighterCategory()
     const serverFighterCategories: FighterCategory[] = []
     server.use(
-      rest.get('http://localhost:3000/fighter-categories', (req, res, ctx) => {
+      rest.get(fighterCategoriesUrl, (req, res, ctx) => {
         return res(ctx.json(serverFighterCategories))
       }),
       rest.post<CreateFighterCategoryDto>(
-        'http://localhost:3000/fighter-categories',
+        fighterCategoriesUrl,
         (req, res, ctx) => {
           const {
             body: { name },
@@ -111,22 +114,19 @@ describe('Fighter Categories', () => {
     let serverFCs = [buildFighterCategory(), buildFighterCategory()]
     const initialFCs = [...serverFCs]
     server.use(
-      rest.get('http://localhost:3000/fighter-categories', (req, res, ctx) => {
+      rest.get(fighterCategoriesUrl, (req, res, ctx) => {
         return res(ctx.json(serverFCs))
       }),
-      rest.delete(
-        'http://localhost:3000/fighter-categories/:id',
-        (req, res, ctx) => {
-          const {
-            params: { id },
-          } = req
+      rest.delete(`${fighterCategoriesUrl}/:id`, (req, res, ctx) => {
+        const {
+          params: { id },
+        } = req
 
-          const deletedFC = serverFCs.find((f) => f.id === id)
-          serverFCs = serverFCs.filter((f) => f.id !== id)
+        const deletedFC = serverFCs.find((f) => f.id === id)
+        serverFCs = serverFCs.filter((f) => f.id !== id)
 
-          return res(ctx.json(deletedFC))
-        }
-      )
+        return res(ctx.json(deletedFC))
+      })
     )
 
     render(<FighterCategories />, { wrapper: Providers })

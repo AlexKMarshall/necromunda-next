@@ -12,6 +12,7 @@ import { server } from 'test/mocks/server'
 import Factions from '../pages/admin/factions'
 import { buildFaction } from 'test/mocks/test-factories'
 import { CreateFactionDto, Faction } from 'schemas'
+import { apiBaseUrl, endpoints } from 'config'
 
 const Providers: React.ComponentType = ({
   children,
@@ -24,11 +25,13 @@ const Providers: React.ComponentType = ({
   )
 }
 
+const factionsUrl = `${apiBaseUrl}/${endpoints.factions}`
+
 describe('Factions', () => {
   it('shows a list of factions', async () => {
     const factions = [buildFaction(), buildFaction()]
     server.use(
-      rest.get('http://localhost:3000/factions', (req, res, ctx) => {
+      rest.get(factionsUrl, (req, res, ctx) => {
         return res(ctx.json(factions))
       })
     )
@@ -65,20 +68,17 @@ describe('Factions', () => {
     const faction = buildFaction()
     const serverFactions: Faction[] = []
     server.use(
-      rest.get('http://localhost:3000/factions', (req, res, ctx) => {
+      rest.get(factionsUrl, (req, res, ctx) => {
         return res(ctx.json(serverFactions))
       }),
-      rest.post<CreateFactionDto>(
-        'http://localhost:3000/factions',
-        (req, res, ctx) => {
-          const {
-            body: { name },
-          } = req
-          const createdFaction = { ...faction, name }
-          serverFactions.push(createdFaction)
-          return res(ctx.status(201), ctx.json(createdFaction))
-        }
-      )
+      rest.post<CreateFactionDto>(factionsUrl, (req, res, ctx) => {
+        const {
+          body: { name },
+        } = req
+        const createdFaction = { ...faction, name }
+        serverFactions.push(createdFaction)
+        return res(ctx.status(201), ctx.json(createdFaction))
+      })
     )
 
     render(<Factions />, { wrapper: Providers })
@@ -102,10 +102,10 @@ describe('Factions', () => {
     let serverFactions = [buildFaction(), buildFaction()]
     const initialFactions = [...serverFactions]
     server.use(
-      rest.get('http://localhost:3000/factions', (req, res, ctx) => {
+      rest.get(factionsUrl, (req, res, ctx) => {
         return res(ctx.json(serverFactions))
       }),
-      rest.delete('http://localhost:3000/factions/:id', (req, res, ctx) => {
+      rest.delete(`${factionsUrl}/:id`, (req, res, ctx) => {
         const {
           params: { id },
         } = req

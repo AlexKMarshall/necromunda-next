@@ -154,23 +154,6 @@ function DeleteFighterTypeButton({
   )
 }
 
-const blankFighterStats = {
-  id: '',
-  movement: 0,
-  weaponSkill: 0,
-  ballisticSkill: 0,
-  strength: 0,
-  toughness: 0,
-  wounds: 0,
-  initiative: 0,
-  attacks: 0,
-  leadership: 0,
-  cool: 0,
-  will: 0,
-  intelligence: 0,
-}
-const placeholderFighterStatsArray = [blankFighterStats]
-
 interface AddFighterTypeFormProps {
   onSubmit?: () => void
   formLabelId: string

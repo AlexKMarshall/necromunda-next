@@ -1,9 +1,7 @@
-import { useMutation, useQueryClient } from 'react-query'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useMemo, useState } from 'react'
-import { Row, useTable } from 'react-table'
-import styled from 'styled-components'
+import { Row } from 'react-table'
 import { useId } from 'react-aria'
 import { Dialog } from '@reach/dialog'
 import '@reach/dialog/styles.css'
@@ -17,9 +15,8 @@ import {
   useCreateFighterCategory,
   useDeleteFighterCategory,
 } from 'hooks/fighter-categories'
-import { H1, H2, Stack } from 'components/lib'
-import { Input, Table, Td, Th, Tr } from 'styles/admin'
-import { nanoid } from 'nanoid'
+import { DataTable, H1, H2, Stack } from 'components/lib'
+import { Input } from 'styles/admin'
 
 export default function FighterCategories() {
   const query = useQueryFighterCategories()
@@ -45,14 +42,6 @@ export default function FighterCategories() {
     []
   )
 
-  const {
-    getTableProps,
-    getTableBodyProps,
-    headerGroups,
-    rows,
-    prepareRow,
-  } = useTable({ columns, data: query.fighterCategories })
-
   const dialogTitleId = useId()
 
   return (
@@ -69,29 +58,7 @@ export default function FighterCategories() {
           <AddFighterCategoryForm onSubmit={closeForm} />
         </Stack>
       </Dialog>
-      <Table {...getTableProps()}>
-        <thead>
-          {headerGroups.map((headerGroup) => (
-            <tr {...headerGroup.getHeaderGroupProps()}>
-              {headerGroup.headers.map((column) => (
-                <Th {...column.getHeaderProps()}>{column.render('Header')}</Th>
-              ))}
-            </tr>
-          ))}
-        </thead>
-        <tbody {...getTableBodyProps()} data-testid="table-body">
-          {rows.map((row) => {
-            prepareRow(row)
-            return (
-              <Tr {...row.getRowProps()}>
-                {row.cells.map((cell) => (
-                  <Td {...cell.getCellProps()}>{cell.render('Cell')}</Td>
-                ))}
-              </Tr>
-            )
-          })}
-        </tbody>
-      </Table>
+      <DataTable columns={columns} data={query.fighterCategories} />
       {query.isLoading ? <div>Loading...</div> : null}
     </Stack>
   )

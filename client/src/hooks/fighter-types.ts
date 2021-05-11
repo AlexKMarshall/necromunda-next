@@ -12,8 +12,7 @@ const fighterTypesEndpoint = endpoints.fighterTypes
 export function useQueryFighterTypes() {
   const query = useQuery(fighterTypesQueryKey, async () => {
     try {
-      const response = await client(fighterTypesEndpoint)
-      const data = await response.json()
+      const data = await client(fighterTypesEndpoint)
       return fighterTypeSchema.array().parse(data)
     } catch (e) {
       console.error(e)

@@ -10,8 +10,7 @@ const factionsEndpoint = endpoints.factions
 export function useQueryFactions() {
   const query = useQuery(factionsQueryKey, async () => {
     try {
-      const response = await client(factionsEndpoint)
-      const data = await response.json()
+      const data = await client(factionsEndpoint)
       return factionSchema.array().parse(data)
     } catch (e) {
       console.error('something went wrong', e)

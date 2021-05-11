@@ -9,8 +9,7 @@ const traitsEndpoint = endpoints.traits
 
 export function useQueryTraits() {
   const query = useQuery(traitsQueryKey, async () => {
-    const response = await client(traitsEndpoint)
-    const data = await response.json()
+    const data = await client(traitsEndpoint)
     return traitSchema.array().parse(data)
   })
 

@@ -10,8 +10,7 @@ const skillTypesEndpoint = endpoints.skillTypes
 export function useQuerySkillTypes() {
   const query = useQuery(skillTypesQueryKey, async () => {
     try {
-      const response = await client(skillTypesEndpoint)
-      const data = await response.json()
+      const data = await client(skillTypesEndpoint)
       return skillTypeSchema.array().parse(data)
     } catch (e) {
       console.error('something went wrong', e)

@@ -32,11 +32,15 @@ function useModal(initialIsOpen = false) {
   return { showModal, openModal, closeModal, getTitleProps, getDialogProps }
 }
 
-function useDataColumns() {
-  return useMemo(() => [{ Header: 'Name', accessor: 'name' as const }], [])
-}
+const factionColumns: Column<Faction>[] = [
+  { Header: 'Name', accessor: 'name' as const },
+]
 
-function useWithDeleteColumn<T extends {}>(columns: Column<T>[]) {
+function useWithDeleteColumn<T extends {}>({
+  columns,
+}: {
+  columns: Column<T>[]
+}) {
   return useMemo(
     () => [
       ...columns,
@@ -45,8 +49,8 @@ function useWithDeleteColumn<T extends {}>(columns: Column<T>[]) {
         accessor: 'id' as const,
         Cell: ({ row: { original } }: { row: Row<Faction> }) => (
           <DeleteFactionButton
-            factionId={original.id}
-            factionName={original.name}
+            id={original.id}
+            name={original.name}
             key={original.id}
           />
         ),
@@ -60,8 +64,7 @@ export default function Factions() {
   const query = useQueryFactions()
   const { openModal, closeModal, getDialogProps, getTitleProps } = useModal()
 
-  const dataCols = useDataColumns()
-  const columns = useWithDeleteColumn(dataCols)
+  const columns = useWithDeleteColumn({ columns: factionColumns })
 
   return (
     <Stack>
@@ -80,18 +83,15 @@ export default function Factions() {
 }
 
 interface DeleteFactionButtonProps {
-  factionId: Faction['id']
-  factionName: Faction['name']
+  id: Faction['id']
+  name: Faction['name']
 }
 
-function DeleteFactionButton({
-  factionId,
-  factionName,
-}: DeleteFactionButtonProps) {
-  const mutation = useDeleteFaction(factionId)
+function DeleteFactionButton({ id, name }: DeleteFactionButtonProps) {
+  const mutation = useDeleteFaction(id)
   return (
     <button type="button" onClick={() => mutation.mutate()}>
-      {mutation.isLoading ? 'deleting...' : `Delete ${factionName}`}
+      {mutation.isLoading ? 'deleting...' : `Delete ${name}`}
     </button>
   )
 }

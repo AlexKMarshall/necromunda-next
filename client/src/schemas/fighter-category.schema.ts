@@ -1,3 +1,4 @@
+import { nanoid } from 'nanoid'
 import * as z from 'zod'
 
 export const fighterCategorySchema = z.object({
@@ -18,3 +19,13 @@ export type CreateFighterCategoryDto = z.infer<
 export const connectFighterCategoryDtoSchema = fighterCategorySchema.pick({
   id: true,
 })
+
+export function getPendingFighterCategory(
+  overrides: Partial<FighterCategory> = {}
+): FighterCategory {
+  return {
+    id: nanoid(),
+    name: 'Loading...',
+    ...overrides,
+  }
+}

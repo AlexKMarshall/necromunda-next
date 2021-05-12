@@ -14,7 +14,7 @@ export type CreateFactionDto = z.infer<typeof createFactionDtoSchema>
 
 export const connectFactionDtoSchema = factionSchema.pick({ id: true })
 
-export function getPendingFaction(overrides: Partial<Faction>): Faction {
+export function getPendingFaction(overrides: Partial<Faction> = {}): Faction {
   return {
     id: nanoid(),
     name: 'Loading...',

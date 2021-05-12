@@ -1,7 +1,12 @@
 import { endpoints, queryKeys } from 'config'
 import { nanoid } from 'nanoid'
 import { useMutation, useQuery, useQueryClient } from 'react-query'
-import { CreateSkillDto, Skill, skillSchema } from 'schemas'
+import {
+  CreateSkillDto,
+  getPendingSkillType,
+  Skill,
+  skillSchema,
+} from 'schemas'
 import { client } from './client'
 import { useQuerySkillTypes } from './skill-types'
 
@@ -39,9 +44,9 @@ export function useCreateSkill() {
         const previousSkills =
           queryClient.getQueryData<Skill[]>(skillsQueryKey) ?? []
 
-        const skillType = skillTypes.find(
-          (st) => st.id === createSkillDto.type.id
-        ) ?? { id: createSkillDto.type.id, name: 'Pending' }
+        const skillType =
+          skillTypes.find((st) => st.id === createSkillDto.type.id) ??
+          getPendingSkillType()
 
         const pendingSkill = {
           ...createSkillDto,

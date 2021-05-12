@@ -1,7 +1,13 @@
 import { endpoints, queryKeys } from 'config'
 import { nanoid } from 'nanoid'
 import { useMutation, useQuery, useQueryClient } from 'react-query'
-import { fighterTypeSchema, CreateFighterTypeDto, FighterType } from 'schemas'
+import {
+  fighterTypeSchema,
+  CreateFighterTypeDto,
+  FighterType,
+  getPendingFaction,
+  getPendingFighterCategory,
+} from 'schemas'
 import { client } from './client'
 import { useQueryFactions } from './factions'
 import { useQueryFighterCategories } from './fighter-categories'
@@ -41,12 +47,13 @@ export function useCreateFighterType() {
         const previousFTs =
           queryClient.getQueryData<FighterType[]>(fighterTypesQueryKey) ?? []
 
-        const faction = factions.find(
-          (f) => f.id === createFtDto.faction.id
-        ) ?? { id: createFtDto.faction.id, name: 'Pending' }
-        const category = fighterCategories.find(
-          (fc) => fc.id === createFtDto.fighterCategory.id
-        ) ?? { id: createFtDto.fighterCategory.id, name: 'Pending' }
+        const faction =
+          factions.find((f) => f.id === createFtDto.faction.id) ??
+          getPendingFaction()
+        const category =
+          fighterCategories.find(
+            (fc) => fc.id === createFtDto.fighterCategory.id
+          ) ?? getPendingFighterCategory()
 
         const pendingFT: FighterType = {
           ...createFtDto,

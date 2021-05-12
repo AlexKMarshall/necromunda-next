@@ -158,14 +158,28 @@ describe('Fighter Types', () => {
           will: 1,
           intelligence: 1,
         }
-        const faction = factions.find((f) => f.id === ftDto.faction.id) ?? {
-          id: '',
-          name: 'pending',
-        }
+        const faction = factions.find((f) => f.id === ftDto.faction.id)
         const fighterCategory = fighterCategories.find(
           (fc) => fc.id === ftDto.fighterCategory.id
-        ) ?? { id: '', name: 'Pending' }
-        const createdFT = {
+        )
+        if (!faction) {
+          return res(
+            ctx.status(400),
+            ctx.json({
+              message: `Faction with id ${ftDto.faction.id} not found`,
+            })
+          )
+        }
+        if (!fighterCategory) {
+          return res(
+            ctx.status(400),
+            ctx.json({
+              message: `Fighter Category with id ${ftDto.fighterCategory.id} not found`,
+            })
+          )
+        }
+
+        const createdFT: FighterType = {
           ...ftDto,
           faction,
           fighterCategory,

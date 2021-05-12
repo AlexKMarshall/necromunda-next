@@ -64,10 +64,18 @@ describe('Skills', () => {
       }),
       rest.post<CreateSkillDto>(skillsUrl, (req, res, ctx) => {
         const { body: skillDto } = req
-        const skillType = skillTypes.find(
-          (st) => st.id === skillDto.type.id
-        ) ?? { id: '', name: 'pending' }
-        const createdSkill = { ...skill, ...skillDto, type: skillType }
+        const skillType = skillTypes.find((st) => st.id === skillDto.type.id)
+
+        if (!skillType) {
+          return res(
+            ctx.status(400),
+            ctx.json({
+              message: `Skill type with id ${skillDto.type.id} not found`,
+            })
+          )
+        }
+
+        const createdSkill: Skill = { ...skill, ...skillDto, type: skillType }
 
         serverSkillTypes.push(createdSkill)
         return res(ctx.status(201), ctx.json(createdSkill))

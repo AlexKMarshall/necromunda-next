@@ -1,6 +1,6 @@
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { useMemo, useState } from 'react'
+import { useMemo } from 'react'
 import { Column, Row } from 'react-table'
 import { useId } from 'react-aria'
 import { Dialog } from '@reach/dialog'
@@ -14,23 +14,7 @@ import {
 import { H1, H2, Stack } from 'components/lib'
 import { Input } from 'styles/admin'
 import { DataTable } from 'components/lib'
-
-function useModal(initialIsOpen = false) {
-  const [showModal, setShowModal] = useState(false)
-  const openModal = () => setShowModal(true)
-  const closeModal = () => setShowModal(false)
-
-  const titleId = useId()
-  const getTitleProps = () => ({ id: titleId })
-
-  const getDialogProps = () => ({
-    isOpen: showModal,
-    onDismiss: closeModal,
-    'aria-labelledby': titleId,
-  })
-
-  return { showModal, openModal, closeModal, getTitleProps, getDialogProps }
-}
+import { useModal } from 'hooks/use-modal'
 
 const factionColumns: Column<Faction>[] = [
   { Header: 'Name', accessor: 'name' as const },

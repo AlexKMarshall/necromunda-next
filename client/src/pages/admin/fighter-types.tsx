@@ -1,6 +1,6 @@
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { useMemo, useState } from 'react'
+import { useMemo } from 'react'
 import { Row, Column } from 'react-table'
 import { useId } from 'react-aria'
 import { Dialog } from '@reach/dialog'
@@ -19,12 +19,11 @@ import {
   useDeleteFighterType,
   useCreateFighterType,
 } from 'hooks/fighter-types'
+import { useModal } from 'hooks/use-modal'
 
 export default function FighterTypes() {
   const query = useQueryFighterTypes()
-  const [showForm, setShowForm] = useState(false)
-  const openForm = () => setShowForm(true)
-  const closeForm = () => setShowForm(false)
+  const { openModal, closeModal, getDialogProps, getTitleProps } = useModal()
 
   type FighterTypeColumn = Column<typeof query.fighterTypes[number]>
   const columns = useMemo<FighterTypeColumn[]>(
@@ -111,24 +110,14 @@ export default function FighterTypes() {
     ],
     []
   )
-
-  const dialogTitleId = useId()
-
   return (
     <Stack>
       <H1>Fighter Types</H1>
-      <button onClick={openForm}>Add Fighter Type</button>
-      <Dialog
-        isOpen={showForm}
-        onDismiss={closeForm}
-        aria-labelledby={dialogTitleId}
-      >
+      <button onClick={openModal}>Add Fighter Type</button>
+      <Dialog {...getDialogProps()}>
         <Stack>
-          <H2 id={dialogTitleId}>Add New Fighter Type</H2>
-          <AddFighterTypeForm
-            onSubmit={closeForm}
-            formLabelId={dialogTitleId}
-          />
+          <H2 {...getTitleProps()}>Add New Fighter Type</H2>
+          <AddFighterTypeForm onSubmit={closeModal} />
         </Stack>
       </Dialog>
       <DataTable columns={columns} data={query.fighterTypes} />
@@ -156,13 +145,9 @@ function DeleteFighterTypeButton({
 
 interface AddFighterTypeFormProps {
   onSubmit?: () => void
-  formLabelId: string
 }
 
-function AddFighterTypeForm({
-  onSubmit,
-  formLabelId,
-}: AddFighterTypeFormProps) {
+function AddFighterTypeForm({ onSubmit }: AddFighterTypeFormProps) {
   const mutation = useCreateFighterType()
   const {
     register,
@@ -215,8 +200,6 @@ function AddFighterTypeForm({
         mutation.mutate(fighterType)
         onSubmit?.()
       })}
-      aria-labelledby={formLabelId}
-      aria-invalid={!isFormValid}
     >
       <Stack variant="small">
         <label htmlFor={nameFieldId}>Name:</label>

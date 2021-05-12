@@ -1,6 +1,6 @@
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { useMemo, useState } from 'react'
+import { useMemo } from 'react'
 import { Column, Row } from 'react-table'
 import { useId } from 'react-aria'
 import { Dialog } from '@reach/dialog'
@@ -10,12 +10,11 @@ import { useQuerySkills, useCreateSkill, useDeleteSkill } from 'hooks/skills'
 import { DataTable, H1, H2, Stack } from 'components/lib'
 import { Input } from 'styles/admin'
 import { useQuerySkillTypes } from 'hooks/skill-types'
+import { useModal } from 'hooks/use-modal'
 
 export default function Skills() {
   const query = useQuerySkills()
-  const [showForm, setShowForm] = useState(false)
-  const openForm = () => setShowForm(true)
-  const closeForm = () => setShowForm(false)
+  const { openModal, closeModal, getDialogProps, getTitleProps } = useModal()
 
   const columns = useMemo<Column<Skill>[]>(
     () => [
@@ -36,20 +35,14 @@ export default function Skills() {
     []
   )
 
-  const dialogTitleId = useId()
-
   return (
     <Stack>
       <H1>Skills</H1>
-      <button onClick={openForm}>Add Skills</button>
-      <Dialog
-        isOpen={showForm}
-        onDismiss={closeForm}
-        aria-labelledby={dialogTitleId}
-      >
+      <button onClick={openModal}>Add Skills</button>
+      <Dialog {...getDialogProps()}>
         <Stack>
-          <H2 id={dialogTitleId}>Add New Skills</H2>
-          <AddSkillForm onSubmit={closeForm} />
+          <H2 {...getTitleProps()}>Add New Skills</H2>
+          <AddSkillForm onSubmit={closeModal} />
         </Stack>
       </Dialog>
       <DataTable columns={columns} data={query.skills} />

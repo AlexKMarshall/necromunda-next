@@ -1,6 +1,6 @@
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { useMemo, useState } from 'react'
+import { useMemo } from 'react'
 import { Row } from 'react-table'
 import { useId } from 'react-aria'
 import { Dialog } from '@reach/dialog'
@@ -17,12 +17,11 @@ import {
 } from 'hooks/fighter-categories'
 import { DataTable, H1, H2, Stack } from 'components/lib'
 import { Input } from 'styles/admin'
+import { useModal } from 'hooks/use-modal'
 
 export default function FighterCategories() {
   const query = useQueryFighterCategories()
-  const [showForm, setShowForm] = useState(false)
-  const openForm = () => setShowForm(true)
-  const closeForm = () => setShowForm(false)
+  const { openModal, closeModal, getDialogProps, getTitleProps } = useModal()
 
   const columns = useMemo(
     () => [
@@ -42,20 +41,14 @@ export default function FighterCategories() {
     []
   )
 
-  const dialogTitleId = useId()
-
   return (
     <Stack>
       <H1>Fighter Categories</H1>
-      <button onClick={openForm}>Add Fighter Category</button>
-      <Dialog
-        isOpen={showForm}
-        onDismiss={closeForm}
-        aria-labelledby={dialogTitleId}
-      >
+      <button onClick={openModal}>Add Fighter Category</button>
+      <Dialog {...getDialogProps()}>
         <Stack>
-          <H2 id={dialogTitleId}>Add New Fighter Category</H2>
-          <AddFighterCategoryForm onSubmit={closeForm} />
+          <H2 {...getTitleProps()}>Add New Fighter Category</H2>
+          <AddFighterCategoryForm onSubmit={closeModal} />
         </Stack>
       </Dialog>
       <DataTable columns={columns} data={query.fighterCategories} />

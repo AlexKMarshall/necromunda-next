@@ -1,7 +1,7 @@
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useMemo, useState } from 'react'
-import { Row } from 'react-table'
+import { Column, Row } from 'react-table'
 import { useId } from 'react-aria'
 import { Dialog } from '@reach/dialog'
 import '@reach/dialog/styles.css'
@@ -15,15 +15,31 @@ import { H1, H2, Stack } from 'components/lib'
 import { Input } from 'styles/admin'
 import { DataTable } from 'components/lib'
 
-export default function Factions() {
-  const query = useQueryFactions()
-  const [showForm, setShowForm] = useState(false)
-  const openForm = () => setShowForm(true)
-  const closeForm = () => setShowForm(false)
+function useModal(initialIsOpen = false) {
+  const [showModal, setShowModal] = useState(false)
+  const openModal = () => setShowModal(true)
+  const closeModal = () => setShowModal(false)
 
-  const columns = useMemo(
+  const titleId = useId()
+  const getTitleProps = () => ({ id: titleId })
+
+  const getDialogProps = () => ({
+    isOpen: showModal,
+    onDismiss: closeModal,
+    'aria-labelledby': titleId,
+  })
+
+  return { showModal, openModal, closeModal, getTitleProps, getDialogProps }
+}
+
+function useDataColumns() {
+  return useMemo(() => [{ Header: 'Name', accessor: 'name' as const }], [])
+}
+
+function useWithDeleteColumn<T extends {}>(columns: Column<T>[]) {
+  return useMemo(
     () => [
-      { Header: 'Name', accessor: 'name' as const },
+      ...columns,
       {
         Header: 'Actions',
         accessor: 'id' as const,
@@ -36,23 +52,25 @@ export default function Factions() {
         ),
       },
     ],
-    []
+    [columns]
   )
+}
 
-  const dialogTitleId = useId()
+export default function Factions() {
+  const query = useQueryFactions()
+  const { openModal, closeModal, getDialogProps, getTitleProps } = useModal()
+
+  const dataCols = useDataColumns()
+  const columns = useWithDeleteColumn(dataCols)
 
   return (
     <Stack>
       <H1>Factions</H1>
-      <button onClick={openForm}>Add Faction</button>
-      <Dialog
-        isOpen={showForm}
-        onDismiss={closeForm}
-        aria-labelledby={dialogTitleId}
-      >
+      <button onClick={openModal}>Add Faction</button>
+      <Dialog {...getDialogProps()}>
         <Stack>
-          <H2 id={dialogTitleId}>Add New Faction</H2>
-          <AddFactionForm onSubmit={closeForm} />
+          <H2 {...getTitleProps()}>Add New Faction</H2>
+          <AddFactionForm onSubmit={closeModal} />
         </Stack>
       </Dialog>
       <DataTable columns={columns} data={query.factions} />

@@ -18,41 +18,20 @@ import {
 import { DataTable, H1, H2, Stack } from 'components/lib'
 import { Input } from 'styles/admin'
 import { useModal } from 'hooks/use-modal'
-import { DeletableItem } from 'types'
+import { useWithDeleteColumn } from 'hooks/use-with-delete-column'
 
 const fighterCategoryColumns: Column<FighterCategory>[] = [
   { Header: 'Name', accessor: 'name' as const },
 ]
 
-function useWithDeleteColumn<T extends DeletableItem>({
-  columns,
-}: {
-  columns: Column<T>[]
-}) {
-  return useMemo(
-    () => [
-      ...columns,
-      {
-        Header: 'Actions',
-        accessor: 'id' as const,
-        Cell: ({ row: { original } }: { row: Row<T> }) => (
-          <DeleteFighterCategoryButton
-            id={original.id}
-            name={original.name}
-            key={original.id}
-          />
-        ),
-      },
-    ],
-    [columns]
-  )
-}
-
 export default function FighterCategories() {
   const query = useQueryFighterCategories()
   const { openModal, closeModal, getDialogProps, getTitleProps } = useModal()
 
-  const columns = useWithDeleteColumn({ columns: fighterCategoryColumns })
+  const columns = useWithDeleteColumn({
+    columns: fighterCategoryColumns,
+    renderDeleteButton: (props) => <DeleteFighterCategoryButton {...props} />,
+  })
 
   return (
     <Stack>

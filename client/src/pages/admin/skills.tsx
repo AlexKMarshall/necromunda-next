@@ -1,7 +1,6 @@
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { useMemo } from 'react'
-import { Column, Row } from 'react-table'
+import { Column } from 'react-table'
 import { useId } from 'react-aria'
 import { Dialog } from '@reach/dialog'
 import '@reach/dialog/styles.css'
@@ -11,42 +10,21 @@ import { DataTable, H1, H2, Stack } from 'components/lib'
 import { Input } from 'styles/admin'
 import { useQuerySkillTypes } from 'hooks/skill-types'
 import { useModal } from 'hooks/use-modal'
-import { DeletableItem } from 'types'
+import { useWithDeleteColumn } from 'hooks/use-with-delete-column'
 
 const skillColumns: Column<Skill>[] = [
   { Header: 'Name', accessor: 'name' as const },
   { Header: 'Type', accessor: (row) => row.type.name },
 ]
 
-function useWithDeleteButton<T extends DeletableItem>({
-  columns,
-}: {
-  columns: Column<T>[]
-}): Column<T>[] {
-  return useMemo(
-    () => [
-      ...columns,
-      {
-        Header: 'Actions',
-        accessor: 'id' as const,
-        Cell: ({ row: { original } }: { row: Row<T> }) => (
-          <DeleteSkillButton
-            id={original.id}
-            name={original.name}
-            key={original.id}
-          />
-        ),
-      },
-    ],
-    [columns]
-  )
-}
-
 export default function Skills() {
   const query = useQuerySkills()
   const { openModal, closeModal, getDialogProps, getTitleProps } = useModal()
 
-  const columns = useWithDeleteButton({ columns: skillColumns })
+  const columns = useWithDeleteColumn({
+    columns: skillColumns,
+    renderDeleteButton: (props) => <DeleteSkillButton {...props} />,
+  })
 
   return (
     <Stack>

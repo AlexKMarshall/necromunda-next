@@ -1,7 +1,6 @@
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { useMemo } from 'react'
-import { Column, Row } from 'react-table'
+import { Column } from 'react-table'
 import { useId } from 'react-aria'
 import { Dialog } from '@reach/dialog'
 import '@reach/dialog/styles.css'
@@ -10,40 +9,19 @@ import { useQueryTraits, useCreateTrait, useDeleteTrait } from 'hooks/traits'
 import { DataTable, H1, H2, Stack } from 'components/lib'
 import { Input } from 'styles/admin'
 import { useModal } from 'hooks/use-modal'
-import { DeletableItem } from 'types'
+import { useWithDeleteColumn } from 'hooks/use-with-delete-column'
 
 const traitColumns: Column<Trait>[] = [
   { Header: 'Name', accessor: 'name' as const },
 ]
 
-function useWithDeleteButton<T extends DeletableItem>({
-  columns,
-}: {
-  columns: Column<T>[]
-}): Column<T>[] {
-  return useMemo(
-    () => [
-      ...columns,
-      {
-        Header: 'Actions',
-        accessor: 'id' as const,
-        Cell: ({ row: { original } }: { row: Row<T> }) => (
-          <DeleteTraitButton
-            id={original.id}
-            name={original.name}
-            key={original.id}
-          />
-        ),
-      },
-    ],
-    [columns]
-  )
-}
-
 export default function Traits() {
   const query = useQueryTraits()
   const { openModal, closeModal, getDialogProps, getTitleProps } = useModal()
-  const columns = useWithDeleteButton({ columns: traitColumns })
+  const columns = useWithDeleteColumn({
+    columns: traitColumns,
+    renderDeleteButton: (props) => <DeleteTraitButton {...props} />,
+  })
 
   return (
     <Stack>

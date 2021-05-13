@@ -1,7 +1,7 @@
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useMemo } from 'react'
-import { Row } from 'react-table'
+import { Column, Row } from 'react-table'
 import { useId } from 'react-aria'
 import { Dialog } from '@reach/dialog'
 import '@reach/dialog/styles.css'
@@ -10,28 +10,40 @@ import { useQueryTraits, useCreateTrait, useDeleteTrait } from 'hooks/traits'
 import { DataTable, H1, H2, Stack } from 'components/lib'
 import { Input } from 'styles/admin'
 import { useModal } from 'hooks/use-modal'
+import { DeletableItem } from 'types'
 
-export default function Traits() {
-  const query = useQueryTraits()
-  const { openModal, closeModal, getDialogProps, getTitleProps } = useModal()
+const traitColumns: Column<Trait>[] = [
+  { Header: 'Name', accessor: 'name' as const },
+]
 
-  const columns = useMemo(
+function useWithDeleteButton<T extends DeletableItem>({
+  columns,
+}: {
+  columns: Column<T>[]
+}): Column<T>[] {
+  return useMemo(
     () => [
-      { Header: 'Name', accessor: 'name' as const },
+      ...columns,
       {
         Header: 'Actions',
         accessor: 'id' as const,
-        Cell: ({ row: { original } }: { row: Row<Trait> }) => (
+        Cell: ({ row: { original } }: { row: Row<T> }) => (
           <DeleteTraitButton
-            traitId={original.id}
-            traitName={original.name}
+            id={original.id}
+            name={original.name}
             key={original.id}
           />
         ),
       },
     ],
-    []
+    [columns]
   )
+}
+
+export default function Traits() {
+  const query = useQueryTraits()
+  const { openModal, closeModal, getDialogProps, getTitleProps } = useModal()
+  const columns = useWithDeleteButton({ columns: traitColumns })
 
   return (
     <Stack>
@@ -50,15 +62,15 @@ export default function Traits() {
 }
 
 interface DeleteTraitButtonProps {
-  traitId: Trait['id']
-  traitName: Trait['name']
+  id: Trait['id']
+  name: Trait['name']
 }
 
-function DeleteTraitButton({ traitId, traitName }: DeleteTraitButtonProps) {
-  const mutation = useDeleteTrait(traitId)
+function DeleteTraitButton({ id, name }: DeleteTraitButtonProps) {
+  const mutation = useDeleteTrait(id)
   return (
     <button type="button" onClick={() => mutation.mutate()}>
-      Delete {traitName}
+      Delete {name}
     </button>
   )
 }

@@ -1,7 +1,7 @@
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useMemo } from 'react'
-import { Row } from 'react-table'
+import { Column, Row } from 'react-table'
 import { useId } from 'react-aria'
 import { Dialog } from '@reach/dialog'
 import '@reach/dialog/styles.css'
@@ -18,18 +18,24 @@ import {
 import { DataTable, H1, H2, Stack } from 'components/lib'
 import { Input } from 'styles/admin'
 import { useModal } from 'hooks/use-modal'
+import { DeletableItem } from 'types'
 
-export default function SkillTypes() {
-  const query = useQuerySkillTypes()
-  const { openModal, closeModal, getDialogProps, getTitleProps } = useModal()
+const skillTypeColumns: Column<SkillType>[] = [
+  { Header: 'Name', accessor: 'name' as const },
+]
 
-  const columns = useMemo(
+function useWithDeleteButton<T extends DeletableItem>({
+  columns,
+}: {
+  columns: Column<T>[]
+}): Column<T>[] {
+  return useMemo(
     () => [
-      { Header: 'Name', accessor: 'name' as const },
+      ...columns,
       {
         Header: 'Actions',
         accessor: 'id' as const,
-        Cell: ({ row: { original } }: { row: Row<SkillType> }) => (
+        Cell: ({ row: { original } }: { row: Row<T> }) => (
           <DeleteSkillTypeButton
             id={original.id}
             name={original.name}
@@ -38,8 +44,15 @@ export default function SkillTypes() {
         ),
       },
     ],
-    []
+    [columns]
   )
+}
+
+export default function SkillTypes() {
+  const query = useQuerySkillTypes()
+  const { openModal, closeModal, getDialogProps, getTitleProps } = useModal()
+
+  const columns = useWithDeleteButton({ columns: skillTypeColumns })
 
   return (
     <Stack>

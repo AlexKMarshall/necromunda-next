@@ -15,12 +15,13 @@ import { H1, H2, Stack } from 'components/lib'
 import { Input } from 'styles/admin'
 import { DataTable } from 'components/lib'
 import { useModal } from 'hooks/use-modal'
+import { DeletableItem } from 'types'
 
 const factionColumns: Column<Faction>[] = [
   { Header: 'Name', accessor: 'name' as const },
 ]
 
-function useWithDeleteColumn<T extends {}>({
+function useWithDeleteColumn<T extends DeletableItem>({
   columns,
 }: {
   columns: Column<T>[]
@@ -31,7 +32,7 @@ function useWithDeleteColumn<T extends {}>({
       {
         Header: 'Actions',
         accessor: 'id' as const,
-        Cell: ({ row: { original } }: { row: Row<Faction> }) => (
+        Cell: ({ row: { original } }: { row: Row<T> }) => (
           <DeleteFactionButton
             id={original.id}
             name={original.name}

@@ -11,19 +11,25 @@ import { DataTable, H1, H2, Stack } from 'components/lib'
 import { Input } from 'styles/admin'
 import { useQuerySkillTypes } from 'hooks/skill-types'
 import { useModal } from 'hooks/use-modal'
+import { DeletableItem } from 'types'
 
-export default function Skills() {
-  const query = useQuerySkills()
-  const { openModal, closeModal, getDialogProps, getTitleProps } = useModal()
+const skillColumns: Column<Skill>[] = [
+  { Header: 'Name', accessor: 'name' as const },
+  { Header: 'Type', accessor: (row) => row.type.name },
+]
 
-  const columns = useMemo<Column<Skill>[]>(
+function useWithDeleteButton<T extends DeletableItem>({
+  columns,
+}: {
+  columns: Column<T>[]
+}): Column<T>[] {
+  return useMemo(
     () => [
-      { Header: 'Name', accessor: 'name' as const },
-      { Header: 'Type', accessor: (row) => row.type.name },
+      ...columns,
       {
         Header: 'Actions',
         accessor: 'id' as const,
-        Cell: ({ row: { original } }: { row: Row<Skill> }) => (
+        Cell: ({ row: { original } }: { row: Row<T> }) => (
           <DeleteSkillButton
             id={original.id}
             name={original.name}
@@ -32,8 +38,15 @@ export default function Skills() {
         ),
       },
     ],
-    []
+    [columns]
   )
+}
+
+export default function Skills() {
+  const query = useQuerySkills()
+  const { openModal, closeModal, getDialogProps, getTitleProps } = useModal()
+
+  const columns = useWithDeleteButton({ columns: skillColumns })
 
   return (
     <Stack>

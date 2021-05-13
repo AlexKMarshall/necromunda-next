@@ -20,96 +20,108 @@ import {
   useCreateFighterType,
 } from 'hooks/fighter-types'
 import { useModal } from 'hooks/use-modal'
+import { DeletableItem } from 'types'
 
-export default function FighterTypes() {
-  const query = useQueryFighterTypes()
-  const { openModal, closeModal, getDialogProps, getTitleProps } = useModal()
+const fighterTypeColumns: Column<FighterType>[] = [
+  { Header: 'Name', accessor: 'name' as const },
+  { Header: 'Cost', accessor: 'cost' as const },
+  { Header: 'Faction', accessor: (row) => row.faction.name },
+  {
+    Header: 'Fighter Category',
+    accessor: (row) => row.fighterCategory.name,
+  },
+  {
+    Header: <span aria-label="Movement">M</span>,
+    id: 'm',
+    accessor: ({ fighterStats }) => fighterStats.movement,
+  },
+  {
+    Header: <span aria-label="Weapon skill">WS</span>,
+    id: 'ws',
+    accessor: ({ fighterStats }) => fighterStats.weaponSkill,
+  },
+  {
+    Header: <span aria-label="Ballistic skill">BS</span>,
+    id: 'bs',
+    accessor: ({ fighterStats }) => fighterStats.ballisticSkill,
+  },
+  {
+    Header: <span aria-label="strength">S</span>,
+    id: 's',
+    accessor: ({ fighterStats }) => fighterStats.strength,
+  },
+  {
+    Header: <span aria-label="toughness">T</span>,
+    id: 't',
+    accessor: ({ fighterStats }) => fighterStats.toughness,
+  },
+  {
+    Header: <span aria-label="wounds">W</span>,
+    id: 'w',
+    accessor: ({ fighterStats }) => fighterStats.wounds,
+  },
+  {
+    Header: <span aria-label="initiative">I</span>,
+    id: 'i',
+    accessor: ({ fighterStats }) => fighterStats.initiative,
+  },
+  {
+    Header: <span aria-label="attacks">A</span>,
+    id: 'a',
+    accessor: ({ fighterStats }) => fighterStats.attacks,
+  },
+  {
+    Header: <span aria-label="leadership">LD</span>,
+    id: 'ld',
+    accessor: ({ fighterStats }) => fighterStats.leadership,
+  },
+  {
+    Header: <span aria-label="cool">CL</span>,
+    id: 'cl',
+    accessor: ({ fighterStats }) => fighterStats.cool,
+  },
+  {
+    Header: <span aria-label="will">WIL</span>,
+    id: 'wil',
+    accessor: ({ fighterStats }) => fighterStats.will,
+  },
+  {
+    Header: <span aria-label="intelligence">INT</span>,
+    id: 'int',
+    accessor: ({ fighterStats }) => fighterStats.intelligence,
+  },
+]
 
-  type FighterTypeColumn = Column<typeof query.fighterTypes[number]>
-  const columns = useMemo<FighterTypeColumn[]>(
+function useWithDeleteColumn<T extends DeletableItem>({
+  columns,
+}: {
+  columns: Column<T>[]
+}): Column<T>[] {
+  return useMemo(
     () => [
-      { Header: 'Name', accessor: 'name' as const },
-      { Header: 'Cost', accessor: 'cost' as const },
-      { Header: 'Faction', accessor: (row) => row.faction.name },
-      {
-        Header: 'Fighter Category',
-        accessor: (row) => row.fighterCategory.name,
-      },
-      {
-        Header: <span aria-label="Movement">M</span>,
-        id: 'm',
-        accessor: ({ fighterStats }) => fighterStats.movement,
-      },
-      {
-        Header: <span aria-label="Weapon skill">WS</span>,
-        id: 'ws',
-        accessor: ({ fighterStats }) => fighterStats.weaponSkill,
-      },
-      {
-        Header: <span aria-label="Ballistic skill">BS</span>,
-        id: 'bs',
-        accessor: ({ fighterStats }) => fighterStats.ballisticSkill,
-      },
-      {
-        Header: <span aria-label="strength">S</span>,
-        id: 's',
-        accessor: ({ fighterStats }) => fighterStats.strength,
-      },
-      {
-        Header: <span aria-label="toughness">T</span>,
-        id: 't',
-        accessor: ({ fighterStats }) => fighterStats.toughness,
-      },
-      {
-        Header: <span aria-label="wounds">W</span>,
-        id: 'w',
-        accessor: ({ fighterStats }) => fighterStats.wounds,
-      },
-      {
-        Header: <span aria-label="initiative">I</span>,
-        id: 'i',
-        accessor: ({ fighterStats }) => fighterStats.initiative,
-      },
-      {
-        Header: <span aria-label="attacks">A</span>,
-        id: 'a',
-        accessor: ({ fighterStats }) => fighterStats.attacks,
-      },
-      {
-        Header: <span aria-label="leadership">LD</span>,
-        id: 'ld',
-        accessor: ({ fighterStats }) => fighterStats.leadership,
-      },
-      {
-        Header: <span aria-label="cool">CL</span>,
-        id: 'cl',
-        accessor: ({ fighterStats }) => fighterStats.cool,
-      },
-      {
-        Header: <span aria-label="will">WIL</span>,
-        id: 'wil',
-        accessor: ({ fighterStats }) => fighterStats.will,
-      },
-      {
-        Header: <span aria-label="intelligence">INT</span>,
-        id: 'int',
-        accessor: ({ fighterStats }) => fighterStats.intelligence,
-      },
-
+      ...columns,
       {
         Header: 'Actions',
         accessor: 'id' as const,
-        Cell: ({ row: { original } }: { row: Row<FighterType> }) => (
+        Cell: ({ row: { original } }: { row: Row<T> }) => (
           <DeleteFighterTypeButton
-            fighterTypeId={original.id}
-            fighterTypeName={original.name}
+            id={original.id}
+            name={original.name}
             key={original.id}
           />
         ),
       },
     ],
-    []
+    [columns]
   )
+}
+
+export default function FighterTypes() {
+  const query = useQueryFighterTypes()
+  const { openModal, closeModal, getDialogProps, getTitleProps } = useModal()
+
+  const columns = useWithDeleteColumn({ columns: fighterTypeColumns })
+
   return (
     <Stack>
       <H1>Fighter Types</H1>
@@ -127,18 +139,15 @@ export default function FighterTypes() {
 }
 
 interface DeleteFighterTypeButtonProps {
-  fighterTypeId: FighterType['id']
-  fighterTypeName: FighterType['name']
+  id: FighterType['id']
+  name: FighterType['name']
 }
 
-function DeleteFighterTypeButton({
-  fighterTypeId,
-  fighterTypeName,
-}: DeleteFighterTypeButtonProps) {
-  const mutation = useDeleteFighterType(fighterTypeId)
+function DeleteFighterTypeButton({ id, name }: DeleteFighterTypeButtonProps) {
+  const mutation = useDeleteFighterType(id)
   return (
     <button type="button" onClick={() => mutation.mutate()}>
-      Delete {fighterTypeName}
+      Delete {name}
     </button>
   )
 }

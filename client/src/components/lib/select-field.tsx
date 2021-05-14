@@ -1,55 +1,132 @@
 import { useId } from 'react-aria'
-import { FieldError, UseFormRegisterReturn } from 'react-hook-form'
+import { Required } from 'utility-types'
+import React, { useCallback } from 'react'
 import { Stack } from 'components/lib'
+import { SelectOption } from 'types'
 
 type SelectFieldProps = {
   label: string
-  error?: FieldError
-  registration: UseFormRegisterReturn
-  isLoading: boolean
-  options: { value: string; label?: string }[]
+  options: SelectOption[]
+  hasError?: boolean
+  errorMessage?: string
+  selectProps?: React.ComponentPropsWithRef<'select'>
+  isLoading?: boolean
 }
 
 export function SelectField({
   label,
-  error,
-  registration,
-  isLoading,
+  hasError = false,
+  errorMessage = '',
+  selectProps,
   options,
+  isLoading = false,
 }: SelectFieldProps): JSX.Element {
-  const inputId = useId()
-  const errorId = useId()
+  const { getLabelProps, getErrorProps, getFieldControlProps, fieldId } =
+    useFormFieldSelect({
+      label,
+      hasError,
+      errorMessage,
+    })
+
   return (
-    <Stack variant="small">
-      <label htmlFor={inputId}>{label}</label>
-      <select
-        id={inputId}
-        {...registration}
-        aria-invalid={!!error}
-        aria-describedby={error ? errorId : ''}
-      >
+    <FormField
+      labelProps={{ ...getLabelProps() }}
+      errorProps={{ ...getErrorProps() }}
+      hasError={hasError}
+    >
+      <select {...getFieldControlProps(selectProps)}>
         {isLoading ? (
-          <option key={`${inputId}-loading`} value="">
+          <option key={`${fieldId}-loading`} value="" disabled>
             Loading...
           </option>
         ) : (
           <>
-            <option key={`${inputId}-pleaseSelect`} value="">
+            <option key={`${fieldId}-pleaseSelect`} value="">
               Please select
             </option>
             {options.map(({ value, label: optionLabel }) => (
-              <option key={`${inputId}${value}`} value={value}>
+              <option key={`${fieldId}${value}`} value={value}>
                 {optionLabel}
               </option>
             ))}
           </>
         )}
       </select>
-      {!!error && (
-        <span role="alert" id={errorId}>
-          {error.message}
-        </span>
-      )}
+    </FormField>
+  )
+}
+
+type LabelProps = Required<
+  React.ComponentPropsWithoutRef<'label'>,
+  'htmlFor' | 'children'
+>
+type ErrorProps = Required<
+  React.ComponentPropsWithoutRef<'span'>,
+  'id' | 'children'
+>
+type FormFieldProps = {
+  labelProps: LabelProps
+  errorProps: ErrorProps
+  children: React.ReactNode
+  hasError: boolean
+}
+
+function FormField({
+  labelProps: { htmlFor, ...labelProps },
+  errorProps,
+  children,
+  hasError,
+}: FormFieldProps) {
+  return (
+    <Stack variant="small">
+      <label {...labelProps} htmlFor={htmlFor} />
+      {children}
+      {hasError && <span {...errorProps} />}
     </Stack>
   )
 }
+
+function useFormFieldSelect({
+  label,
+  hasError = false,
+  errorMessage = '',
+}: {
+  label: string
+  hasError: boolean
+  errorMessage?: string
+}) {
+  const fieldId = useId()
+  const errorId = useId()
+
+  const getLabelProps = useCallback(
+    (labelProps?: React.ComponentPropsWithoutRef<'label'>) => ({
+      ...labelProps,
+      htmlFor: fieldId,
+      children: label,
+    }),
+    [fieldId, label]
+  )
+  const getErrorProps = useCallback(
+    (errorProps?: React.ComponentPropsWithoutRef<'span'>) => ({
+      ...errorProps,
+      role: 'alert',
+      id: errorId,
+      children: errorMessage ?? '',
+    }),
+    [errorId, errorMessage]
+  )
+  const getFieldControlProps = useCallback(
+    (fieldProps?: FieldControlProps) => ({
+      ...fieldProps,
+      id: fieldId,
+      'aria-invalid': hasError,
+      'aria-describedby': hasError ? errorId : '',
+      defaultValue: '',
+    }),
+    [errorId, fieldId, hasError]
+  )
+
+  return { getLabelProps, getErrorProps, getFieldControlProps, fieldId }
+}
+
+type FieldControlProps = React.ComponentPropsWithRef<'select'>

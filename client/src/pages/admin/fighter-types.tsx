@@ -151,8 +151,9 @@ function AddFighterTypeForm({ onSubmit }: AddFighterTypeFormProps) {
       />
       <SelectField
         label="Faction:"
-        registration={register('faction.id')}
-        error={errors.faction?.id}
+        selectProps={register('faction.id')}
+        hasError={!!errors.faction?.id}
+        errorMessage={errors.faction?.id?.message}
         isLoading={queryFactions.isLoading}
         options={queryFactions.factions.map(({ id, name }) => ({
           value: id,
@@ -161,8 +162,9 @@ function AddFighterTypeForm({ onSubmit }: AddFighterTypeFormProps) {
       />
       <SelectField
         label="Category:"
-        registration={register('fighterCategory.id')}
-        error={errors.fighterCategory?.id}
+        selectProps={register('fighterCategory.id')}
+        hasError={!!errors.fighterCategory?.id}
+        errorMessage={errors.fighterCategory?.id?.message}
         isLoading={queryCategories.isLoading}
         options={queryCategories.fighterCategories.map(({ id, name }) => ({
           value: id,

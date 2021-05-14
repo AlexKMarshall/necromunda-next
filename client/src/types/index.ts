@@ -4,3 +4,8 @@ export type DeletableItem = {
 }
 
 export type AnyObject = Record<string, unknown>
+
+export type SelectOption = {
+  value: string
+  label: string
+}

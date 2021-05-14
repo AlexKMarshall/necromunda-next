@@ -52,6 +52,7 @@ function AddSkillForm({ onSubmit }: AddSkillFormProps) {
     formState: { errors },
   } = useForm<CreateSkillDto>({
     resolver: zodResolver(createSkillDtoSchema),
+    defaultValues: { name: '', type: { id: '' } },
   })
 
   return (
@@ -70,8 +71,9 @@ function AddSkillForm({ onSubmit }: AddSkillFormProps) {
       />
       <SelectField
         label="Type:"
-        registration={register('type.id')}
-        error={errors.type?.id}
+        selectProps={register('type.id')}
+        hasError={!!errors.type?.id}
+        errorMessage={errors.type?.id?.message}
         isLoading={skillTypesQuery.isLoading}
         options={skillTypesQuery.skillTypes.map(({ id, name }) => ({
           value: id,

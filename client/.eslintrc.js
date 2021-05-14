@@ -3,10 +3,12 @@ module.exports = {
   env: {
     node: true,
     es2021: true,
+    'jest/globals': true
   },
+  plugins: ['jest'],
   parserOptions: { sourceType: 'module' }, // to enable features such as async/await
   ignorePatterns: ['node_modules/*', '.next/*', '.out/*', '!.prettierrc.js'], // We don't want to lint generated files nor node_modules, but we want to lint .prettierrc.js (ignored by default by eslint)df
-  extends: ['eslint:recommended', 'plugin:jest/all', 'plugin:testing-library/react', 'eslint-config-prettier'],
+  extends: ['eslint:recommended', 'plugin:testing-library/react', 'eslint-config-prettier'],
   rules: {
     'jest/no-hooks': 'off',
     'jest/require-top-level-describe': 'off',
@@ -48,8 +50,6 @@ module.exports = {
 
         // I suggest this setting for requiring return types on functions only where useful
         '@typescript-eslint/explicit-function-return-type': 'off',
-
-        'jest/no-hooks': 'off'
       },
     },
   ],

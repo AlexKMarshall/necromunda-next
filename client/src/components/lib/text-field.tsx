@@ -8,7 +8,7 @@ type TextFieldProps = {
   label: string
   hasError: boolean
   errorMessage?: string
-  inputProps: InputProps
+  inputProps?: InputProps
 }
 
 const Input = styled.input`

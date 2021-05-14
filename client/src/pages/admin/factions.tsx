@@ -9,7 +9,7 @@ import {
   useCreateFaction,
   useDeleteFaction,
 } from 'hooks/factions'
-import { H1, H2, Stack, TextInput } from 'components/lib'
+import { H1, H2, Stack, TextField } from 'components/lib'
 import { AdminTable } from 'components/admin'
 import { useModal } from 'hooks/use-modal'
 
@@ -64,7 +64,7 @@ function AddFactionForm({ onSubmit }: AddFactionFormProps): JSX.Element {
         onSubmit?.()
       })}
     >
-      <TextInput
+      <TextField
         label="Name:"
         error={errors.name}
         registration={register('name')}

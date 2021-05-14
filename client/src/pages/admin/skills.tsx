@@ -5,7 +5,7 @@ import { Dialog } from '@reach/dialog'
 import '@reach/dialog/styles.css'
 import { CreateSkillDto, createSkillDtoSchema, Skill } from 'schemas'
 import { useQuerySkills, useCreateSkill, useDeleteSkill } from 'hooks/skills'
-import { H1, H2, SelectInput, Stack, TextInput } from 'components/lib'
+import { H1, H2, SelectField, Stack, TextField } from 'components/lib'
 import { useQuerySkillTypes } from 'hooks/skill-types'
 import { useModal } from 'hooks/use-modal'
 import { AdminTable } from 'components/admin'
@@ -62,12 +62,12 @@ function AddSkillForm({ onSubmit }: AddSkillFormProps) {
         onSubmit?.()
       })}
     >
-      <TextInput
+      <TextField
         label="Name:"
         error={errors.name}
         registration={register('name')}
       />
-      <SelectInput
+      <SelectField
         label="Type:"
         registration={register('type.id')}
         error={errors.type?.id}

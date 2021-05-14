@@ -8,7 +8,7 @@ import {
   createFighterTypeDtoSchema,
   FighterType,
 } from 'schemas'
-import { H1, H2, SelectInput, Stack, TextInput } from 'components/lib'
+import { H1, H2, SelectField, Stack, TextField } from 'components/lib'
 import { useQueryFactions } from 'hooks/factions'
 import { useQueryFighterCategories } from 'hooks/fighter-categories'
 import {
@@ -137,17 +137,17 @@ function AddFighterTypeForm({ onSubmit }: AddFighterTypeFormProps) {
         onSubmit?.()
       })}
     >
-      <TextInput
+      <TextField
         label="Name:"
         error={errors.name}
         registration={register('name')}
       />
-      <TextInput
+      <TextField
         label="Cost:"
         error={errors.name}
         registration={register('cost', { valueAsNumber: true })}
       />
-      <SelectInput
+      <SelectField
         label="Faction:"
         registration={register('faction.id')}
         error={errors.faction?.id}
@@ -157,7 +157,7 @@ function AddFighterTypeForm({ onSubmit }: AddFighterTypeFormProps) {
           label: name,
         }))}
       />
-      <SelectInput
+      <SelectField
         label="Category:"
         registration={register('fighterCategory.id')}
         error={errors.fighterCategory?.id}
@@ -167,76 +167,76 @@ function AddFighterTypeForm({ onSubmit }: AddFighterTypeFormProps) {
           label: name,
         }))}
       />
-      <TextInput
+      <TextField
         label="Movement:"
         error={errors.fighterStats?.movement}
         registration={register('fighterStats.movement', {
           valueAsNumber: true,
         })}
       />
-      <TextInput
+      <TextField
         label="Weapon Skill:"
         error={errors.fighterStats?.weaponSkill}
         registration={register('fighterStats.weaponSkill', {
           valueAsNumber: true,
         })}
       />
-      <TextInput
+      <TextField
         label="Ballistic Skill:"
         error={errors.fighterStats?.ballisticSkill}
         registration={register('fighterStats.ballisticSkill', {
           valueAsNumber: true,
         })}
       />
-      <TextInput
+      <TextField
         label="Strength:"
         error={errors.fighterStats?.strength}
         registration={register('fighterStats.strength', {
           valueAsNumber: true,
         })}
       />
-      <TextInput
+      <TextField
         label="Toughness:"
         error={errors.fighterStats?.toughness}
         registration={register('fighterStats.toughness', {
           valueAsNumber: true,
         })}
       />
-      <TextInput
+      <TextField
         label="Wounds:"
         error={errors.fighterStats?.wounds}
         registration={register('fighterStats.wounds', { valueAsNumber: true })}
       />
-      <TextInput
+      <TextField
         label="Initiative:"
         error={errors.fighterStats?.initiative}
         registration={register('fighterStats.initiative', {
           valueAsNumber: true,
         })}
       />
-      <TextInput
+      <TextField
         label="Attacks:"
         error={errors.fighterStats?.attacks}
         registration={register('fighterStats.attacks', { valueAsNumber: true })}
       />
-      <TextInput
+      <TextField
         label="Leadership:"
         error={errors.fighterStats?.leadership}
         registration={register('fighterStats.leadership', {
           valueAsNumber: true,
         })}
       />
-      <TextInput
+      <TextField
         label="Cool:"
         error={errors.fighterStats?.cool}
         registration={register('fighterStats.cool', { valueAsNumber: true })}
       />
-      <TextInput
+      <TextField
         label="Will:"
         error={errors.fighterStats?.will}
         registration={register('fighterStats.will', { valueAsNumber: true })}
       />
-      <TextInput
+      <TextField
         label="Intelligence:"
         error={errors.fighterStats?.intelligence}
         registration={register('fighterStats.intelligence', {

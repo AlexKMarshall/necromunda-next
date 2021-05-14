@@ -5,7 +5,7 @@ import { Dialog } from '@reach/dialog'
 import '@reach/dialog/styles.css'
 import { CreateTraitDto, createTraitDtoSchema, Trait } from 'schemas'
 import { useQueryTraits, useCreateTrait, useDeleteTrait } from 'hooks/traits'
-import { H1, H2, Stack, TextInput } from 'components/lib'
+import { H1, H2, Stack, TextField } from 'components/lib'
 import { useModal } from 'hooks/use-modal'
 import { AdminTable } from 'components/admin'
 
@@ -59,7 +59,7 @@ function AddTraitForm({ onSubmit }: AddTraitFormProps) {
         onSubmit?.()
       })}
     >
-      <TextInput
+      <TextField
         label="Name:"
         error={errors.name}
         registration={register('name')}

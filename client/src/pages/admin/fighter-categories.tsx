@@ -13,7 +13,7 @@ import {
   useCreateFighterCategory,
   useDeleteFighterCategory,
 } from 'hooks/fighter-categories'
-import { H1, H2, Stack, TextInput } from 'components/lib'
+import { H1, H2, Stack, TextField } from 'components/lib'
 import { useModal } from 'hooks/use-modal'
 import { AdminTable } from 'components/admin'
 
@@ -67,7 +67,7 @@ function AddFighterCategoryForm({ onSubmit }: AddFighterCategoryFormProps) {
         onSubmit?.()
       })}
     >
-      <TextInput
+      <TextField
         label="Name:"
         error={errors.name}
         registration={register('name')}

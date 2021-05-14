@@ -6,8 +6,7 @@ import { Dialog } from '@reach/dialog'
 import '@reach/dialog/styles.css'
 import { CreateSkillDto, createSkillDtoSchema, Skill } from 'schemas'
 import { useQuerySkills, useCreateSkill, useDeleteSkill } from 'hooks/skills'
-import { H1, H2, Stack } from 'components/lib'
-import { Input } from 'styles/admin'
+import { H1, H2, Stack, TextInput } from 'components/lib'
 import { useQuerySkillTypes } from 'hooks/skill-types'
 import { useModal } from 'hooks/use-modal'
 import { AdminTable } from 'components/admin'
@@ -55,8 +54,6 @@ function AddSkillForm({ onSubmit }: AddSkillFormProps) {
   } = useForm<CreateSkillDto>({
     resolver: zodResolver(createSkillDtoSchema),
   })
-  const nameId = useId()
-  const nameErrorId = useId()
   const typeId = useId()
   const typeErrorId = useId()
 
@@ -68,20 +65,11 @@ function AddSkillForm({ onSubmit }: AddSkillFormProps) {
         onSubmit?.()
       })}
     >
-      <Stack variant="small">
-        <label htmlFor={nameId}>Name:</label>
-        <Input
-          id={nameId}
-          {...register('name')}
-          aria-invalid={!!errors.name}
-          aria-describedby={errors.name ? nameErrorId : ''}
-        />
-        {!!errors.name && (
-          <span role="alert" id={nameErrorId}>
-            {errors.name.message}
-          </span>
-        )}
-      </Stack>
+      <TextInput
+        label="Name:"
+        error={errors.name}
+        registration={register('name')}
+      />
       <Stack variant="small">
         <label htmlFor={typeId}>Type:</label>
         <select
@@ -107,9 +95,9 @@ function AddSkillForm({ onSubmit }: AddSkillFormProps) {
             </>
           )}
         </select>
-        {!!errors.name && (
+        {!!errors.type && (
           <span role="alert" id={typeErrorId}>
-            {errors.type?.id?.message}
+            {errors.type.id?.message}
           </span>
         )}
       </Stack>

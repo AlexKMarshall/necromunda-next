@@ -9,10 +9,9 @@ import {
   createFighterTypeDtoSchema,
   FighterType,
 } from 'schemas'
-import { H1, H2, Stack } from 'components/lib'
+import { H1, H2, Stack, TextInput } from 'components/lib'
 import { useQueryFactions } from 'hooks/factions'
 import { useQueryFighterCategories } from 'hooks/fighter-categories'
-import { Input } from 'styles/admin'
 import {
   useQueryFighterTypes,
   useDeleteFighterType,
@@ -131,38 +130,10 @@ function AddFighterTypeForm({ onSubmit }: AddFighterTypeFormProps) {
   const queryFactions = useQueryFactions()
   const queryCategories = useQueryFighterCategories()
 
-  const nameFieldId = useId()
-  const nameErrorFieldId = useId()
-  const costFieldId = useId()
-  const costErrorFieldId = useId()
   const factionFieldId = useId()
   const factionErrorFieldId = useId()
   const categoryFieldId = useId()
   const categoryErrorFieldId = useId()
-  const movementFieldId = useId()
-  const movementErrorFieldId = useId()
-  const weaponSkillFieldId = useId()
-  const weaponSkillErrorFieldId = useId()
-  const ballisticSkillFieldId = useId()
-  const ballisticSkillErrorFieldId = useId()
-  const strengthFieldId = useId()
-  const strengthErrorFieldId = useId()
-  const toughnessFieldId = useId()
-  const toughnessErrorFieldId = useId()
-  const woundsFieldId = useId()
-  const woundsErrorFieldId = useId()
-  const initiativeFieldId = useId()
-  const initiativeErrorFieldId = useId()
-  const attacksFieldId = useId()
-  const attacksErrorFieldId = useId()
-  const leadershipFieldId = useId()
-  const leadershipErrorFieldId = useId()
-  const coolFieldId = useId()
-  const coolErrorFieldId = useId()
-  const willFieldId = useId()
-  const willErrorFieldId = useId()
-  const intelligenceFieldId = useId()
-  const intelligenceErrorFieldId = useId()
 
   return (
     <Stack
@@ -172,34 +143,17 @@ function AddFighterTypeForm({ onSubmit }: AddFighterTypeFormProps) {
         onSubmit?.()
       })}
     >
-      <Stack variant="small">
-        <label htmlFor={nameFieldId}>Name:</label>
-        <Input
-          id={nameFieldId}
-          {...register('name')}
-          aria-invalid={!!errors.name}
-          aria-describedby={errors.name ? nameErrorFieldId : ''}
-        />
-        {!!errors.name && (
-          <span role="alert" id={nameErrorFieldId}>
-            {errors.name.message}
-          </span>
-        )}
-      </Stack>
-      <Stack variant="small">
-        <label htmlFor={costFieldId}>Cost:</label>
-        <Input
-          id={costFieldId}
-          {...register('cost', { valueAsNumber: true })}
-          aria-invalid={!!errors.cost}
-          aria-describedby={errors.cost ? costErrorFieldId : ''}
-        />
-        {!!errors.cost && (
-          <span role="alert" id={costErrorFieldId}>
-            {errors.cost.message}
-          </span>
-        )}
-      </Stack>
+      <TextInput
+        label="Name:"
+        error={errors.name}
+        registration={register('name')}
+      />
+      <TextInput
+        label="Cost:"
+        error={errors.name}
+        registration={register('cost', { valueAsNumber: true })}
+      />
+
       <Stack variant="small">
         <label htmlFor={factionFieldId}>Faction:</label>
         <select
@@ -265,196 +219,83 @@ function AddFighterTypeForm({ onSubmit }: AddFighterTypeFormProps) {
           </span>
         )}
       </Stack>
-      <Stack variant="small">
-        <label htmlFor={movementFieldId}>Movement:</label>
-        <Input
-          id={movementFieldId}
-          {...register('fighterStats.movement', { valueAsNumber: true })}
-          aria-invalid={!!errors.fighterStats?.movement}
-          aria-describedby={
-            errors.fighterStats?.movement ? movementErrorFieldId : ''
-          }
-        />
-        {!!errors.fighterStats?.movement && (
-          <span role="alert" id={movementErrorFieldId}>
-            {errors.fighterStats.movement.message}
-          </span>
-        )}
-      </Stack>
-      <Stack variant="small">
-        <label htmlFor={weaponSkillFieldId}>Weapon Skill:</label>
-        <Input
-          id={weaponSkillFieldId}
-          {...register('fighterStats.weaponSkill', { valueAsNumber: true })}
-          aria-invalid={!!errors.fighterStats?.weaponSkill}
-          aria-describedby={
-            errors.fighterStats?.weaponSkill ? weaponSkillErrorFieldId : ''
-          }
-        />
-        {!!errors.fighterStats?.weaponSkill && (
-          <span role="alert" id={weaponSkillErrorFieldId}>
-            {errors.fighterStats.weaponSkill.message}
-          </span>
-        )}
-      </Stack>
-      <Stack variant="small">
-        <label htmlFor={ballisticSkillFieldId}>Ballistic Skill:</label>
-        <Input
-          id={ballisticSkillFieldId}
-          {...register('fighterStats.ballisticSkill', { valueAsNumber: true })}
-          aria-invalid={!!errors.fighterStats?.ballisticSkill}
-          aria-describedby={
-            errors.fighterStats?.ballisticSkill
-              ? ballisticSkillErrorFieldId
-              : ''
-          }
-        />
-        {!!errors.fighterStats?.ballisticSkill && (
-          <span role="alert" id={ballisticSkillErrorFieldId}>
-            {errors.fighterStats.ballisticSkill.message}
-          </span>
-        )}
-      </Stack>
-      <Stack variant="small">
-        <label htmlFor={strengthFieldId}>Strength:</label>
-        <Input
-          id={strengthFieldId}
-          {...register('fighterStats.strength', { valueAsNumber: true })}
-          aria-invalid={!!errors.fighterStats?.strength}
-          aria-describedby={
-            errors.fighterStats?.strength ? strengthErrorFieldId : ''
-          }
-        />
-        {!!errors.fighterStats?.strength && (
-          <span role="alert" id={strengthErrorFieldId}>
-            {errors.fighterStats.strength.message}
-          </span>
-        )}
-      </Stack>
-      <Stack variant="small">
-        <label htmlFor={toughnessFieldId}>Toughness:</label>
-        <Input
-          id={toughnessFieldId}
-          {...register('fighterStats.toughness', { valueAsNumber: true })}
-          aria-invalid={!!errors.fighterStats?.toughness}
-          aria-describedby={
-            errors.fighterStats?.toughness ? toughnessErrorFieldId : ''
-          }
-        />
-        {!!errors.fighterStats?.toughness && (
-          <span role="alert" id={toughnessErrorFieldId}>
-            {errors.fighterStats.toughness.message}
-          </span>
-        )}
-      </Stack>
-      <Stack variant="small">
-        <label htmlFor={woundsFieldId}>Wounds:</label>
-        <Input
-          id={woundsFieldId}
-          {...register('fighterStats.wounds', { valueAsNumber: true })}
-          aria-invalid={!!errors.fighterStats?.wounds}
-          aria-describedby={
-            errors.fighterStats?.wounds ? woundsErrorFieldId : ''
-          }
-        />
-        {!!errors.fighterStats?.wounds && (
-          <span role="alert" id={woundsErrorFieldId}>
-            {errors.fighterStats.wounds.message}
-          </span>
-        )}
-      </Stack>
-      <Stack variant="small">
-        <label htmlFor={initiativeFieldId}>Initiative:</label>
-        <Input
-          id={initiativeFieldId}
-          {...register('fighterStats.initiative', { valueAsNumber: true })}
-          aria-invalid={!!errors.fighterStats?.initiative}
-          aria-describedby={
-            errors.fighterStats?.initiative ? initiativeErrorFieldId : ''
-          }
-        />
-        {!!errors.fighterStats?.initiative && (
-          <span role="alert" id={initiativeErrorFieldId}>
-            {errors.fighterStats.initiative.message}
-          </span>
-        )}
-      </Stack>
-      <Stack variant="small">
-        <label htmlFor={attacksFieldId}>Attacks:</label>
-        <Input
-          id={attacksFieldId}
-          {...register('fighterStats.attacks', { valueAsNumber: true })}
-          aria-invalid={!!errors.fighterStats?.attacks}
-          aria-describedby={
-            errors.fighterStats?.attacks ? attacksErrorFieldId : ''
-          }
-        />
-        {!!errors.fighterStats?.attacks && (
-          <span role="alert" id={attacksErrorFieldId}>
-            {errors.fighterStats.attacks.message}
-          </span>
-        )}
-      </Stack>
-      <Stack variant="small">
-        <label htmlFor={leadershipFieldId}>Leadership:</label>
-        <Input
-          id={leadershipFieldId}
-          {...register('fighterStats.leadership', { valueAsNumber: true })}
-          aria-invalid={!!errors.fighterStats?.leadership}
-          aria-describedby={
-            errors.fighterStats?.leadership ? leadershipErrorFieldId : ''
-          }
-        />
-        {!!errors.fighterStats?.leadership && (
-          <span role="alert" id={leadershipErrorFieldId}>
-            {errors.fighterStats.leadership.message}
-          </span>
-        )}
-      </Stack>
-      <Stack variant="small">
-        <label htmlFor={coolFieldId}>Cool:</label>
-        <Input
-          id={coolFieldId}
-          {...register('fighterStats.cool', { valueAsNumber: true })}
-          aria-invalid={!!errors.fighterStats?.cool}
-          aria-describedby={errors.fighterStats?.cool ? coolErrorFieldId : ''}
-        />
-        {!!errors.fighterStats?.cool && (
-          <span role="alert" id={coolErrorFieldId}>
-            {errors.fighterStats.cool.message}
-          </span>
-        )}
-      </Stack>
-      <Stack variant="small">
-        <label htmlFor={willFieldId}>Will:</label>
-        <Input
-          id={willFieldId}
-          {...register('fighterStats.will', { valueAsNumber: true })}
-          aria-invalid={!!errors.fighterStats?.will}
-          aria-describedby={errors.fighterStats?.will ? willErrorFieldId : ''}
-        />
-        {!!errors.fighterStats?.will && (
-          <span role="alert" id={willErrorFieldId}>
-            {errors.fighterStats.will.message}
-          </span>
-        )}
-      </Stack>
-      <Stack variant="small">
-        <label htmlFor={intelligenceFieldId}>Intelligence:</label>
-        <Input
-          id={intelligenceFieldId}
-          {...register('fighterStats.intelligence', { valueAsNumber: true })}
-          aria-invalid={!!errors.fighterStats?.intelligence}
-          aria-describedby={
-            errors.fighterStats?.intelligence ? intelligenceErrorFieldId : ''
-          }
-        />
-        {!!errors.fighterStats?.intelligence && (
-          <span role="alert" id={intelligenceErrorFieldId}>
-            {errors.fighterStats.intelligence.message}
-          </span>
-        )}
-      </Stack>
+
+      <TextInput
+        label="Movement:"
+        error={errors.fighterStats?.movement}
+        registration={register('fighterStats.movement', {
+          valueAsNumber: true,
+        })}
+      />
+      <TextInput
+        label="Weapon Skill:"
+        error={errors.fighterStats?.weaponSkill}
+        registration={register('fighterStats.weaponSkill', {
+          valueAsNumber: true,
+        })}
+      />
+      <TextInput
+        label="Ballistic Skill:"
+        error={errors.fighterStats?.ballisticSkill}
+        registration={register('fighterStats.ballisticSkill', {
+          valueAsNumber: true,
+        })}
+      />
+      <TextInput
+        label="Strength:"
+        error={errors.fighterStats?.strength}
+        registration={register('fighterStats.strength', {
+          valueAsNumber: true,
+        })}
+      />
+      <TextInput
+        label="Toughness:"
+        error={errors.fighterStats?.toughness}
+        registration={register('fighterStats.toughness', {
+          valueAsNumber: true,
+        })}
+      />
+      <TextInput
+        label="Wounds:"
+        error={errors.fighterStats?.wounds}
+        registration={register('fighterStats.wounds', { valueAsNumber: true })}
+      />
+      <TextInput
+        label="Initiative:"
+        error={errors.fighterStats?.initiative}
+        registration={register('fighterStats.initiative', {
+          valueAsNumber: true,
+        })}
+      />
+      <TextInput
+        label="Attacks:"
+        error={errors.fighterStats?.attacks}
+        registration={register('fighterStats.attacks', { valueAsNumber: true })}
+      />
+      <TextInput
+        label="Leadership:"
+        error={errors.fighterStats?.leadership}
+        registration={register('fighterStats.leadership', {
+          valueAsNumber: true,
+        })}
+      />
+      <TextInput
+        label="Cool:"
+        error={errors.fighterStats?.cool}
+        registration={register('fighterStats.cool', { valueAsNumber: true })}
+      />
+      <TextInput
+        label="Will:"
+        error={errors.fighterStats?.will}
+        registration={register('fighterStats.will', { valueAsNumber: true })}
+      />
+      <TextInput
+        label="Intelligence:"
+        error={errors.fighterStats?.intelligence}
+        registration={register('fighterStats.intelligence', {
+          valueAsNumber: true,
+        })}
+      />
       <button type="submit">Add fighter type</button>
     </Stack>
   )

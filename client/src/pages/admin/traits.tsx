@@ -6,7 +6,7 @@ import { Dialog } from '@reach/dialog'
 import '@reach/dialog/styles.css'
 import { CreateTraitDto, createTraitDtoSchema, Trait } from 'schemas'
 import { useQueryTraits, useCreateTrait, useDeleteTrait } from 'hooks/traits'
-import { DataTable, H1, H2, Stack } from 'components/lib'
+import { DataTable, DeleteButton, H1, H2, Stack } from 'components/lib'
 import { Input } from 'styles/admin'
 import { useModal } from 'hooks/use-modal'
 import { useWithDeleteColumn } from 'hooks/use-with-delete-column'
@@ -15,12 +15,13 @@ const traitColumns: Column<Trait>[] = [
   { Header: 'Name', accessor: 'name' as const },
 ]
 
-export default function Traits() {
+export default function Traits(): JSX.Element {
   const query = useQueryTraits()
   const { openModal, closeModal, getDialogProps, getTitleProps } = useModal()
   const columns = useWithDeleteColumn({
     columns: traitColumns,
-    renderDeleteButton: (props) => <DeleteTraitButton {...props} />,
+    deleteHook: useDeleteTrait,
+    DeleteButtonComponent: DeleteButton,
   })
 
   return (
@@ -36,20 +37,6 @@ export default function Traits() {
       <DataTable columns={columns} data={query.traits} />
       {query.isLoading ? <div>Loading...</div> : null}
     </Stack>
-  )
-}
-
-interface DeleteTraitButtonProps {
-  id: Trait['id']
-  name: Trait['name']
-}
-
-function DeleteTraitButton({ id, name }: DeleteTraitButtonProps) {
-  const mutation = useDeleteTrait(id)
-  return (
-    <button type="button" onClick={() => mutation.mutate()}>
-      Delete {name}
-    </button>
   )
 }
 

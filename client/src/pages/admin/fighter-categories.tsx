@@ -14,7 +14,7 @@ import {
   useCreateFighterCategory,
   useDeleteFighterCategory,
 } from 'hooks/fighter-categories'
-import { DataTable, H1, H2, Stack } from 'components/lib'
+import { DataTable, DeleteButton, H1, H2, Stack } from 'components/lib'
 import { Input } from 'styles/admin'
 import { useModal } from 'hooks/use-modal'
 import { useWithDeleteColumn } from 'hooks/use-with-delete-column'
@@ -23,13 +23,14 @@ const fighterCategoryColumns: Column<FighterCategory>[] = [
   { Header: 'Name', accessor: 'name' as const },
 ]
 
-export default function FighterCategories() {
+export default function FighterCategories(): JSX.Element {
   const query = useQueryFighterCategories()
   const { openModal, closeModal, getDialogProps, getTitleProps } = useModal()
 
   const columns = useWithDeleteColumn({
     columns: fighterCategoryColumns,
-    renderDeleteButton: (props) => <DeleteFighterCategoryButton {...props} />,
+    deleteHook: useDeleteFighterCategory,
+    DeleteButtonComponent: DeleteButton,
   })
 
   return (
@@ -45,23 +46,6 @@ export default function FighterCategories() {
       <DataTable columns={columns} data={query.fighterCategories} />
       {query.isLoading ? <div>Loading...</div> : null}
     </Stack>
-  )
-}
-
-interface DeleteFighterCategoryButtonProps {
-  id: FighterCategory['id']
-  name: FighterCategory['name']
-}
-
-function DeleteFighterCategoryButton({
-  id,
-  name,
-}: DeleteFighterCategoryButtonProps) {
-  const mutation = useDeleteFighterCategory(id)
-  return (
-    <button type="button" onClick={() => mutation.mutate()}>
-      Delete {name}
-    </button>
   )
 }
 

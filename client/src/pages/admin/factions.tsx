@@ -10,7 +10,7 @@ import {
   useCreateFaction,
   useDeleteFaction,
 } from 'hooks/factions'
-import { H1, H2, Stack } from 'components/lib'
+import { DeleteButton, H1, H2, Stack } from 'components/lib'
 import { Input } from 'styles/admin'
 import { DataTable } from 'components/lib'
 import { useModal } from 'hooks/use-modal'
@@ -23,10 +23,10 @@ const factionColumns: Column<Faction>[] = [
 export default function Factions(): JSX.Element {
   const query = useQueryFactions()
   const { openModal, closeModal, getDialogProps, getTitleProps } = useModal()
-
   const columns = useWithDeleteColumn({
     columns: factionColumns,
-    renderDeleteButton: (props) => <DeleteFactionButton {...props} />,
+    deleteHook: useDeleteFaction,
+    DeleteButtonComponent: DeleteButton,
   })
 
   return (
@@ -42,23 +42,6 @@ export default function Factions(): JSX.Element {
       <DataTable columns={columns} data={query.factions} />
       {query.isLoading ? <div>Loading...</div> : null}
     </Stack>
-  )
-}
-
-interface DeleteFactionButtonProps {
-  id: Faction['id']
-  name: Faction['name']
-}
-
-function DeleteFactionButton({
-  id,
-  name,
-}: DeleteFactionButtonProps): JSX.Element {
-  const mutation = useDeleteFaction(id)
-  return (
-    <button type="button" onClick={() => mutation.mutate()}>
-      {mutation.isLoading ? 'deleting...' : `Delete ${name}`}
-    </button>
   )
 }
 

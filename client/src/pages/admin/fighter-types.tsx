@@ -9,7 +9,7 @@ import {
   createFighterTypeDtoSchema,
   FighterType,
 } from 'schemas'
-import { DataTable, H1, H2, Stack } from 'components/lib'
+import { DataTable, DeleteButton, H1, H2, Stack } from 'components/lib'
 import { useQueryFactions } from 'hooks/factions'
 import { useQueryFighterCategories } from 'hooks/fighter-categories'
 import { Input } from 'styles/admin'
@@ -97,7 +97,8 @@ export default function FighterTypes(): JSX.Element {
 
   const columns = useWithDeleteColumn({
     columns: fighterTypeColumns,
-    renderDeleteButton: (props) => <DeleteFighterTypeButton {...props} />,
+    deleteHook: useDeleteFighterType,
+    DeleteButtonComponent: DeleteButton,
   })
 
   return (
@@ -115,21 +116,6 @@ export default function FighterTypes(): JSX.Element {
     </Stack>
   )
 }
-
-interface DeleteFighterTypeButtonProps {
-  id: FighterType['id']
-  name: FighterType['name']
-}
-
-function DeleteFighterTypeButton({ id, name }: DeleteFighterTypeButtonProps) {
-  const mutation = useDeleteFighterType(id)
-  return (
-    <button type="button" onClick={() => mutation.mutate()}>
-      Delete {name}
-    </button>
-  )
-}
-
 interface AddFighterTypeFormProps {
   onSubmit?: () => void
 }

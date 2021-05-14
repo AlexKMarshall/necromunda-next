@@ -14,7 +14,7 @@ import {
   useCreateSkillType,
   useDeleteSkillType,
 } from 'hooks/skill-types'
-import { DataTable, H1, H2, Stack } from 'components/lib'
+import { DataTable, DeleteButton, H1, H2, Stack } from 'components/lib'
 import { Input } from 'styles/admin'
 import { useModal } from 'hooks/use-modal'
 import { useWithDeleteColumn } from 'hooks/use-with-delete-column'
@@ -23,13 +23,14 @@ const skillTypeColumns: Column<SkillType>[] = [
   { Header: 'Name', accessor: 'name' as const },
 ]
 
-export default function SkillTypes() {
+export default function SkillTypes(): JSX.Element {
   const query = useQuerySkillTypes()
   const { openModal, closeModal, getDialogProps, getTitleProps } = useModal()
 
   const columns = useWithDeleteColumn({
     columns: skillTypeColumns,
-    renderDeleteButton: (props) => <DeleteSkillTypeButton {...props} />,
+    deleteHook: useDeleteSkillType,
+    DeleteButtonComponent: DeleteButton,
   })
 
   return (
@@ -45,20 +46,6 @@ export default function SkillTypes() {
       <DataTable columns={columns} data={query.skillTypes} />
       {query.isLoading ? <div>Loading...</div> : null}
     </Stack>
-  )
-}
-
-interface DeleteSkillTypeButtonProps {
-  id: SkillType['id']
-  name: SkillType['name']
-}
-
-function DeleteSkillTypeButton({ id, name }: DeleteSkillTypeButtonProps) {
-  const mutation = useDeleteSkillType(id)
-  return (
-    <button type="button" onClick={() => mutation.mutate()}>
-      {mutation.isLoading ? 'deleting...' : `Delete ${name}`}
-    </button>
   )
 }
 

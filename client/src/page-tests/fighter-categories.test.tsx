@@ -3,37 +3,27 @@ import {
   screen,
   waitForElementToBeRemoved,
   within,
-} from '@testing-library/react'
-import userEvent from '@testing-library/user-event'
+  userEvent,
+} from 'test/utils'
 import { rest } from 'msw'
-import React from 'react'
-import { QueryClient, QueryClientProvider } from 'react-query'
 import { server } from 'test/mocks/server'
 import FighterCategories from '../pages/admin/fighter-categories'
 import { buildFighterCategory } from 'test/mocks/test-factories'
 import { CreateFighterCategoryDto, FighterCategory } from 'schemas'
+import { apiBaseUrl, endpoints } from 'config'
 
-const Providers: React.ComponentType = ({
-  children,
-}: {
-  children?: React.ReactNode
-}) => {
-  const queryClient = new QueryClient()
-  return (
-    <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
-  )
-}
+const fighterCategoriesUrl = `${apiBaseUrl}/${endpoints.fighterCategories}`
 
-describe('Fighter Categories', () => {
+describe('fighter Categories', () => {
   it('shows a list of fighter categories', async () => {
     const fighterCategories = [buildFighterCategory(), buildFighterCategory()]
     server.use(
-      rest.get('http://localhost:3000/fighter-categories', (req, res, ctx) => {
+      rest.get(fighterCategoriesUrl, (req, res, ctx) => {
         return res(ctx.json(fighterCategories))
       })
     )
 
-    render(<FighterCategories />, { wrapper: Providers })
+    render(<FighterCategories />)
 
     expect(
       screen.getByRole('heading', { name: /fighter categories/i })
@@ -65,11 +55,11 @@ describe('Fighter Categories', () => {
     const fighterCategory = buildFighterCategory()
     const serverFighterCategories: FighterCategory[] = []
     server.use(
-      rest.get('http://localhost:3000/fighter-categories', (req, res, ctx) => {
+      rest.get(fighterCategoriesUrl, (req, res, ctx) => {
         return res(ctx.json(serverFighterCategories))
       }),
       rest.post<CreateFighterCategoryDto>(
-        'http://localhost:3000/fighter-categories',
+        fighterCategoriesUrl,
         (req, res, ctx) => {
           const {
             body: { name },
@@ -81,7 +71,7 @@ describe('Fighter Categories', () => {
       )
     )
 
-    render(<FighterCategories />, { wrapper: Providers })
+    render(<FighterCategories />)
 
     userEvent.click(
       screen.getByRole('button', { name: /add fighter category/i })
@@ -111,25 +101,22 @@ describe('Fighter Categories', () => {
     let serverFCs = [buildFighterCategory(), buildFighterCategory()]
     const initialFCs = [...serverFCs]
     server.use(
-      rest.get('http://localhost:3000/fighter-categories', (req, res, ctx) => {
+      rest.get(fighterCategoriesUrl, (req, res, ctx) => {
         return res(ctx.json(serverFCs))
       }),
-      rest.delete(
-        'http://localhost:3000/fighter-categories/:id',
-        (req, res, ctx) => {
-          const {
-            params: { id },
-          } = req
+      rest.delete(`${fighterCategoriesUrl}/:id`, (req, res, ctx) => {
+        const {
+          params: { id },
+        } = req
 
-          const deletedFC = serverFCs.find((f) => f.id === id)
-          serverFCs = serverFCs.filter((f) => f.id !== id)
+        const deletedFC = serverFCs.find((f) => f.id === id)
+        serverFCs = serverFCs.filter((f) => f.id !== id)
 
-          return res(ctx.json(deletedFC))
-        }
-      )
+        return res(ctx.json(deletedFC))
+      })
     )
 
-    render(<FighterCategories />, { wrapper: Providers })
+    render(<FighterCategories />)
 
     await waitForElementToBeRemoved(() => screen.getByText(/loading/i))
 

@@ -3,37 +3,27 @@ import {
   screen,
   waitForElementToBeRemoved,
   within,
-} from '@testing-library/react'
-import userEvent from '@testing-library/user-event'
+  userEvent,
+} from 'test/utils'
 import { rest } from 'msw'
-import React from 'react'
-import { QueryClient, QueryClientProvider } from 'react-query'
 import { server } from 'test/mocks/server'
 import Traits from '../pages/admin/traits'
 import { buildTrait } from 'test/mocks/test-factories'
 import { CreateTraitDto, Trait } from 'schemas'
+import { apiBaseUrl, endpoints } from 'config'
 
-const Providers: React.ComponentType = ({
-  children,
-}: {
-  children?: React.ReactNode
-}) => {
-  const queryClient = new QueryClient()
-  return (
-    <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
-  )
-}
+const traitsUrl = `${apiBaseUrl}/${endpoints.traits}`
 
-describe('Traits', () => {
+describe('traits', () => {
   it('shows a list of traits', async () => {
     const traits = [buildTrait(), buildTrait()]
     server.use(
-      rest.get('http://localhost:3000/traits', (req, res, ctx) => {
+      rest.get(traitsUrl, (req, res, ctx) => {
         return res(ctx.json(traits))
       })
     )
 
-    render(<Traits />, { wrapper: Providers })
+    render(<Traits />)
 
     expect(screen.getByRole('heading', { name: /traits/i })).toBeInTheDocument()
 
@@ -63,23 +53,20 @@ describe('Traits', () => {
     const trait = buildTrait()
     const serverTraits: Trait[] = []
     server.use(
-      rest.get('http://localhost:3000/traits', (req, res, ctx) => {
+      rest.get(traitsUrl, (req, res, ctx) => {
         return res(ctx.json(serverTraits))
       }),
-      rest.post<CreateTraitDto>(
-        'http://localhost:3000/traits',
-        (req, res, ctx) => {
-          const {
-            body: { name },
-          } = req
-          const createdTrait = { ...trait, name }
-          serverTraits.push(createdTrait)
-          return res(ctx.status(201), ctx.json(createdTrait))
-        }
-      )
+      rest.post<CreateTraitDto>(traitsUrl, (req, res, ctx) => {
+        const {
+          body: { name },
+        } = req
+        const createdTrait = { ...trait, name }
+        serverTraits.push(createdTrait)
+        return res(ctx.status(201), ctx.json(createdTrait))
+      })
     )
 
-    render(<Traits />, { wrapper: Providers })
+    render(<Traits />)
 
     userEvent.click(screen.getByRole('button', { name: /add trait/i }))
 
@@ -100,10 +87,10 @@ describe('Traits', () => {
     let serverTraits = [buildTrait(), buildTrait()]
     const initialTraits = [...serverTraits]
     server.use(
-      rest.get('http://localhost:3000/traits', (req, res, ctx) => {
+      rest.get(traitsUrl, (req, res, ctx) => {
         return res(ctx.json(serverTraits))
       }),
-      rest.delete('http://localhost:3000/traits/:id', (req, res, ctx) => {
+      rest.delete(`${traitsUrl}/:id`, (req, res, ctx) => {
         const {
           params: { id },
         } = req
@@ -115,7 +102,7 @@ describe('Traits', () => {
       })
     )
 
-    render(<Traits />, { wrapper: Providers })
+    render(<Traits />)
 
     await waitForElementToBeRemoved(() => screen.getByText(/loading/i))
 

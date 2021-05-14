@@ -1,7 +1,6 @@
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { useMemo, useState } from 'react'
-import { Row, useTable } from 'react-table'
+import { Column } from 'react-table'
 import { useId } from 'react-aria'
 import { Dialog } from '@reach/dialog'
 import '@reach/dialog/styles.css'
@@ -12,98 +11,36 @@ import {
   useDeleteFaction,
 } from 'hooks/factions'
 import { H1, H2, Stack } from 'components/lib'
-import { Input, Table, Td, Th, Tr } from 'styles/admin'
+import { Input } from 'styles/admin'
+import { AdminTable } from 'components/admin'
+import { useModal } from 'hooks/use-modal'
 
-export default function Factions() {
+const factionColumns: Column<Faction>[] = [
+  { Header: 'Name', accessor: 'name' as const },
+]
+
+export default function Factions(): JSX.Element {
   const query = useQueryFactions()
-  const [showForm, setShowForm] = useState(false)
-  const openForm = () => setShowForm(true)
-  const closeForm = () => setShowForm(false)
-
-  const columns = useMemo(
-    () => [
-      { Header: 'Name', accessor: 'name' as const },
-      {
-        Header: 'Actions',
-        accessor: 'id' as const,
-        Cell: ({ row: { original } }: { row: Row<Faction> }) => (
-          <DeleteFactionButton
-            factionId={original.id}
-            factionName={original.name}
-            key={original.id}
-          />
-        ),
-      },
-    ],
-    []
-  )
-
-  const {
-    getTableProps,
-    getTableBodyProps,
-    headerGroups,
-    rows,
-    prepareRow,
-  } = useTable({ columns, data: query.factions })
-
-  const dialogTitleId = useId()
+  const { openModal, closeModal, getDialogProps, getTitleProps } = useModal()
 
   return (
     <Stack>
       <H1>Factions</H1>
-      <button onClick={openForm}>Add Faction</button>
-      <Dialog
-        isOpen={showForm}
-        onDismiss={closeForm}
-        aria-labelledby={dialogTitleId}
-      >
+      <button onClick={openModal}>Add Faction</button>
+      <Dialog {...getDialogProps()}>
         <Stack>
-          <H2 id={dialogTitleId}>Add New Faction</H2>
-          <AddFactionForm onSubmit={closeForm} />
+          <H2 {...getTitleProps()}>Add New Faction</H2>
+          <AddFactionForm onSubmit={closeModal} />
         </Stack>
       </Dialog>
-      <Table {...getTableProps()}>
-        <thead>
-          {headerGroups.map((headerGroup) => (
-            <tr {...headerGroup.getHeaderGroupProps()}>
-              {headerGroup.headers.map((column) => (
-                <Th {...column.getHeaderProps()}>{column.render('Header')}</Th>
-              ))}
-            </tr>
-          ))}
-        </thead>
-        <tbody {...getTableBodyProps()} data-testid="table-body">
-          {rows.map((row) => {
-            prepareRow(row)
-            return (
-              <Tr {...row.getRowProps()}>
-                {row.cells.map((cell) => (
-                  <Td {...cell.getCellProps()}>{cell.render('Cell')}</Td>
-                ))}
-              </Tr>
-            )
-          })}
-        </tbody>
-      </Table>
+
+      <AdminTable
+        columns={factionColumns}
+        data={query.factions}
+        deleteHook={useDeleteFaction}
+      />
       {query.isLoading ? <div>Loading...</div> : null}
     </Stack>
-  )
-}
-
-interface DeleteFactionButtonProps {
-  factionId: Faction['id']
-  factionName: Faction['name']
-}
-
-function DeleteFactionButton({
-  factionId,
-  factionName,
-}: DeleteFactionButtonProps) {
-  const mutation = useDeleteFaction(factionId)
-  return (
-    <button type="button" onClick={() => mutation.mutate()}>
-      {mutation.isLoading ? 'deleting...' : `Delete ${factionName}`}
-    </button>
   )
 }
 
@@ -111,7 +48,7 @@ interface AddFactionFormProps {
   onSubmit?: () => void
 }
 
-function AddFactionForm({ onSubmit }: AddFactionFormProps) {
+function AddFactionForm({ onSubmit }: AddFactionFormProps): JSX.Element {
   const mutation = useCreateFaction()
   const {
     register,
@@ -137,7 +74,7 @@ function AddFactionForm({ onSubmit }: AddFactionFormProps) {
           id={nameId}
           {...register('name')}
           aria-invalid={!!errors.name}
-          aria-describedby={!!errors.name ? nameErrorId : ''}
+          aria-describedby={errors.name ? nameErrorId : ''}
         />
         {!!errors.name && (
           <span role="alert" id={nameErrorId}>

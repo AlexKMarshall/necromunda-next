@@ -1,320 +1,129 @@
-import { useQuery, useMutation, useQueryClient } from 'react-query'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { useMemo, useState } from 'react'
-import { Row, useTable, Column } from 'react-table'
+import { Column } from 'react-table'
 import { useId } from 'react-aria'
 import { Dialog } from '@reach/dialog'
 import '@reach/dialog/styles.css'
 import {
   CreateFighterTypeDto,
   createFighterTypeDtoSchema,
-  FighterStats,
   FighterType,
-  fighterTypeSchema,
 } from 'schemas'
 import { H1, H2, Stack } from 'components/lib'
 import { useQueryFactions } from 'hooks/factions'
 import { useQueryFighterCategories } from 'hooks/fighter-categories'
-import { Input, Table, Td, Th, Tr } from 'styles/admin'
-import { client } from 'hooks/client'
-import { nanoid } from 'nanoid'
+import { Input } from 'styles/admin'
+import {
+  useQueryFighterTypes,
+  useDeleteFighterType,
+  useCreateFighterType,
+} from 'hooks/fighter-types'
+import { useModal } from 'hooks/use-modal'
+import { AdminTable } from 'components/admin'
 
-const QUERY_KEY = 'fighterTypes'
+const fighterTypeColumns: Column<FighterType>[] = [
+  { Header: 'Name', accessor: 'name' as const },
+  { Header: 'Cost', accessor: 'cost' as const },
+  { Header: 'Faction', accessor: (row) => row.faction.name },
+  {
+    Header: 'Fighter Category',
+    accessor: (row) => row.fighterCategory.name,
+  },
+  {
+    Header: <span aria-label="Movement">M</span>,
+    id: 'm',
+    accessor: ({ fighterStats }) => fighterStats.movement,
+  },
+  {
+    Header: <span aria-label="Weapon skill">WS</span>,
+    id: 'ws',
+    accessor: ({ fighterStats }) => fighterStats.weaponSkill,
+  },
+  {
+    Header: <span aria-label="Ballistic skill">BS</span>,
+    id: 'bs',
+    accessor: ({ fighterStats }) => fighterStats.ballisticSkill,
+  },
+  {
+    Header: <span aria-label="strength">S</span>,
+    id: 's',
+    accessor: ({ fighterStats }) => fighterStats.strength,
+  },
+  {
+    Header: <span aria-label="toughness">T</span>,
+    id: 't',
+    accessor: ({ fighterStats }) => fighterStats.toughness,
+  },
+  {
+    Header: <span aria-label="wounds">W</span>,
+    id: 'w',
+    accessor: ({ fighterStats }) => fighterStats.wounds,
+  },
+  {
+    Header: <span aria-label="initiative">I</span>,
+    id: 'i',
+    accessor: ({ fighterStats }) => fighterStats.initiative,
+  },
+  {
+    Header: <span aria-label="attacks">A</span>,
+    id: 'a',
+    accessor: ({ fighterStats }) => fighterStats.attacks,
+  },
+  {
+    Header: <span aria-label="leadership">LD</span>,
+    id: 'ld',
+    accessor: ({ fighterStats }) => fighterStats.leadership,
+  },
+  {
+    Header: <span aria-label="cool">CL</span>,
+    id: 'cl',
+    accessor: ({ fighterStats }) => fighterStats.cool,
+  },
+  {
+    Header: <span aria-label="will">WIL</span>,
+    id: 'wil',
+    accessor: ({ fighterStats }) => fighterStats.will,
+  },
+  {
+    Header: <span aria-label="intelligence">INT</span>,
+    id: 'int',
+    accessor: ({ fighterStats }) => fighterStats.intelligence,
+  },
+]
 
-function useQueryFighterTypes() {
-  const query = useQuery(QUERY_KEY, async () => {
-    try {
-      const response = await client('fighter-types')
-      const data = await response.json()
-      return fighterTypeSchema.array().parse(data)
-    } catch (e) {
-      console.error(e)
-      return Promise.reject(e)
-    }
-  })
-
-  const fighterTypes = query.data ?? []
-  return { ...query, fighterTypes }
-}
-
-function useCreateFighterType() {
-  const queryClient = useQueryClient()
-  const { factions } = useQueryFactions()
-  const { fighterCategories } = useQueryFighterCategories()
-
-  const mutation = useMutation(
-    async (fighterType: CreateFighterTypeDto) => {
-      return fetch('http://localhost:3000/fighter-types', {
-        method: 'POST',
-        body: JSON.stringify(fighterType),
-        headers: {
-          'content-type': 'application/json',
-        },
-      })
-    },
-    {
-      onMutate: async (createFtDto) => {
-        await queryClient.cancelQueries(QUERY_KEY)
-        const previousFTs =
-          queryClient.getQueryData<FighterType[]>(QUERY_KEY) ?? []
-
-        const faction = factions.find(
-          (f) => f.id === createFtDto.faction.id
-        ) ?? { id: createFtDto.faction.id, name: 'Pending' }
-        const category = fighterCategories.find(
-          (fc) => fc.id === createFtDto.fighterCategory.id
-        ) ?? { id: createFtDto.fighterCategory.id, name: 'Pending' }
-
-        const pendingFT: FighterType = {
-          ...createFtDto,
-          id: nanoid(),
-          faction,
-          fighterCategory: category,
-          fighterStats: { ...createFtDto.fighterStats, id: nanoid() },
-        }
-
-        queryClient.setQueryData<FighterType[]>(QUERY_KEY, [
-          ...previousFTs,
-          pendingFT,
-        ])
-
-        return { previousFTs }
-      },
-      onSettled: () => {
-        queryClient.invalidateQueries(QUERY_KEY)
-      },
-    }
-  )
-  return mutation
-}
-
-function useDeleteFighterType(fighterTypeId: FighterType['id']) {
-  const queryClient = useQueryClient()
-
-  const mutation = useMutation(
-    async () => {
-      return fetch(`http://localhost:3000/fighter-types/${fighterTypeId}`, {
-        method: 'DELETE',
-      })
-    },
-    {
-      onMutate: async () => {
-        await queryClient.cancelQueries(QUERY_KEY)
-
-        const previousFighterTypes =
-          queryClient.getQueryData<FighterType[]>(QUERY_KEY) ?? []
-
-        queryClient.setQueryData<FighterType[]>(
-          QUERY_KEY,
-          previousFighterTypes.filter((ft) => ft.id !== fighterTypeId)
-        )
-
-        return { previousFighterTypes }
-      },
-      onSettled: () => {
-        queryClient.invalidateQueries(QUERY_KEY)
-      },
-    }
-  )
-  return mutation
-}
-
-export default function FighterTypes() {
+export default function FighterTypes(): JSX.Element {
   const query = useQueryFighterTypes()
-  const [showForm, setShowForm] = useState(false)
-  const openForm = () => setShowForm(true)
-  const closeForm = () => setShowForm(false)
-
-  type FighterTypeColumn = Column<typeof query.fighterTypes[number]>
-  const columns = useMemo<FighterTypeColumn[]>(
-    () => [
-      { Header: 'Name', accessor: 'name' as const },
-      { Header: 'Cost', accessor: 'cost' as const },
-      { Header: 'Faction', accessor: (row) => row.faction.name },
-      {
-        Header: 'Fighter Category',
-        accessor: (row) => row.fighterCategory.name,
-      },
-      {
-        Header: <span aria-label="Movement">M</span>,
-        id: 'm',
-        accessor: ({ fighterStats }) => fighterStats.movement,
-      },
-      {
-        Header: <span aria-label="Weapon skill">WS</span>,
-        id: 'ws',
-        accessor: ({ fighterStats }) => fighterStats.weaponSkill,
-      },
-      {
-        Header: <span aria-label="Ballistic skill">BS</span>,
-        id: 'bs',
-        accessor: ({ fighterStats }) => fighterStats.ballisticSkill,
-      },
-      {
-        Header: <span aria-label="strength">S</span>,
-        id: 's',
-        accessor: ({ fighterStats }) => fighterStats.strength,
-      },
-      {
-        Header: <span aria-label="toughness">T</span>,
-        id: 't',
-        accessor: ({ fighterStats }) => fighterStats.toughness,
-      },
-      {
-        Header: <span aria-label="wounds">W</span>,
-        id: 'w',
-        accessor: ({ fighterStats }) => fighterStats.wounds,
-      },
-      {
-        Header: <span aria-label="initiative">I</span>,
-        id: 'i',
-        accessor: ({ fighterStats }) => fighterStats.initiative,
-      },
-      {
-        Header: <span aria-label="attacks">A</span>,
-        id: 'a',
-        accessor: ({ fighterStats }) => fighterStats.attacks,
-      },
-      {
-        Header: <span aria-label="leadership">LD</span>,
-        id: 'ld',
-        accessor: ({ fighterStats }) => fighterStats.leadership,
-      },
-      {
-        Header: <span aria-label="cool">CL</span>,
-        id: 'cl',
-        accessor: ({ fighterStats }) => fighterStats.cool,
-      },
-      {
-        Header: <span aria-label="will">WIL</span>,
-        id: 'wil',
-        accessor: ({ fighterStats }) => fighterStats.will,
-      },
-      {
-        Header: <span aria-label="intelligence">INT</span>,
-        id: 'int',
-        accessor: ({ fighterStats }) => fighterStats.intelligence,
-      },
-
-      {
-        Header: 'Actions',
-        accessor: 'id' as const,
-        Cell: ({ row: { original } }: { row: Row<FighterType> }) => (
-          <DeleteFighterTypeButton
-            fighterTypeId={original.id}
-            fighterTypeName={original.name}
-            key={original.id}
-          />
-        ),
-      },
-    ],
-    []
-  )
-
-  const {
-    getTableProps,
-    getTableBodyProps,
-    headerGroups,
-    rows,
-    prepareRow,
-  } = useTable({ columns, data: query.fighterTypes })
-
-  const dialogTitleId = useId()
+  const { openModal, closeModal, getDialogProps, getTitleProps } = useModal()
 
   return (
     <Stack>
       <H1>Fighter Types</H1>
-      <button onClick={openForm}>Add Fighter Type</button>
-      <Dialog
-        isOpen={showForm}
-        onDismiss={closeForm}
-        aria-labelledby={dialogTitleId}
-      >
+      <button onClick={openModal}>Add Fighter Type</button>
+      <Dialog {...getDialogProps()}>
         <Stack>
-          <H2 id={dialogTitleId}>Add New Fighter Type</H2>
-          <AddFighterTypeForm
-            onSubmit={closeForm}
-            formLabelId={dialogTitleId}
-          />
+          <H2 {...getTitleProps()}>Add New Fighter Type</H2>
+          <AddFighterTypeForm onSubmit={closeModal} />
         </Stack>
       </Dialog>
-      <Table {...getTableProps()}>
-        <thead>
-          {headerGroups.map((headerGroup) => (
-            <tr {...headerGroup.getHeaderGroupProps()}>
-              {headerGroup.headers.map((column) => (
-                <Th {...column.getHeaderProps()}>{column.render('Header')}</Th>
-              ))}
-            </tr>
-          ))}
-        </thead>
-        <tbody {...getTableBodyProps()} data-testid="table-body">
-          {rows.map((row) => {
-            prepareRow(row)
-            return (
-              <Tr {...row.getRowProps()}>
-                {row.cells.map((cell) => (
-                  <Td {...cell.getCellProps()}>{cell.render('Cell')}</Td>
-                ))}
-              </Tr>
-            )
-          })}
-        </tbody>
-      </Table>
+      <AdminTable
+        columns={fighterTypeColumns}
+        data={query.fighterTypes}
+        deleteHook={useDeleteFighterType}
+      />
       {query.isLoading ? <div>Loading...</div> : null}
     </Stack>
   )
 }
-
-interface DeleteFighterTypeButtonProps {
-  fighterTypeId: FighterType['id']
-  fighterTypeName: FighterType['name']
-}
-
-function DeleteFighterTypeButton({
-  fighterTypeId,
-  fighterTypeName,
-}: DeleteFighterTypeButtonProps) {
-  const mutation = useDeleteFighterType(fighterTypeId)
-  return (
-    <button type="button" onClick={() => mutation.mutate()}>
-      Delete {fighterTypeName}
-    </button>
-  )
-}
-
-const blankFighterStats = {
-  id: '',
-  movement: 0,
-  weaponSkill: 0,
-  ballisticSkill: 0,
-  strength: 0,
-  toughness: 0,
-  wounds: 0,
-  initiative: 0,
-  attacks: 0,
-  leadership: 0,
-  cool: 0,
-  will: 0,
-  intelligence: 0,
-}
-const placeholderFighterStatsArray = [blankFighterStats]
-
 interface AddFighterTypeFormProps {
   onSubmit?: () => void
-  formLabelId: string
 }
 
-function AddFighterTypeForm({
-  onSubmit,
-  formLabelId,
-}: AddFighterTypeFormProps) {
+function AddFighterTypeForm({ onSubmit }: AddFighterTypeFormProps) {
   const mutation = useCreateFighterType()
   const {
     register,
     handleSubmit,
-    formState: { errors, isValid: isFormValid },
+    formState: { errors },
   } = useForm<CreateFighterTypeDto>({
     resolver: zodResolver(createFighterTypeDtoSchema),
   })
@@ -362,8 +171,6 @@ function AddFighterTypeForm({
         mutation.mutate(fighterType)
         onSubmit?.()
       })}
-      aria-labelledby={formLabelId}
-      aria-invalid={!isFormValid}
     >
       <Stack variant="small">
         <label htmlFor={nameFieldId}>Name:</label>
@@ -371,7 +178,7 @@ function AddFighterTypeForm({
           id={nameFieldId}
           {...register('name')}
           aria-invalid={!!errors.name}
-          aria-describedby={!!errors.name ? nameErrorFieldId : ''}
+          aria-describedby={errors.name ? nameErrorFieldId : ''}
         />
         {!!errors.name && (
           <span role="alert" id={nameErrorFieldId}>
@@ -385,7 +192,7 @@ function AddFighterTypeForm({
           id={costFieldId}
           {...register('cost', { valueAsNumber: true })}
           aria-invalid={!!errors.cost}
-          aria-describedby={!!errors.cost ? costErrorFieldId : ''}
+          aria-describedby={errors.cost ? costErrorFieldId : ''}
         />
         {!!errors.cost && (
           <span role="alert" id={costErrorFieldId}>
@@ -399,7 +206,7 @@ function AddFighterTypeForm({
           id={factionFieldId}
           {...register('faction.id')}
           aria-invalid={!!errors.faction?.id}
-          aria-describedby={!!errors.faction?.id ? factionErrorFieldId : ''}
+          aria-describedby={errors.faction?.id ? factionErrorFieldId : ''}
         >
           {queryFactions.isLoading ? (
             <option key="factions-loading" value="">
@@ -432,7 +239,7 @@ function AddFighterTypeForm({
           {...register('fighterCategory.id')}
           aria-invalid={!!errors.fighterCategory?.id}
           aria-describedby={
-            !!errors.fighterCategory?.id ? categoryErrorFieldId : ''
+            errors.fighterCategory?.id ? categoryErrorFieldId : ''
           }
         >
           {queryCategories.isLoading ? (
@@ -465,7 +272,7 @@ function AddFighterTypeForm({
           {...register('fighterStats.movement', { valueAsNumber: true })}
           aria-invalid={!!errors.fighterStats?.movement}
           aria-describedby={
-            !!errors.fighterStats?.movement ? movementErrorFieldId : ''
+            errors.fighterStats?.movement ? movementErrorFieldId : ''
           }
         />
         {!!errors.fighterStats?.movement && (
@@ -481,7 +288,7 @@ function AddFighterTypeForm({
           {...register('fighterStats.weaponSkill', { valueAsNumber: true })}
           aria-invalid={!!errors.fighterStats?.weaponSkill}
           aria-describedby={
-            !!errors.fighterStats?.weaponSkill ? weaponSkillErrorFieldId : ''
+            errors.fighterStats?.weaponSkill ? weaponSkillErrorFieldId : ''
           }
         />
         {!!errors.fighterStats?.weaponSkill && (
@@ -497,7 +304,7 @@ function AddFighterTypeForm({
           {...register('fighterStats.ballisticSkill', { valueAsNumber: true })}
           aria-invalid={!!errors.fighterStats?.ballisticSkill}
           aria-describedby={
-            !!errors.fighterStats?.ballisticSkill
+            errors.fighterStats?.ballisticSkill
               ? ballisticSkillErrorFieldId
               : ''
           }
@@ -515,7 +322,7 @@ function AddFighterTypeForm({
           {...register('fighterStats.strength', { valueAsNumber: true })}
           aria-invalid={!!errors.fighterStats?.strength}
           aria-describedby={
-            !!errors.fighterStats?.strength ? strengthErrorFieldId : ''
+            errors.fighterStats?.strength ? strengthErrorFieldId : ''
           }
         />
         {!!errors.fighterStats?.strength && (
@@ -531,7 +338,7 @@ function AddFighterTypeForm({
           {...register('fighterStats.toughness', { valueAsNumber: true })}
           aria-invalid={!!errors.fighterStats?.toughness}
           aria-describedby={
-            !!errors.fighterStats?.toughness ? toughnessErrorFieldId : ''
+            errors.fighterStats?.toughness ? toughnessErrorFieldId : ''
           }
         />
         {!!errors.fighterStats?.toughness && (
@@ -547,7 +354,7 @@ function AddFighterTypeForm({
           {...register('fighterStats.wounds', { valueAsNumber: true })}
           aria-invalid={!!errors.fighterStats?.wounds}
           aria-describedby={
-            !!errors.fighterStats?.wounds ? woundsErrorFieldId : ''
+            errors.fighterStats?.wounds ? woundsErrorFieldId : ''
           }
         />
         {!!errors.fighterStats?.wounds && (
@@ -563,7 +370,7 @@ function AddFighterTypeForm({
           {...register('fighterStats.initiative', { valueAsNumber: true })}
           aria-invalid={!!errors.fighterStats?.initiative}
           aria-describedby={
-            !!errors.fighterStats?.initiative ? initiativeErrorFieldId : ''
+            errors.fighterStats?.initiative ? initiativeErrorFieldId : ''
           }
         />
         {!!errors.fighterStats?.initiative && (
@@ -579,7 +386,7 @@ function AddFighterTypeForm({
           {...register('fighterStats.attacks', { valueAsNumber: true })}
           aria-invalid={!!errors.fighterStats?.attacks}
           aria-describedby={
-            !!errors.fighterStats?.attacks ? attacksErrorFieldId : ''
+            errors.fighterStats?.attacks ? attacksErrorFieldId : ''
           }
         />
         {!!errors.fighterStats?.attacks && (
@@ -595,7 +402,7 @@ function AddFighterTypeForm({
           {...register('fighterStats.leadership', { valueAsNumber: true })}
           aria-invalid={!!errors.fighterStats?.leadership}
           aria-describedby={
-            !!errors.fighterStats?.leadership ? leadershipErrorFieldId : ''
+            errors.fighterStats?.leadership ? leadershipErrorFieldId : ''
           }
         />
         {!!errors.fighterStats?.leadership && (
@@ -610,7 +417,7 @@ function AddFighterTypeForm({
           id={coolFieldId}
           {...register('fighterStats.cool', { valueAsNumber: true })}
           aria-invalid={!!errors.fighterStats?.cool}
-          aria-describedby={!!errors.fighterStats?.cool ? coolErrorFieldId : ''}
+          aria-describedby={errors.fighterStats?.cool ? coolErrorFieldId : ''}
         />
         {!!errors.fighterStats?.cool && (
           <span role="alert" id={coolErrorFieldId}>
@@ -624,7 +431,7 @@ function AddFighterTypeForm({
           id={willFieldId}
           {...register('fighterStats.will', { valueAsNumber: true })}
           aria-invalid={!!errors.fighterStats?.will}
-          aria-describedby={!!errors.fighterStats?.will ? willErrorFieldId : ''}
+          aria-describedby={errors.fighterStats?.will ? willErrorFieldId : ''}
         />
         {!!errors.fighterStats?.will && (
           <span role="alert" id={willErrorFieldId}>
@@ -639,7 +446,7 @@ function AddFighterTypeForm({
           {...register('fighterStats.intelligence', { valueAsNumber: true })}
           aria-invalid={!!errors.fighterStats?.intelligence}
           aria-describedby={
-            !!errors.fighterStats?.intelligence ? intelligenceErrorFieldId : ''
+            errors.fighterStats?.intelligence ? intelligenceErrorFieldId : ''
           }
         />
         {!!errors.fighterStats?.intelligence && (

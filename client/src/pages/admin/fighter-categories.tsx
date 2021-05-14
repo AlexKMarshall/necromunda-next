@@ -1,9 +1,6 @@
-import { useMutation, useQueryClient } from 'react-query'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { useMemo, useState } from 'react'
-import { Row, useTable } from 'react-table'
-import styled from 'styled-components'
+import { Column } from 'react-table'
 import { useId } from 'react-aria'
 import { Dialog } from '@reach/dialog'
 import '@reach/dialog/styles.css'
@@ -18,99 +15,35 @@ import {
   useDeleteFighterCategory,
 } from 'hooks/fighter-categories'
 import { H1, H2, Stack } from 'components/lib'
-import { Input, Table, Td, Th, Tr } from 'styles/admin'
-import { nanoid } from 'nanoid'
+import { Input } from 'styles/admin'
+import { useModal } from 'hooks/use-modal'
+import { AdminTable } from 'components/admin'
 
-export default function FighterCategories() {
+const fighterCategoryColumns: Column<FighterCategory>[] = [
+  { Header: 'Name', accessor: 'name' as const },
+]
+
+export default function FighterCategories(): JSX.Element {
   const query = useQueryFighterCategories()
-  const [showForm, setShowForm] = useState(false)
-  const openForm = () => setShowForm(true)
-  const closeForm = () => setShowForm(false)
-
-  const columns = useMemo(
-    () => [
-      { Header: 'Name', accessor: 'name' as const },
-      {
-        Header: 'Actions',
-        accessor: 'id' as const,
-        Cell: ({ row: { original } }: { row: Row<FighterCategory> }) => (
-          <DeleteFighterCategoryButton
-            fighterCategoryId={original.id}
-            fighterCategoryName={original.name}
-            key={original.id}
-          />
-        ),
-      },
-    ],
-    []
-  )
-
-  const {
-    getTableProps,
-    getTableBodyProps,
-    headerGroups,
-    rows,
-    prepareRow,
-  } = useTable({ columns, data: query.fighterCategories })
-
-  const dialogTitleId = useId()
+  const { openModal, closeModal, getDialogProps, getTitleProps } = useModal()
 
   return (
     <Stack>
       <H1>Fighter Categories</H1>
-      <button onClick={openForm}>Add Fighter Category</button>
-      <Dialog
-        isOpen={showForm}
-        onDismiss={closeForm}
-        aria-labelledby={dialogTitleId}
-      >
+      <button onClick={openModal}>Add Fighter Category</button>
+      <Dialog {...getDialogProps()}>
         <Stack>
-          <H2 id={dialogTitleId}>Add New Fighter Category</H2>
-          <AddFighterCategoryForm onSubmit={closeForm} />
+          <H2 {...getTitleProps()}>Add New Fighter Category</H2>
+          <AddFighterCategoryForm onSubmit={closeModal} />
         </Stack>
       </Dialog>
-      <Table {...getTableProps()}>
-        <thead>
-          {headerGroups.map((headerGroup) => (
-            <tr {...headerGroup.getHeaderGroupProps()}>
-              {headerGroup.headers.map((column) => (
-                <Th {...column.getHeaderProps()}>{column.render('Header')}</Th>
-              ))}
-            </tr>
-          ))}
-        </thead>
-        <tbody {...getTableBodyProps()} data-testid="table-body">
-          {rows.map((row) => {
-            prepareRow(row)
-            return (
-              <Tr {...row.getRowProps()}>
-                {row.cells.map((cell) => (
-                  <Td {...cell.getCellProps()}>{cell.render('Cell')}</Td>
-                ))}
-              </Tr>
-            )
-          })}
-        </tbody>
-      </Table>
+      <AdminTable
+        columns={fighterCategoryColumns}
+        data={query.fighterCategories}
+        deleteHook={useDeleteFighterCategory}
+      />
       {query.isLoading ? <div>Loading...</div> : null}
     </Stack>
-  )
-}
-
-interface DeleteFighterCategoryButtonProps {
-  fighterCategoryId: FighterCategory['id']
-  fighterCategoryName: FighterCategory['name']
-}
-
-function DeleteFighterCategoryButton({
-  fighterCategoryId,
-  fighterCategoryName,
-}: DeleteFighterCategoryButtonProps) {
-  const mutation = useDeleteFighterCategory(fighterCategoryId)
-  return (
-    <button type="button" onClick={() => mutation.mutate()}>
-      Delete {fighterCategoryName}
-    </button>
   )
 }
 
@@ -144,7 +77,7 @@ function AddFighterCategoryForm({ onSubmit }: AddFighterCategoryFormProps) {
           id={nameId}
           {...register('name')}
           aria-invalid={!!errors.name}
-          aria-describedby={!!errors.name ? nameErrorId : ''}
+          aria-describedby={errors.name ? nameErrorId : ''}
         />
         {!!errors.name && (
           <span role="alert" id={nameErrorId}>

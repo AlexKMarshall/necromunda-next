@@ -1,104 +1,43 @@
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { useMemo, useState } from 'react'
-import { Column, Row, useTable } from 'react-table'
+import { Column } from 'react-table'
 import { useId } from 'react-aria'
 import { Dialog } from '@reach/dialog'
 import '@reach/dialog/styles.css'
 import { CreateSkillDto, createSkillDtoSchema, Skill } from 'schemas'
 import { useQuerySkills, useCreateSkill, useDeleteSkill } from 'hooks/skills'
 import { H1, H2, Stack } from 'components/lib'
-import { Input, Table, Td, Th, Tr } from 'styles/admin'
+import { Input } from 'styles/admin'
 import { useQuerySkillTypes } from 'hooks/skill-types'
+import { useModal } from 'hooks/use-modal'
+import { AdminTable } from 'components/admin'
 
-export default function Skills() {
+const skillColumns: Column<Skill>[] = [
+  { Header: 'Name', accessor: 'name' as const },
+  { Header: 'Type', accessor: (row) => row.type.name },
+]
+
+export default function Skills(): JSX.Element {
   const query = useQuerySkills()
-  const [showForm, setShowForm] = useState(false)
-  const openForm = () => setShowForm(true)
-  const closeForm = () => setShowForm(false)
-
-  const columns = useMemo<Column<Skill>[]>(
-    () => [
-      { Header: 'Name', accessor: 'name' as const },
-      { Header: 'Type', accessor: (row) => row.type.name },
-      {
-        Header: 'Actions',
-        accessor: 'id' as const,
-        Cell: ({ row: { original } }: { row: Row<Skill> }) => (
-          <DeleteSkillButton
-            id={original.id}
-            name={original.name}
-            key={original.id}
-          />
-        ),
-      },
-    ],
-    []
-  )
-
-  const {
-    getTableProps,
-    getTableBodyProps,
-    headerGroups,
-    rows,
-    prepareRow,
-  } = useTable({ columns, data: query.skills })
-
-  const dialogTitleId = useId()
+  const { openModal, closeModal, getDialogProps, getTitleProps } = useModal()
 
   return (
     <Stack>
       <H1>Skills</H1>
-      <button onClick={openForm}>Add Skills</button>
-      <Dialog
-        isOpen={showForm}
-        onDismiss={closeForm}
-        aria-labelledby={dialogTitleId}
-      >
+      <button onClick={openModal}>Add Skills</button>
+      <Dialog {...getDialogProps()}>
         <Stack>
-          <H2 id={dialogTitleId}>Add New Skills</H2>
-          <AddSkillForm onSubmit={closeForm} />
+          <H2 {...getTitleProps()}>Add New Skills</H2>
+          <AddSkillForm onSubmit={closeModal} />
         </Stack>
       </Dialog>
-      <Table {...getTableProps()}>
-        <thead>
-          {headerGroups.map((headerGroup) => (
-            <tr {...headerGroup.getHeaderGroupProps()}>
-              {headerGroup.headers.map((column) => (
-                <Th {...column.getHeaderProps()}>{column.render('Header')}</Th>
-              ))}
-            </tr>
-          ))}
-        </thead>
-        <tbody {...getTableBodyProps()} data-testid="table-body">
-          {rows.map((row) => {
-            prepareRow(row)
-            return (
-              <Tr {...row.getRowProps()}>
-                {row.cells.map((cell) => (
-                  <Td {...cell.getCellProps()}>{cell.render('Cell')}</Td>
-                ))}
-              </Tr>
-            )
-          })}
-        </tbody>
-      </Table>
+      <AdminTable
+        columns={skillColumns}
+        data={query.skills}
+        deleteHook={useDeleteSkill}
+      />
       {query.isLoading ? <div>Loading...</div> : null}
     </Stack>
-  )
-}
-
-interface DeleteSkillButtonProps {
-  id: Skill['id']
-  name: Skill['name']
-}
-
-function DeleteSkillButton({ id, name }: DeleteSkillButtonProps) {
-  const mutation = useDeleteSkill(id)
-  return (
-    <button type="button" onClick={() => mutation.mutate()}>
-      {mutation.isLoading ? 'deleting...' : `Delete ${name}`}
-    </button>
   )
 }
 
@@ -135,7 +74,7 @@ function AddSkillForm({ onSubmit }: AddSkillFormProps) {
           id={nameId}
           {...register('name')}
           aria-invalid={!!errors.name}
-          aria-describedby={!!errors.name ? nameErrorId : ''}
+          aria-describedby={errors.name ? nameErrorId : ''}
         />
         {!!errors.name && (
           <span role="alert" id={nameErrorId}>
@@ -149,7 +88,7 @@ function AddSkillForm({ onSubmit }: AddSkillFormProps) {
           id={typeId}
           {...register('type.id')}
           aria-invalid={!!errors.type?.id}
-          aria-describedby={!!errors.type ? typeErrorId : ''}
+          aria-describedby={errors.type ? typeErrorId : ''}
         >
           {skillTypesQuery.isLoading ? (
             <option key="skilltypes-loading" value="">

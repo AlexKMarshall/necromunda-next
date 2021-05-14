@@ -3,37 +3,28 @@ import {
   screen,
   waitForElementToBeRemoved,
   within,
-} from '@testing-library/react'
-import userEvent from '@testing-library/user-event'
+  userEvent,
+  buildGetCellValueFactory,
+} from 'test/utils'
 import { rest } from 'msw'
-import React from 'react'
-import { QueryClient, QueryClientProvider } from 'react-query'
 import { server } from 'test/mocks/server'
 import Factions from '../pages/admin/factions'
 import { buildFaction } from 'test/mocks/test-factories'
 import { CreateFactionDto, Faction } from 'schemas'
+import { apiBaseUrl, endpoints } from 'config'
 
-const Providers: React.ComponentType = ({
-  children,
-}: {
-  children?: React.ReactNode
-}) => {
-  const queryClient = new QueryClient()
-  return (
-    <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
-  )
-}
+const factionsUrl = `${apiBaseUrl}/${endpoints.factions}`
 
-describe('Factions', () => {
+describe('factions', () => {
   it('shows a list of factions', async () => {
     const factions = [buildFaction(), buildFaction()]
     server.use(
-      rest.get('http://localhost:3000/factions', (req, res, ctx) => {
+      rest.get(factionsUrl, (req, res, ctx) => {
         return res(ctx.json(factions))
       })
     )
 
-    render(<Factions />, { wrapper: Providers })
+    render(<Factions />)
 
     expect(
       screen.getByRole('heading', { name: /factions/i })
@@ -41,23 +32,22 @@ describe('Factions', () => {
 
     await waitForElementToBeRemoved(() => screen.getByText(/loading/i))
 
-    expect(
-      screen.getByRole('columnheader', { name: /name/i })
-    ).toBeInTheDocument()
-    expect(
-      screen.getByRole('columnheader', { name: /actions/i })
-    ).toBeInTheDocument()
-
     const table = screen.getByRole('table')
+    const headerRow = within(table).getAllByRole('row')[0]
+    const nameHeader = within(headerRow).getByRole('columnheader', {
+      name: /name/i,
+    })
     const rows = within(within(table).getByTestId('table-body')).getAllByRole(
       'row'
     )
 
+    const getCellValueFactory = buildGetCellValueFactory(headerRow)
+
     expect(rows).toHaveLength(factions.length)
     factions.forEach((faction, index) => {
-      const row = rows[index]
+      const getCellValue = getCellValueFactory(rows[index])
 
-      expect(within(row).getByText(faction.name)).toBeInTheDocument()
+      expect(getCellValue(nameHeader)).toHaveTextContent(faction.name)
     })
   })
 
@@ -65,31 +55,28 @@ describe('Factions', () => {
     const faction = buildFaction()
     const serverFactions: Faction[] = []
     server.use(
-      rest.get('http://localhost:3000/factions', (req, res, ctx) => {
+      rest.get(factionsUrl, (req, res, ctx) => {
         return res(ctx.json(serverFactions))
       }),
-      rest.post<CreateFactionDto>(
-        'http://localhost:3000/factions',
-        (req, res, ctx) => {
-          const {
-            body: { name },
-          } = req
-          const createdFaction = { ...faction, name }
-          serverFactions.push(createdFaction)
-          return res(ctx.status(201), ctx.json(createdFaction))
-        }
-      )
+      rest.post<CreateFactionDto>(factionsUrl, (req, res, ctx) => {
+        const {
+          body: { name },
+        } = req
+        const createdFaction = { ...faction, name }
+        serverFactions.push(createdFaction)
+        return res(ctx.status(201), ctx.json(createdFaction))
+      })
     )
 
-    render(<Factions />, { wrapper: Providers })
+    render(<Factions />)
 
-    userEvent.click(screen.getByRole('button', { name: /add faction/i }))
+    userEvent.click(screen.getByText(/add faction/i))
 
     expect(
       screen.getByRole('heading', { name: /add new faction/i })
     ).toBeInTheDocument()
 
-    userEvent.type(screen.getByRole('textbox', { name: /name/i }), faction.name)
+    userEvent.type(screen.getByLabelText(/name/i), faction.name)
     userEvent.click(screen.getByRole('button', { name: /add faction/i }))
 
     await waitForElementToBeRemoved(screen.getByRole('dialog'))
@@ -102,10 +89,10 @@ describe('Factions', () => {
     let serverFactions = [buildFaction(), buildFaction()]
     const initialFactions = [...serverFactions]
     server.use(
-      rest.get('http://localhost:3000/factions', (req, res, ctx) => {
+      rest.get(factionsUrl, (req, res, ctx) => {
         return res(ctx.json(serverFactions))
       }),
-      rest.delete('http://localhost:3000/factions/:id', (req, res, ctx) => {
+      rest.delete(`${factionsUrl}/:id`, (req, res, ctx) => {
         const {
           params: { id },
         } = req
@@ -117,7 +104,7 @@ describe('Factions', () => {
       })
     )
 
-    render(<Factions />, { wrapper: Providers })
+    render(<Factions />)
 
     await waitForElementToBeRemoved(() => screen.getByText(/loading/i))
 

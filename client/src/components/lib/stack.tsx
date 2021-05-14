@@ -1,4 +1,3 @@
-import { ReactNode } from 'react'
 import styled from 'styled-components'
 
 interface StackProps {
@@ -12,13 +11,5 @@ export const Stack = styled.div<StackProps>`
   display: flex;
   flex-direction: column;
   justify-content: flex-start;
-
-  & > * {
-    margin-top: 0;
-    margin-bottom: 0;
-  }
-
-  & > * + * {
-    margin-top: var(--space-${(p) => p.variant ?? 'regular'});
-  }
+  gap: var(--space-${(p) => p.variant ?? 'regular'});
 `

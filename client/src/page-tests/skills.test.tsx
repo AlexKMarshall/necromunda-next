@@ -3,59 +3,30 @@ import {
   screen,
   waitForElementToBeRemoved,
   within,
-} from '@testing-library/react'
-import userEvent from '@testing-library/user-event'
+  userEvent,
+  buildGetCellValueFactory,
+} from 'test/utils'
 import { rest } from 'msw'
 import React from 'react'
-import { QueryClient, QueryClientProvider } from 'react-query'
 import { server } from 'test/mocks/server'
 import Skills from '../pages/admin/skills'
 import { buildSkill, buildSkillType } from 'test/mocks/test-factories'
 import { CreateSkillDto, Skill } from 'schemas'
+import { apiBaseUrl, endpoints } from 'config'
 
-const Providers: React.ComponentType = ({
-  children,
-}: {
-  children?: React.ReactNode
-}) => {
-  const queryClient = new QueryClient()
-  return (
-    <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
-  )
-}
+const skillsUrl = `${apiBaseUrl}/${endpoints.skills}`
+const skillTypesUrl = `${apiBaseUrl}/${endpoints.skillTypes}`
 
-/** Pass this a header row element to get back a function
- *  that you can call with a data row element to get back
- *  a further function that you can call with a header cell
- *  to get back the cell in the row you're looking at for that column
- *
- *  Essentially a curried version of getCellValue(headerRow, dataRow, columnHeader)
- */
-function buildGetCellValueFactory(headerRow: HTMLElement) {
-  const headerCellsArray = within(headerRow).getAllByRole('columnheader')
-  function getColIndex(headerCell: HTMLElement) {
-    return headerCellsArray.indexOf(headerCell)
-  }
-
-  return function getCellValueFactory(dataRow: HTMLElement) {
-    const dataCells = within(dataRow).getAllByRole('cell')
-    return function getCellValue(headerCell: HTMLElement) {
-      const colIndex = getColIndex(headerCell)
-      return dataCells[colIndex]
-    }
-  }
-}
-
-describe('Skills', () => {
+describe('skills', () => {
   it('shows a list of skills', async () => {
     const skills = [buildSkill(), buildSkill()]
     server.use(
-      rest.get('http://localhost:3000/skills', (req, res, ctx) => {
+      rest.get(skillsUrl, (req, res, ctx) => {
         return res(ctx.json(skills))
       })
     )
 
-    render(<Skills />, { wrapper: Providers })
+    render(<Skills />)
 
     expect(screen.getByRole('heading', { name: /skills/i })).toBeInTheDocument()
 
@@ -87,28 +58,33 @@ describe('Skills', () => {
     const skill = buildSkill({ type: skillTypes[1] })
     const serverSkillTypes: Skill[] = []
     server.use(
-      rest.get('http://localhost:3000/skills', (req, res, ctx) => {
+      rest.get(skillsUrl, (req, res, ctx) => {
         return res(ctx.json(serverSkillTypes))
       }),
-      rest.post<CreateSkillDto>(
-        'http://localhost:3000/skills',
-        (req, res, ctx) => {
-          const { body: skillDto } = req
-          const skillType = skillTypes.find(
-            (st) => st.id === skillDto.type.id
-          ) ?? { id: '', name: 'pending' }
-          const createdSkill = { ...skill, ...skillDto, type: skillType }
+      rest.post<CreateSkillDto>(skillsUrl, (req, res, ctx) => {
+        const { body: skillDto } = req
+        const skillType = skillTypes.find((st) => st.id === skillDto.type.id)
 
-          serverSkillTypes.push(createdSkill)
-          return res(ctx.status(201), ctx.json(createdSkill))
+        if (!skillType) {
+          return res(
+            ctx.status(400),
+            ctx.json({
+              message: `Skill type with id ${skillDto.type.id} not found`,
+            })
+          )
         }
-      ),
-      rest.get('http://localhost:3000/skill-types', (req, res, ctx) => {
+
+        const createdSkill: Skill = { ...skill, ...skillDto, type: skillType }
+
+        serverSkillTypes.push(createdSkill)
+        return res(ctx.status(201), ctx.json(createdSkill))
+      }),
+      rest.get(skillTypesUrl, (req, res, ctx) => {
         return res(ctx.json(skillTypes))
       })
     )
 
-    render(<Skills />, { wrapper: Providers })
+    render(<Skills />)
 
     await waitForElementToBeRemoved(screen.getAllByText(/loading/i))
 
@@ -140,10 +116,10 @@ describe('Skills', () => {
     let serverSkills = [buildSkill(), buildSkill()]
     const initialSkills = [...serverSkills]
     server.use(
-      rest.get('http://localhost:3000/skills', (req, res, ctx) => {
+      rest.get(skillsUrl, (req, res, ctx) => {
         return res(ctx.json(serverSkills))
       }),
-      rest.delete('http://localhost:3000/skills/:id', (req, res, ctx) => {
+      rest.delete(`${skillsUrl}/:id`, (req, res, ctx) => {
         const {
           params: { id },
         } = req
@@ -155,7 +131,7 @@ describe('Skills', () => {
       })
     )
 
-    render(<Skills />, { wrapper: Providers })
+    render(<Skills />)
 
     await waitForElementToBeRemoved(() => screen.getByText(/loading/i))
 

@@ -1,15 +1,12 @@
 import {
-  getByRole,
   render,
   screen,
-  waitFor,
   waitForElementToBeRemoved,
   within,
-} from '@testing-library/react'
-import userEvent from '@testing-library/user-event'
+  buildGetCellValueFactory,
+  userEvent,
+} from 'test/utils'
 import { rest } from 'msw'
-import React from 'react'
-import { QueryClient, QueryClientProvider } from 'react-query'
 import { server } from 'test/mocks/server'
 import FighterTypes from '../pages/admin/fighter-types'
 import {
@@ -18,51 +15,22 @@ import {
   buildFighterType,
 } from 'test/mocks/test-factories'
 import { CreateFighterTypeDto, FighterStats, FighterType } from 'schemas'
-import SkillTypes from 'pages/admin/skill-types'
+import { apiBaseUrl, endpoints } from 'config'
 
-const Providers: React.ComponentType = ({
-  children,
-}: {
-  children?: React.ReactNode
-}) => {
-  const queryClient = new QueryClient()
-  return (
-    <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
-  )
-}
+const fighterTypesUrl = `${apiBaseUrl}/${endpoints.fighterTypes}`
+const factionsUrl = `${apiBaseUrl}/${endpoints.factions}`
+const fighterCategoriesUrl = `${apiBaseUrl}/${endpoints.fighterCategories}`
 
-/** Pass this a header row element to get back a function
- *  that you can call with a data row element to get back
- *  a further function that you can call with a header cell
- *  to get back the cell in the row you're looking at for that column
- *
- *  Essentially a curried version of getCellValue(headerRow, dataRow, columnHeader)
- */
-function buildGetCellValueFactory(headerRow: HTMLElement) {
-  const headerCellsArray = within(headerRow).getAllByRole('columnheader')
-  function getColIndex(headerCell: HTMLElement) {
-    return headerCellsArray.indexOf(headerCell)
-  }
-
-  return function getCellValueFactory(dataRow: HTMLElement) {
-    const dataCells = within(dataRow).getAllByRole('cell')
-    return function getCellValue(headerCell: HTMLElement) {
-      const colIndex = getColIndex(headerCell)
-      return dataCells[colIndex]
-    }
-  }
-}
-
-describe('Fighter Types', () => {
+describe('fighter Types', () => {
   it('shows a list of fighter types', async () => {
     const fighterTypes = [buildFighterType(), buildFighterType()]
     server.use(
-      rest.get('http://localhost:3000/fighter-types', (req, res, ctx) => {
+      rest.get(fighterTypesUrl, (req, res, ctx) => {
         return res(ctx.json(fighterTypes))
       })
     )
 
-    render(<FighterTypes />, { wrapper: Providers })
+    render(<FighterTypes />)
 
     expect(
       screen.getByRole('heading', { name: /fighter types/i })
@@ -70,18 +38,12 @@ describe('Fighter Types', () => {
 
     await waitForElementToBeRemoved(() => screen.getByText(/loading/i))
 
-    expect(
-      screen.getByRole('columnheader', { name: /name/i })
-    ).toBeInTheDocument()
-    expect(
-      screen.getByRole('columnheader', { name: /actions/i })
-    ).toBeInTheDocument()
-
     const table = screen.getByRole('table')
     const rows = within(within(table).getByTestId('table-body')).getAllByRole(
       'row'
     )
     expect(rows).toHaveLength(fighterTypes.length)
+    const headerRow = screen.getAllByRole('row')[0]
 
     const nameHeader = screen.getByRole('columnheader', { name: /name/i })
     const costHeader = screen.getByRole('columnheader', { name: /cost/i })
@@ -108,7 +70,6 @@ describe('Fighter Types', () => {
       name: /intelligence/i,
     })
 
-    const headerRow = screen.getAllByRole('row')[0]
     const getCellValueFactory = buildGetCellValueFactory(headerRow)
 
     fighterTypes.forEach((fighterType, index) => {
@@ -177,140 +138,146 @@ describe('Fighter Types', () => {
     })
     const serverFighterTypes: FighterType[] = []
     server.use(
-      rest.get('http://localhost:3000/fighter-types', (req, res, ctx) => {
+      rest.get(fighterTypesUrl, (req, res, ctx) => {
         return res(ctx.json(serverFighterTypes))
       }),
-      rest.post<CreateFighterTypeDto>(
-        'http://localhost:3000/fighter-types',
-        (req, res, ctx) => {
-          const { body: ftDto } = req
-          const defaultFighterStats: FighterStats = {
-            id: 'abc',
-            movement: 1,
-            weaponSkill: 1,
-            ballisticSkill: 1,
-            strength: 1,
-            toughness: 1,
-            wounds: 1,
-            initiative: 1,
-            attacks: 1,
-            leadership: 1,
-            cool: 1,
-            will: 1,
-            intelligence: 1,
-          }
-          const faction = factions.find((f) => f.id === ftDto.faction.id) ?? {
-            id: '',
-            name: 'pending',
-          }
-          const fighterCategory = fighterCategories.find(
-            (fc) => fc.id === ftDto.fighterCategory.id
-          ) ?? { id: '', name: 'Pending' }
-          const createdFT = {
-            ...ftDto,
-            faction,
-            fighterCategory,
-            fighterStats: {
-              ...defaultFighterStats,
-              id: fighterType.fighterStats.id,
-            },
-            id: fighterType.id,
-          }
-          serverFighterTypes.push(createdFT)
-          return res(ctx.status(201), ctx.json(createdFT))
+      rest.post<CreateFighterTypeDto>(fighterTypesUrl, (req, res, ctx) => {
+        const { body: ftDto } = req
+        const defaultFighterStats: FighterStats = {
+          id: 'abc',
+          movement: 1,
+          weaponSkill: 1,
+          ballisticSkill: 1,
+          strength: 1,
+          toughness: 1,
+          wounds: 1,
+          initiative: 1,
+          attacks: 1,
+          leadership: 1,
+          cool: 1,
+          will: 1,
+          intelligence: 1,
         }
-      ),
-      rest.get('http://localhost:3000/factions', (req, res, ctx) => {
+        const faction = factions.find((f) => f.id === ftDto.faction.id)
+        const fighterCategory = fighterCategories.find(
+          (fc) => fc.id === ftDto.fighterCategory.id
+        )
+        if (!faction) {
+          return res(
+            ctx.status(400),
+            ctx.json({
+              message: `Faction with id ${ftDto.faction.id} not found`,
+            })
+          )
+        }
+        if (!fighterCategory) {
+          return res(
+            ctx.status(400),
+            ctx.json({
+              message: `Fighter Category with id ${ftDto.fighterCategory.id} not found`,
+            })
+          )
+        }
+
+        const createdFT: FighterType = {
+          ...ftDto,
+          faction,
+          fighterCategory,
+          fighterStats: {
+            ...defaultFighterStats,
+            id: fighterType.fighterStats.id,
+          },
+          id: fighterType.id,
+        }
+        serverFighterTypes.push(createdFT)
+        return res(ctx.status(201), ctx.json(createdFT))
+      }),
+      rest.get(factionsUrl, (req, res, ctx) => {
         return res(ctx.json(factions))
       }),
-      rest.get('http://localhost:3000/fighter-categories', (req, res, ctx) => {
+      rest.get(fighterCategoriesUrl, (req, res, ctx) => {
         return res(ctx.json(fighterCategories))
       })
     )
 
-    render(<FighterTypes />, { wrapper: Providers })
+    render(<FighterTypes />)
 
     userEvent.click(screen.getByRole('button', { name: /add fighter type/i }))
 
-    expect(
-      screen.getByRole('heading', { name: /add new fighter type/i })
-    ).toBeInTheDocument()
+    const modal = screen.getByRole('dialog', { name: /add new fighter type/i })
 
     await waitForElementToBeRemoved(screen.getAllByText(/loading/i), {
       timeout: 5000,
     })
 
+    userEvent.type(within(modal).getByLabelText(/name/i), fighterType.name)
     userEvent.type(
-      screen.getByRole('textbox', { name: /name/i }),
-      fighterType.name
-    )
-    userEvent.type(
-      screen.getByRole('textbox', { name: /cost/i }),
+      within(modal).getByLabelText(/cost/i),
       fighterType.cost.toString()
     )
-    const factionsSelect = screen.getByRole('combobox', { name: /faction/i })
+    const factionsSelect = within(modal).getByLabelText(/faction/i)
     userEvent.selectOptions(
       factionsSelect,
       within(factionsSelect).getByText(fighterType.faction.name)
     )
-    const categorySelect = screen.getByRole('combobox', { name: /category/i })
+    const categorySelect = within(modal).getByLabelText(/category/i)
     userEvent.selectOptions(
       categorySelect,
       within(categorySelect).getByText(fighterType.fighterCategory.name)
     )
 
     userEvent.type(
-      screen.getByRole('textbox', { name: /movement/i }),
+      within(modal).getByLabelText(/movement/i),
       fighterType.fighterStats.movement.toString()
     )
     userEvent.type(
-      screen.getByRole('textbox', { name: /weapon skill/i }),
+      within(modal).getByLabelText(/weapon skill/i),
       fighterType.fighterStats.weaponSkill.toString()
     )
     userEvent.type(
-      screen.getByRole('textbox', { name: /ballistic skill/i }),
+      within(modal).getByLabelText(/ballistic skill/i),
       fighterType.fighterStats.ballisticSkill.toString()
     )
     userEvent.type(
-      screen.getByRole('textbox', { name: /strength/i }),
+      within(modal).getByLabelText(/strength/i),
       fighterType.fighterStats.strength.toString()
     )
     userEvent.type(
-      screen.getByRole('textbox', { name: /toughness/i }),
+      within(modal).getByLabelText(/toughness/i),
       fighterType.fighterStats.toughness.toString()
     )
     userEvent.type(
-      screen.getByRole('textbox', { name: /wounds/i }),
+      within(modal).getByLabelText(/wounds/i),
       fighterType.fighterStats.wounds.toString()
     )
     userEvent.type(
-      screen.getByRole('textbox', { name: /initiative/i }),
+      within(modal).getByLabelText(/initiative/i),
       fighterType.fighterStats.initiative.toString()
     )
     userEvent.type(
-      screen.getByRole('textbox', { name: /attacks/i }),
+      within(modal).getByLabelText(/attacks/i),
       fighterType.fighterStats.attacks.toString()
     )
     userEvent.type(
-      screen.getByRole('textbox', { name: /leadership/i }),
+      within(modal).getByLabelText(/leadership/i),
       fighterType.fighterStats.leadership.toString()
     )
     userEvent.type(
-      screen.getByRole('textbox', { name: /cool/i }),
+      within(modal).getByLabelText(/cool/i),
       fighterType.fighterStats.cool.toString()
     )
     userEvent.type(
-      screen.getByRole('textbox', { name: /will/i }),
+      within(modal).getByLabelText(/will/i),
       fighterType.fighterStats.will.toString()
     )
     userEvent.type(
-      screen.getByRole('textbox', { name: /intelligence/i }),
+      within(modal).getByLabelText(/intelligence/i),
       fighterType.fighterStats.intelligence.toString()
     )
 
     userEvent.click(screen.getByRole('button', { name: /add fighter type/i }))
 
-    await waitForElementToBeRemoved(screen.getByRole('dialog'))
+    await waitForElementToBeRemoved(modal)
 
     expect(screen.getByText(fighterType.name)).toBeInTheDocument()
     const headerRow = screen.getAllByRole('row')[0]
@@ -411,25 +378,22 @@ describe('Fighter Types', () => {
     let serverFTs = [buildFighterType(), buildFighterType()]
     const initialFTs = [...serverFTs]
     server.use(
-      rest.get('http://localhost:3000/fighter-types', (req, res, ctx) => {
+      rest.get(fighterTypesUrl, (req, res, ctx) => {
         return res(ctx.json(serverFTs))
       }),
-      rest.delete(
-        'http://localhost:3000/fighter-types/:id',
-        (req, res, ctx) => {
-          const {
-            params: { id },
-          } = req
+      rest.delete(`${fighterTypesUrl}/:id`, (req, res, ctx) => {
+        const {
+          params: { id },
+        } = req
 
-          const deletedFC = serverFTs.find((f) => f.id === id)
-          serverFTs = serverFTs.filter((f) => f.id !== id)
+        const deletedFC = serverFTs.find((f) => f.id === id)
+        serverFTs = serverFTs.filter((f) => f.id !== id)
 
-          return res(ctx.json(deletedFC))
-        }
-      )
+        return res(ctx.json(deletedFC))
+      })
     )
 
-    render(<FighterTypes />, { wrapper: Providers })
+    render(<FighterTypes />)
 
     await waitForElementToBeRemoved(() => screen.getByText(/loading/i))
 

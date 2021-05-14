@@ -1,7 +1,6 @@
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { useMemo, useState } from 'react'
-import { Row, useTable } from 'react-table'
+import { Column } from 'react-table'
 import { useId } from 'react-aria'
 import { Dialog } from '@reach/dialog'
 import '@reach/dialog/styles.css'
@@ -16,95 +15,35 @@ import {
   useDeleteSkillType,
 } from 'hooks/skill-types'
 import { H1, H2, Stack } from 'components/lib'
-import { Input, Table, Td, Th, Tr } from 'styles/admin'
+import { Input } from 'styles/admin'
+import { useModal } from 'hooks/use-modal'
+import { AdminTable } from 'components/admin'
 
-export default function SkillTypes() {
+const skillTypeColumns: Column<SkillType>[] = [
+  { Header: 'Name', accessor: 'name' as const },
+]
+
+export default function SkillTypes(): JSX.Element {
   const query = useQuerySkillTypes()
-  const [showForm, setShowForm] = useState(false)
-  const openForm = () => setShowForm(true)
-  const closeForm = () => setShowForm(false)
-
-  const columns = useMemo(
-    () => [
-      { Header: 'Name', accessor: 'name' as const },
-      {
-        Header: 'Actions',
-        accessor: 'id' as const,
-        Cell: ({ row: { original } }: { row: Row<SkillType> }) => (
-          <DeleteSkillTypeButton
-            id={original.id}
-            name={original.name}
-            key={original.id}
-          />
-        ),
-      },
-    ],
-    []
-  )
-
-  const {
-    getTableProps,
-    getTableBodyProps,
-    headerGroups,
-    rows,
-    prepareRow,
-  } = useTable({ columns, data: query.skillTypes })
-
-  const dialogTitleId = useId()
+  const { openModal, closeModal, getDialogProps, getTitleProps } = useModal()
 
   return (
     <Stack>
       <H1>Skill Types</H1>
-      <button onClick={openForm}>Add Skill Type</button>
-      <Dialog
-        isOpen={showForm}
-        onDismiss={closeForm}
-        aria-labelledby={dialogTitleId}
-      >
+      <button onClick={openModal}>Add Skill Type</button>
+      <Dialog {...getDialogProps()}>
         <Stack>
-          <H2 id={dialogTitleId}>Add New Skill Type</H2>
-          <AddSkillTypeForm onSubmit={closeForm} />
+          <H2 {...getTitleProps()}>Add New Skill Type</H2>
+          <AddSkillTypeForm onSubmit={closeModal} />
         </Stack>
       </Dialog>
-      <Table {...getTableProps()}>
-        <thead>
-          {headerGroups.map((headerGroup) => (
-            <tr {...headerGroup.getHeaderGroupProps()}>
-              {headerGroup.headers.map((column) => (
-                <Th {...column.getHeaderProps()}>{column.render('Header')}</Th>
-              ))}
-            </tr>
-          ))}
-        </thead>
-        <tbody {...getTableBodyProps()} data-testid="table-body">
-          {rows.map((row) => {
-            prepareRow(row)
-            return (
-              <Tr {...row.getRowProps()}>
-                {row.cells.map((cell) => (
-                  <Td {...cell.getCellProps()}>{cell.render('Cell')}</Td>
-                ))}
-              </Tr>
-            )
-          })}
-        </tbody>
-      </Table>
+      <AdminTable
+        columns={skillTypeColumns}
+        data={query.skillTypes}
+        deleteHook={useDeleteSkillType}
+      />
       {query.isLoading ? <div>Loading...</div> : null}
     </Stack>
-  )
-}
-
-interface DeleteSkillTypeButtonProps {
-  id: SkillType['id']
-  name: SkillType['name']
-}
-
-function DeleteSkillTypeButton({ id, name }: DeleteSkillTypeButtonProps) {
-  const mutation = useDeleteSkillType(id)
-  return (
-    <button type="button" onClick={() => mutation.mutate()}>
-      {mutation.isLoading ? 'deleting...' : `Delete ${name}`}
-    </button>
   )
 }
 
@@ -138,7 +77,7 @@ function AddSkillTypeForm({ onSubmit }: AddSkillTypeFormProps) {
           id={nameId}
           {...register('name')}
           aria-invalid={!!errors.name}
-          aria-describedby={!!errors.name ? nameErrorId : ''}
+          aria-describedby={errors.name ? nameErrorId : ''}
         />
         {!!errors.name && (
           <span role="alert" id={nameErrorId}>

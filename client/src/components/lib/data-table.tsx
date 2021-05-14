@@ -7,13 +7,8 @@ interface DataTableProps<T extends {}> {
 }
 
 export function DataTable<T extends {}>({ columns, data }: DataTableProps<T>) {
-  const {
-    getTableProps,
-    getTableBodyProps,
-    headerGroups,
-    rows,
-    prepareRow,
-  } = useTable({ columns, data })
+  const { getTableProps, getTableBodyProps, headerGroups, rows, prepareRow } =
+    useTable({ columns, data })
 
   return (
     <Wrapper {...getTableProps()}>

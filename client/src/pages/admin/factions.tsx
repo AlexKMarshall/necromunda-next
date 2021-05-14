@@ -20,7 +20,7 @@ const factionColumns: Column<Faction>[] = [
   { Header: 'Name', accessor: 'name' as const },
 ]
 
-export default function Factions() {
+export default function Factions(): JSX.Element {
   const query = useQueryFactions()
   const { openModal, closeModal, getDialogProps, getTitleProps } = useModal()
 
@@ -50,7 +50,10 @@ interface DeleteFactionButtonProps {
   name: Faction['name']
 }
 
-function DeleteFactionButton({ id, name }: DeleteFactionButtonProps) {
+function DeleteFactionButton({
+  id,
+  name,
+}: DeleteFactionButtonProps): JSX.Element {
   const mutation = useDeleteFaction(id)
   return (
     <button type="button" onClick={() => mutation.mutate()}>
@@ -63,7 +66,7 @@ interface AddFactionFormProps {
   onSubmit?: () => void
 }
 
-function AddFactionForm({ onSubmit }: AddFactionFormProps) {
+function AddFactionForm({ onSubmit }: AddFactionFormProps): JSX.Element {
   const mutation = useCreateFaction()
   const {
     register,
@@ -89,7 +92,7 @@ function AddFactionForm({ onSubmit }: AddFactionFormProps) {
           id={nameId}
           {...register('name')}
           aria-invalid={!!errors.name}
-          aria-describedby={!!errors.name ? nameErrorId : ''}
+          aria-describedby={errors.name ? nameErrorId : ''}
         />
         {!!errors.name && (
           <span role="alert" id={nameErrorId}>

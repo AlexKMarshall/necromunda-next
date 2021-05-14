@@ -5,7 +5,7 @@ module.exports = {
     es2021: true,
   },
   // parserOptions: { ecmaVersion: 8 }, // to enable features such as async/await
-  ignorePatterns: ['node_modules/*', '.next/*', '.out/*', '!.prettierrc.js'], // We don't want to lint generated files nor node_modules, but we want to lint .prettierrc.js (ignored by default by eslint)
+  ignorePatterns: ['node_modules/*', '.next/*', '.out/*', '!.prettierrc.js'], // We don't want to lint generated files nor node_modules, but we want to lint .prettierrc.js (ignored by default by eslint)df
   extends: ['eslint:recommended'],
   overrides: [
     // This configuration will apply only to TypeScript files
@@ -24,11 +24,14 @@ module.exports = {
         'plugin:react/recommended', // React rules
         'plugin:react-hooks/recommended', // React hooks rules
         'plugin:jsx-a11y/recommended', // Accessibility rules
-        'plugin:prettier/recommended',
+        'eslint-config-prettier',
       ],
       rules: {
         // We will use TypeScript's types for component props instead
         'react/prop-types': 'off',
+
+        // temporarily set to warn til I figure out how to deal with render props
+        'react/display-name': 'warn',
 
         // No need to import React when using Next.js
         'react/react-in-jsx-scope': 'off',
@@ -47,7 +50,6 @@ module.exports = {
             allowConciseArrowFunctionExpressionsStartingWithVoid: true,
           },
         ],
-        'prettier/prettier': ['error', {}, { usePrettierrc: true }],
       },
     },
   ],

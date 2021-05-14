@@ -1,7 +1,6 @@
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { useMemo } from 'react'
-import { Column, Row } from 'react-table'
+import { Column } from 'react-table'
 import { useId } from 'react-aria'
 import { Dialog } from '@reach/dialog'
 import '@reach/dialog/styles.css'

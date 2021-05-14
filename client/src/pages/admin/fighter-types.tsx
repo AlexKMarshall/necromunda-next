@@ -1,7 +1,6 @@
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { useMemo } from 'react'
-import { Row, Column } from 'react-table'
+import { Column } from 'react-table'
 import { useId } from 'react-aria'
 import { Dialog } from '@reach/dialog'
 import '@reach/dialog/styles.css'
@@ -20,7 +19,7 @@ import {
   useCreateFighterType,
 } from 'hooks/fighter-types'
 import { useModal } from 'hooks/use-modal'
-import { DeletableItem } from 'types'
+import { useWithDeleteColumn } from 'hooks/use-with-delete-column'
 
 const fighterTypeColumns: Column<FighterType>[] = [
   { Header: 'Name', accessor: 'name' as const },
@@ -92,35 +91,14 @@ const fighterTypeColumns: Column<FighterType>[] = [
   },
 ]
 
-function useWithDeleteColumn<T extends DeletableItem>({
-  columns,
-}: {
-  columns: Column<T>[]
-}): Column<T>[] {
-  return useMemo(
-    () => [
-      ...columns,
-      {
-        Header: 'Actions',
-        accessor: 'id' as const,
-        Cell: ({ row: { original } }: { row: Row<T> }) => (
-          <DeleteFighterTypeButton
-            id={original.id}
-            name={original.name}
-            key={original.id}
-          />
-        ),
-      },
-    ],
-    [columns]
-  )
-}
-
 export default function FighterTypes() {
   const query = useQueryFighterTypes()
   const { openModal, closeModal, getDialogProps, getTitleProps } = useModal()
 
-  const columns = useWithDeleteColumn({ columns: fighterTypeColumns })
+  const columns = useWithDeleteColumn({
+    columns: fighterTypeColumns,
+    renderDeleteButton: (props) => <DeleteFighterTypeButton {...props} />,
+  })
 
   return (
     <Stack>

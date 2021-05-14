@@ -9,7 +9,7 @@ import {
   createFighterTypeDtoSchema,
   FighterType,
 } from 'schemas'
-import { DataTable, DeleteButton, H1, H2, Stack } from 'components/lib'
+import { H1, H2, Stack } from 'components/lib'
 import { useQueryFactions } from 'hooks/factions'
 import { useQueryFighterCategories } from 'hooks/fighter-categories'
 import { Input } from 'styles/admin'
@@ -19,7 +19,7 @@ import {
   useCreateFighterType,
 } from 'hooks/fighter-types'
 import { useModal } from 'hooks/use-modal'
-import { useWithDeleteColumn } from 'hooks/use-with-delete-column'
+import { AdminTable } from 'components/admin'
 
 const fighterTypeColumns: Column<FighterType>[] = [
   { Header: 'Name', accessor: 'name' as const },
@@ -95,12 +95,6 @@ export default function FighterTypes(): JSX.Element {
   const query = useQueryFighterTypes()
   const { openModal, closeModal, getDialogProps, getTitleProps } = useModal()
 
-  const columns = useWithDeleteColumn({
-    columns: fighterTypeColumns,
-    deleteHook: useDeleteFighterType,
-    DeleteButtonComponent: DeleteButton,
-  })
-
   return (
     <Stack>
       <H1>Fighter Types</H1>
@@ -111,7 +105,11 @@ export default function FighterTypes(): JSX.Element {
           <AddFighterTypeForm onSubmit={closeModal} />
         </Stack>
       </Dialog>
-      <DataTable columns={columns} data={query.fighterTypes} />
+      <AdminTable
+        columns={fighterTypeColumns}
+        data={query.fighterTypes}
+        deleteHook={useDeleteFighterType}
+      />
       {query.isLoading ? <div>Loading...</div> : null}
     </Stack>
   )

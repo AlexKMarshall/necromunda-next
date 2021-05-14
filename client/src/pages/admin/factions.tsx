@@ -10,11 +10,10 @@ import {
   useCreateFaction,
   useDeleteFaction,
 } from 'hooks/factions'
-import { DeleteButton, H1, H2, Stack } from 'components/lib'
+import { H1, H2, Stack } from 'components/lib'
 import { Input } from 'styles/admin'
-import { DataTable } from 'components/lib'
+import { AdminTable } from 'components/admin'
 import { useModal } from 'hooks/use-modal'
-import { useWithDeleteColumn } from 'hooks/use-with-delete-column'
 
 const factionColumns: Column<Faction>[] = [
   { Header: 'Name', accessor: 'name' as const },
@@ -23,11 +22,6 @@ const factionColumns: Column<Faction>[] = [
 export default function Factions(): JSX.Element {
   const query = useQueryFactions()
   const { openModal, closeModal, getDialogProps, getTitleProps } = useModal()
-  const columns = useWithDeleteColumn({
-    columns: factionColumns,
-    deleteHook: useDeleteFaction,
-    DeleteButtonComponent: DeleteButton,
-  })
 
   return (
     <Stack>
@@ -39,7 +33,12 @@ export default function Factions(): JSX.Element {
           <AddFactionForm onSubmit={closeModal} />
         </Stack>
       </Dialog>
-      <DataTable columns={columns} data={query.factions} />
+
+      <AdminTable
+        columns={factionColumns}
+        data={query.factions}
+        deleteHook={useDeleteFaction}
+      />
       {query.isLoading ? <div>Loading...</div> : null}
     </Stack>
   )

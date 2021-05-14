@@ -14,10 +14,10 @@ import {
   useCreateSkillType,
   useDeleteSkillType,
 } from 'hooks/skill-types'
-import { DataTable, DeleteButton, H1, H2, Stack } from 'components/lib'
+import { H1, H2, Stack } from 'components/lib'
 import { Input } from 'styles/admin'
 import { useModal } from 'hooks/use-modal'
-import { useWithDeleteColumn } from 'hooks/use-with-delete-column'
+import { AdminTable } from 'components/admin'
 
 const skillTypeColumns: Column<SkillType>[] = [
   { Header: 'Name', accessor: 'name' as const },
@@ -26,12 +26,6 @@ const skillTypeColumns: Column<SkillType>[] = [
 export default function SkillTypes(): JSX.Element {
   const query = useQuerySkillTypes()
   const { openModal, closeModal, getDialogProps, getTitleProps } = useModal()
-
-  const columns = useWithDeleteColumn({
-    columns: skillTypeColumns,
-    deleteHook: useDeleteSkillType,
-    DeleteButtonComponent: DeleteButton,
-  })
 
   return (
     <Stack>
@@ -43,7 +37,11 @@ export default function SkillTypes(): JSX.Element {
           <AddSkillTypeForm onSubmit={closeModal} />
         </Stack>
       </Dialog>
-      <DataTable columns={columns} data={query.skillTypes} />
+      <AdminTable
+        columns={skillTypeColumns}
+        data={query.skillTypes}
+        deleteHook={useDeleteSkillType}
+      />
       {query.isLoading ? <div>Loading...</div> : null}
     </Stack>
   )

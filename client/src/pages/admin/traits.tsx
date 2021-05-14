@@ -6,10 +6,10 @@ import { Dialog } from '@reach/dialog'
 import '@reach/dialog/styles.css'
 import { CreateTraitDto, createTraitDtoSchema, Trait } from 'schemas'
 import { useQueryTraits, useCreateTrait, useDeleteTrait } from 'hooks/traits'
-import { DataTable, DeleteButton, H1, H2, Stack } from 'components/lib'
+import { H1, H2, Stack } from 'components/lib'
 import { Input } from 'styles/admin'
 import { useModal } from 'hooks/use-modal'
-import { useWithDeleteColumn } from 'hooks/use-with-delete-column'
+import { AdminTable } from 'components/admin'
 
 const traitColumns: Column<Trait>[] = [
   { Header: 'Name', accessor: 'name' as const },
@@ -18,11 +18,6 @@ const traitColumns: Column<Trait>[] = [
 export default function Traits(): JSX.Element {
   const query = useQueryTraits()
   const { openModal, closeModal, getDialogProps, getTitleProps } = useModal()
-  const columns = useWithDeleteColumn({
-    columns: traitColumns,
-    deleteHook: useDeleteTrait,
-    DeleteButtonComponent: DeleteButton,
-  })
 
   return (
     <Stack>
@@ -34,7 +29,11 @@ export default function Traits(): JSX.Element {
           <AddTraitForm onSubmit={closeModal} />
         </Stack>
       </Dialog>
-      <DataTable columns={columns} data={query.traits} />
+      <AdminTable
+        columns={traitColumns}
+        data={query.traits}
+        deleteHook={useDeleteTrait}
+      />
       {query.isLoading ? <div>Loading...</div> : null}
     </Stack>
   )

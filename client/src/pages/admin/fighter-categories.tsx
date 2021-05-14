@@ -14,10 +14,10 @@ import {
   useCreateFighterCategory,
   useDeleteFighterCategory,
 } from 'hooks/fighter-categories'
-import { DataTable, DeleteButton, H1, H2, Stack } from 'components/lib'
+import { H1, H2, Stack } from 'components/lib'
 import { Input } from 'styles/admin'
 import { useModal } from 'hooks/use-modal'
-import { useWithDeleteColumn } from 'hooks/use-with-delete-column'
+import { AdminTable } from 'components/admin'
 
 const fighterCategoryColumns: Column<FighterCategory>[] = [
   { Header: 'Name', accessor: 'name' as const },
@@ -26,12 +26,6 @@ const fighterCategoryColumns: Column<FighterCategory>[] = [
 export default function FighterCategories(): JSX.Element {
   const query = useQueryFighterCategories()
   const { openModal, closeModal, getDialogProps, getTitleProps } = useModal()
-
-  const columns = useWithDeleteColumn({
-    columns: fighterCategoryColumns,
-    deleteHook: useDeleteFighterCategory,
-    DeleteButtonComponent: DeleteButton,
-  })
 
   return (
     <Stack>
@@ -43,7 +37,11 @@ export default function FighterCategories(): JSX.Element {
           <AddFighterCategoryForm onSubmit={closeModal} />
         </Stack>
       </Dialog>
-      <DataTable columns={columns} data={query.fighterCategories} />
+      <AdminTable
+        columns={fighterCategoryColumns}
+        data={query.fighterCategories}
+        deleteHook={useDeleteFighterCategory}
+      />
       {query.isLoading ? <div>Loading...</div> : null}
     </Stack>
   )

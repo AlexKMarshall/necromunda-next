@@ -1,14 +1,16 @@
 import { Column, useTable } from 'react-table'
 import styled from 'styled-components'
-
-type AnyObject = Record<string, unknown>
+import { AnyObject } from 'types'
 
 interface DataTableProps<T extends AnyObject> {
   columns: Column<T>[]
   data: T[]
 }
 
-export function DataTable<T extends AnyObject>({ columns, data }: DataTableProps<T>): JSX.Element {
+export function DataTable<T extends AnyObject>({
+  columns,
+  data,
+}: DataTableProps<T>): JSX.Element {
   const { getTableProps, getTableBodyProps, headerGroups, rows, prepareRow } =
     useTable({ columns, data })
 

@@ -6,11 +6,11 @@ import { Dialog } from '@reach/dialog'
 import '@reach/dialog/styles.css'
 import { CreateSkillDto, createSkillDtoSchema, Skill } from 'schemas'
 import { useQuerySkills, useCreateSkill, useDeleteSkill } from 'hooks/skills'
-import { DataTable, DeleteButton, H1, H2, Stack } from 'components/lib'
+import { H1, H2, Stack } from 'components/lib'
 import { Input } from 'styles/admin'
 import { useQuerySkillTypes } from 'hooks/skill-types'
 import { useModal } from 'hooks/use-modal'
-import { useWithDeleteColumn } from 'hooks/use-with-delete-column'
+import { AdminTable } from 'components/admin'
 
 const skillColumns: Column<Skill>[] = [
   { Header: 'Name', accessor: 'name' as const },
@@ -20,12 +20,6 @@ const skillColumns: Column<Skill>[] = [
 export default function Skills(): JSX.Element {
   const query = useQuerySkills()
   const { openModal, closeModal, getDialogProps, getTitleProps } = useModal()
-
-  const columns = useWithDeleteColumn({
-    columns: skillColumns,
-    deleteHook: useDeleteSkill,
-    DeleteButtonComponent: DeleteButton,
-  })
 
   return (
     <Stack>
@@ -37,7 +31,11 @@ export default function Skills(): JSX.Element {
           <AddSkillForm onSubmit={closeModal} />
         </Stack>
       </Dialog>
-      <DataTable columns={columns} data={query.skills} />
+      <AdminTable
+        columns={skillColumns}
+        data={query.skills}
+        deleteHook={useDeleteSkill}
+      />
       {query.isLoading ? <div>Loading...</div> : null}
     </Stack>
   )

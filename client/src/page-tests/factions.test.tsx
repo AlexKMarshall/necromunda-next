@@ -15,7 +15,7 @@ import { apiBaseUrl, endpoints } from 'config'
 
 const factionsUrl = `${apiBaseUrl}/${endpoints.factions}`
 
-describe('Factions', () => {
+describe('factions', () => {
   it('shows a list of factions', async () => {
     const factions = [buildFaction(), buildFaction()]
     server.use(

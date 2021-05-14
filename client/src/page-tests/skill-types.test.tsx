@@ -8,7 +8,6 @@ import {
 } from 'test/utils'
 import { rest } from 'msw'
 import React from 'react'
-import { QueryClient, QueryClientProvider } from 'react-query'
 import { server } from 'test/mocks/server'
 import SkillTypes from '../pages/admin/skill-types'
 import { buildSkillType } from 'test/mocks/test-factories'
@@ -17,7 +16,7 @@ import { apiBaseUrl, endpoints } from 'config'
 
 const skillTypesUrl = `${apiBaseUrl}/${endpoints.skillTypes}`
 
-describe('Skill Types', () => {
+describe('skill Types', () => {
   it('shows a list of skill types', async () => {
     const skillTypes = [buildSkillType(), buildSkillType()]
     server.use(

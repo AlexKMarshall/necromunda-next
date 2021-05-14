@@ -21,7 +21,7 @@ const fighterTypesUrl = `${apiBaseUrl}/${endpoints.fighterTypes}`
 const factionsUrl = `${apiBaseUrl}/${endpoints.factions}`
 const fighterCategoriesUrl = `${apiBaseUrl}/${endpoints.fighterCategories}`
 
-describe('Fighter Types', () => {
+describe('fighter Types', () => {
   it('shows a list of fighter types', async () => {
     const fighterTypes = [buildFighterType(), buildFighterType()]
     server.use(

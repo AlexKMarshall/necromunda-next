@@ -92,7 +92,7 @@ function AddSkillTypeForm({ onSubmit }: AddSkillTypeFormProps) {
           id={nameId}
           {...register('name')}
           aria-invalid={!!errors.name}
-          aria-describedby={!!errors.name ? nameErrorId : ''}
+          aria-describedby={errors.name ? nameErrorId : ''}
         />
         {!!errors.name && (
           <span role="alert" id={nameErrorId}>

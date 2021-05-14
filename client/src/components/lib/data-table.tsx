@@ -1,12 +1,14 @@
 import { Column, useTable } from 'react-table'
 import styled from 'styled-components'
 
-interface DataTableProps<T extends {}> {
+type AnyObject = Record<string, unknown>
+
+interface DataTableProps<T extends AnyObject> {
   columns: Column<T>[]
   data: T[]
 }
 
-export function DataTable<T extends {}>({ columns, data }: DataTableProps<T>) {
+export function DataTable<T extends AnyObject>({ columns, data }: DataTableProps<T>): JSX.Element {
   const { getTableProps, getTableBodyProps, headerGroups, rows, prepareRow } =
     useTable({ columns, data })
 
@@ -14,8 +16,12 @@ export function DataTable<T extends {}>({ columns, data }: DataTableProps<T>) {
     <Wrapper {...getTableProps()}>
       <thead>
         {headerGroups.map((headerGroup) => (
+          // key is coming from prop getter
+          // eslint-disable-next-line react/jsx-key
           <tr {...headerGroup.getHeaderGroupProps()}>
             {headerGroup.headers.map((column) => (
+              // key is coming from prop getter
+              // eslint-disable-next-line react/jsx-key
               <Th {...column.getHeaderProps()}>{column.render('Header')}</Th>
             ))}
           </tr>
@@ -25,8 +31,12 @@ export function DataTable<T extends {}>({ columns, data }: DataTableProps<T>) {
         {rows.map((row) => {
           prepareRow(row)
           return (
+            // key is coming from prop getter
+            // eslint-disable-next-line react/jsx-key
             <Tr {...row.getRowProps()}>
               {row.cells.map((cell) => (
+                // key is coming from prop getter
+                // eslint-disable-next-line react/jsx-key
                 <Td {...cell.getCellProps()}>{cell.render('Cell')}</Td>
               ))}
             </Tr>

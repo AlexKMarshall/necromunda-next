@@ -23,21 +23,24 @@ export async function client<ReqBody>(
     ...options,
   }
 
-  try {
+  
     const response = await fetch(`${apiBaseUrl}/${endpoint}`, fetchOptions)
-    const data = await response.json()
+    const responseData = await response.json()
     if (!response.ok) {
-      const error: CustomError = new Error()
+      const error = new HTTPClientError(response.status, data)
       error.status = response.status
       error.body = data
       throw error
     }
-    return data
-  } catch (e) {
-    throw e
-  }
-}
+    return responseData
+  } 
 
-interface CustomError extends Error {
-  [key: string]: any
+class HTTPClientError extends Error {
+  status: number;
+  body: unknown;
+  constructor(status: number, body: unknown) {
+    super()
+    this.status = status;
+    this.body = body;
+  }
 }

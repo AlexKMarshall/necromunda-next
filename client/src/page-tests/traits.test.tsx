@@ -14,7 +14,7 @@ import { apiBaseUrl, endpoints } from 'config'
 
 const traitsUrl = `${apiBaseUrl}/${endpoints.traits}`
 
-describe('Traits', () => {
+describe('traits', () => {
   it('shows a list of traits', async () => {
     const traits = [buildTrait(), buildTrait()]
     server.use(

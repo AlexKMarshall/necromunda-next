@@ -91,7 +91,7 @@ const fighterTypeColumns: Column<FighterType>[] = [
   },
 ]
 
-export default function FighterTypes() {
+export default function FighterTypes(): JSX.Element {
   const query = useQueryFighterTypes()
   const { openModal, closeModal, getDialogProps, getTitleProps } = useModal()
 
@@ -139,7 +139,7 @@ function AddFighterTypeForm({ onSubmit }: AddFighterTypeFormProps) {
   const {
     register,
     handleSubmit,
-    formState: { errors, isValid: isFormValid },
+    formState: { errors },
   } = useForm<CreateFighterTypeDto>({
     resolver: zodResolver(createFighterTypeDtoSchema),
   })
@@ -194,7 +194,7 @@ function AddFighterTypeForm({ onSubmit }: AddFighterTypeFormProps) {
           id={nameFieldId}
           {...register('name')}
           aria-invalid={!!errors.name}
-          aria-describedby={!!errors.name ? nameErrorFieldId : ''}
+          aria-describedby={errors.name ? nameErrorFieldId : ''}
         />
         {!!errors.name && (
           <span role="alert" id={nameErrorFieldId}>
@@ -208,7 +208,7 @@ function AddFighterTypeForm({ onSubmit }: AddFighterTypeFormProps) {
           id={costFieldId}
           {...register('cost', { valueAsNumber: true })}
           aria-invalid={!!errors.cost}
-          aria-describedby={!!errors.cost ? costErrorFieldId : ''}
+          aria-describedby={errors.cost ? costErrorFieldId : ''}
         />
         {!!errors.cost && (
           <span role="alert" id={costErrorFieldId}>
@@ -222,7 +222,7 @@ function AddFighterTypeForm({ onSubmit }: AddFighterTypeFormProps) {
           id={factionFieldId}
           {...register('faction.id')}
           aria-invalid={!!errors.faction?.id}
-          aria-describedby={!!errors.faction?.id ? factionErrorFieldId : ''}
+          aria-describedby={errors.faction?.id ? factionErrorFieldId : ''}
         >
           {queryFactions.isLoading ? (
             <option key="factions-loading" value="">
@@ -255,7 +255,7 @@ function AddFighterTypeForm({ onSubmit }: AddFighterTypeFormProps) {
           {...register('fighterCategory.id')}
           aria-invalid={!!errors.fighterCategory?.id}
           aria-describedby={
-            !!errors.fighterCategory?.id ? categoryErrorFieldId : ''
+            errors.fighterCategory?.id ? categoryErrorFieldId : ''
           }
         >
           {queryCategories.isLoading ? (
@@ -288,7 +288,7 @@ function AddFighterTypeForm({ onSubmit }: AddFighterTypeFormProps) {
           {...register('fighterStats.movement', { valueAsNumber: true })}
           aria-invalid={!!errors.fighterStats?.movement}
           aria-describedby={
-            !!errors.fighterStats?.movement ? movementErrorFieldId : ''
+            errors.fighterStats?.movement ? movementErrorFieldId : ''
           }
         />
         {!!errors.fighterStats?.movement && (
@@ -304,7 +304,7 @@ function AddFighterTypeForm({ onSubmit }: AddFighterTypeFormProps) {
           {...register('fighterStats.weaponSkill', { valueAsNumber: true })}
           aria-invalid={!!errors.fighterStats?.weaponSkill}
           aria-describedby={
-            !!errors.fighterStats?.weaponSkill ? weaponSkillErrorFieldId : ''
+            errors.fighterStats?.weaponSkill ? weaponSkillErrorFieldId : ''
           }
         />
         {!!errors.fighterStats?.weaponSkill && (
@@ -320,7 +320,7 @@ function AddFighterTypeForm({ onSubmit }: AddFighterTypeFormProps) {
           {...register('fighterStats.ballisticSkill', { valueAsNumber: true })}
           aria-invalid={!!errors.fighterStats?.ballisticSkill}
           aria-describedby={
-            !!errors.fighterStats?.ballisticSkill
+            errors.fighterStats?.ballisticSkill
               ? ballisticSkillErrorFieldId
               : ''
           }
@@ -338,7 +338,7 @@ function AddFighterTypeForm({ onSubmit }: AddFighterTypeFormProps) {
           {...register('fighterStats.strength', { valueAsNumber: true })}
           aria-invalid={!!errors.fighterStats?.strength}
           aria-describedby={
-            !!errors.fighterStats?.strength ? strengthErrorFieldId : ''
+            errors.fighterStats?.strength ? strengthErrorFieldId : ''
           }
         />
         {!!errors.fighterStats?.strength && (
@@ -354,7 +354,7 @@ function AddFighterTypeForm({ onSubmit }: AddFighterTypeFormProps) {
           {...register('fighterStats.toughness', { valueAsNumber: true })}
           aria-invalid={!!errors.fighterStats?.toughness}
           aria-describedby={
-            !!errors.fighterStats?.toughness ? toughnessErrorFieldId : ''
+            errors.fighterStats?.toughness ? toughnessErrorFieldId : ''
           }
         />
         {!!errors.fighterStats?.toughness && (
@@ -370,7 +370,7 @@ function AddFighterTypeForm({ onSubmit }: AddFighterTypeFormProps) {
           {...register('fighterStats.wounds', { valueAsNumber: true })}
           aria-invalid={!!errors.fighterStats?.wounds}
           aria-describedby={
-            !!errors.fighterStats?.wounds ? woundsErrorFieldId : ''
+            errors.fighterStats?.wounds ? woundsErrorFieldId : ''
           }
         />
         {!!errors.fighterStats?.wounds && (
@@ -386,7 +386,7 @@ function AddFighterTypeForm({ onSubmit }: AddFighterTypeFormProps) {
           {...register('fighterStats.initiative', { valueAsNumber: true })}
           aria-invalid={!!errors.fighterStats?.initiative}
           aria-describedby={
-            !!errors.fighterStats?.initiative ? initiativeErrorFieldId : ''
+            errors.fighterStats?.initiative ? initiativeErrorFieldId : ''
           }
         />
         {!!errors.fighterStats?.initiative && (
@@ -402,7 +402,7 @@ function AddFighterTypeForm({ onSubmit }: AddFighterTypeFormProps) {
           {...register('fighterStats.attacks', { valueAsNumber: true })}
           aria-invalid={!!errors.fighterStats?.attacks}
           aria-describedby={
-            !!errors.fighterStats?.attacks ? attacksErrorFieldId : ''
+            errors.fighterStats?.attacks ? attacksErrorFieldId : ''
           }
         />
         {!!errors.fighterStats?.attacks && (
@@ -418,7 +418,7 @@ function AddFighterTypeForm({ onSubmit }: AddFighterTypeFormProps) {
           {...register('fighterStats.leadership', { valueAsNumber: true })}
           aria-invalid={!!errors.fighterStats?.leadership}
           aria-describedby={
-            !!errors.fighterStats?.leadership ? leadershipErrorFieldId : ''
+            errors.fighterStats?.leadership ? leadershipErrorFieldId : ''
           }
         />
         {!!errors.fighterStats?.leadership && (
@@ -433,7 +433,7 @@ function AddFighterTypeForm({ onSubmit }: AddFighterTypeFormProps) {
           id={coolFieldId}
           {...register('fighterStats.cool', { valueAsNumber: true })}
           aria-invalid={!!errors.fighterStats?.cool}
-          aria-describedby={!!errors.fighterStats?.cool ? coolErrorFieldId : ''}
+          aria-describedby={errors.fighterStats?.cool ? coolErrorFieldId : ''}
         />
         {!!errors.fighterStats?.cool && (
           <span role="alert" id={coolErrorFieldId}>
@@ -447,7 +447,7 @@ function AddFighterTypeForm({ onSubmit }: AddFighterTypeFormProps) {
           id={willFieldId}
           {...register('fighterStats.will', { valueAsNumber: true })}
           aria-invalid={!!errors.fighterStats?.will}
-          aria-describedby={!!errors.fighterStats?.will ? willErrorFieldId : ''}
+          aria-describedby={errors.fighterStats?.will ? willErrorFieldId : ''}
         />
         {!!errors.fighterStats?.will && (
           <span role="alert" id={willErrorFieldId}>
@@ -462,7 +462,7 @@ function AddFighterTypeForm({ onSubmit }: AddFighterTypeFormProps) {
           {...register('fighterStats.intelligence', { valueAsNumber: true })}
           aria-invalid={!!errors.fighterStats?.intelligence}
           aria-describedby={
-            !!errors.fighterStats?.intelligence ? intelligenceErrorFieldId : ''
+            errors.fighterStats?.intelligence ? intelligenceErrorFieldId : ''
           }
         />
         {!!errors.fighterStats?.intelligence && (

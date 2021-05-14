@@ -30,7 +30,7 @@ function render(
  *
  *  Essentially a curried version of getCellValue(headerRow, dataRow, columnHeader)
  */
-function buildGetCellValueFactory(headerRow: HTMLElement) {
+function buildGetCellValueFactory(headerRow: HTMLElement): (dataRow: HTMLElement) => (headerCell: HTMLElement) => HTMLElement {
   const headerCellsArray = within(headerRow).getAllByRole('columnheader')
   function getColIndex(headerCell: HTMLElement) {
     return headerCellsArray.indexOf(headerCell)
@@ -38,7 +38,7 @@ function buildGetCellValueFactory(headerRow: HTMLElement) {
 
   return function getCellValueFactory(dataRow: HTMLElement) {
     const dataCells = within(dataRow).getAllByRole('cell')
-    return function getCellValue(headerCell: HTMLElement) {
+    return function getCellValue(headerCell: HTMLElement): HTMLElement {
       const colIndex = getColIndex(headerCell)
       return dataCells[colIndex]
     }

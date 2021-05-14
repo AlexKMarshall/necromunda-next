@@ -14,7 +14,7 @@ import { apiBaseUrl, endpoints } from 'config'
 
 const fighterCategoriesUrl = `${apiBaseUrl}/${endpoints.fighterCategories}`
 
-describe('Fighter Categories', () => {
+describe('fighter Categories', () => {
   it('shows a list of fighter categories', async () => {
     const fighterCategories = [buildFighterCategory(), buildFighterCategory()]
     server.use(

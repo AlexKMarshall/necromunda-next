@@ -17,7 +17,7 @@ const skillColumns: Column<Skill>[] = [
   { Header: 'Type', accessor: (row) => row.type.name },
 ]
 
-export default function Skills() {
+export default function Skills():JSX.Element {
   const query = useQuerySkills()
   const { openModal, closeModal, getDialogProps, getTitleProps } = useModal()
 
@@ -89,7 +89,7 @@ function AddSkillForm({ onSubmit }: AddSkillFormProps) {
           id={nameId}
           {...register('name')}
           aria-invalid={!!errors.name}
-          aria-describedby={!!errors.name ? nameErrorId : ''}
+          aria-describedby={errors.name ? nameErrorId : ''}
         />
         {!!errors.name && (
           <span role="alert" id={nameErrorId}>
@@ -103,7 +103,7 @@ function AddSkillForm({ onSubmit }: AddSkillFormProps) {
           id={typeId}
           {...register('type.id')}
           aria-invalid={!!errors.type?.id}
-          aria-describedby={!!errors.type ? typeErrorId : ''}
+          aria-describedby={errors.type ? typeErrorId : ''}
         >
           {skillTypesQuery.isLoading ? (
             <option key="skilltypes-loading" value="">

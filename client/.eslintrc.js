@@ -4,9 +4,14 @@ module.exports = {
     node: true,
     es2021: true,
   },
-  // parserOptions: { ecmaVersion: 8 }, // to enable features such as async/await
+  parserOptions: { sourceType: 'module' }, // to enable features such as async/await
   ignorePatterns: ['node_modules/*', '.next/*', '.out/*', '!.prettierrc.js'], // We don't want to lint generated files nor node_modules, but we want to lint .prettierrc.js (ignored by default by eslint)df
-  extends: ['eslint:recommended'],
+  extends: ['eslint:recommended', 'plugin:jest/all', 'plugin:testing-library/react', 'eslint-config-prettier'],
+  rules: {
+    'jest/no-hooks': 'off',
+    'jest/require-top-level-describe': 'off',
+    'jest/prefer-expect-assertions': 'off'
+  },
   overrides: [
     // This configuration will apply only to TypeScript files
     {
@@ -16,7 +21,7 @@ module.exports = {
       env: {
         browser: true,
         node: true,
-        es6: true,
+        es2021: true,
       },
       extends: [
         'eslint:recommended',
@@ -24,7 +29,6 @@ module.exports = {
         'plugin:react/recommended', // React rules
         'plugin:react-hooks/recommended', // React hooks rules
         'plugin:jsx-a11y/recommended', // Accessibility rules
-        'eslint-config-prettier',
       ],
       rules: {
         // We will use TypeScript's types for component props instead
@@ -43,13 +47,9 @@ module.exports = {
         '@typescript-eslint/no-unused-vars': ['error'],
 
         // I suggest this setting for requiring return types on functions only where useful
-        '@typescript-eslint/explicit-function-return-type': [
-          'warn',
-          {
-            allowExpressions: true,
-            allowConciseArrowFunctionExpressionsStartingWithVoid: true,
-          },
-        ],
+        '@typescript-eslint/explicit-function-return-type': 'off',
+
+        'jest/no-hooks': 'off'
       },
     },
   ],

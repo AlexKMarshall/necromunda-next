@@ -21,7 +21,6 @@ export function useWithDeleteColumn<T extends DeletableItem>({
       {
         Header: 'Actions',
         accessor: 'id' as const,
-        // eslint-disable-next-line react/display-name
         Cell: ({ row: { original } }: { row: Row<T> }) => {
           const mutation = deleteHook(original.id)
           const { getButtonProps } = useDeleteButton({

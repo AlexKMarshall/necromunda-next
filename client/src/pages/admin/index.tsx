@@ -1,6 +1,6 @@
 import Link from 'next/link'
 
-export default function Admin() {
+export default function Admin(): JSX.Element {
   return (
     <>
       <h1>Admin</h1>
@@ -24,6 +24,16 @@ export default function Admin() {
           <li>
             <Link href="/admin/traits">
               <a>Traits</a>
+            </Link>
+          </li>
+          <li>
+            <Link href="/admin/skill-types">
+              <a>Skill Types</a>
+            </Link>
+          </li>
+          <li>
+            <Link href="/admin/skills">
+              <a>Skills</a>
             </Link>
           </li>
         </ul>

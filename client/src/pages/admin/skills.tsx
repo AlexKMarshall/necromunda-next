@@ -64,8 +64,9 @@ function AddSkillForm({ onSubmit }: AddSkillFormProps) {
     >
       <TextField
         label="Name:"
-        error={errors.name}
-        registration={register('name')}
+        hasError={!!errors.name}
+        errorMessage={errors.name?.message}
+        inputProps={register('name')}
       />
       <SelectField
         label="Type:"

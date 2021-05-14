@@ -66,8 +66,9 @@ function AddFactionForm({ onSubmit }: AddFactionFormProps): JSX.Element {
     >
       <TextField
         label="Name:"
-        error={errors.name}
-        registration={register('name')}
+        hasError={!!errors.name}
+        inputProps={register('name')}
+        errorMessage={errors.name?.message}
       />
       <button type="submit">Add faction</button>
     </Stack>

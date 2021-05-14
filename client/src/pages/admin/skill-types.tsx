@@ -69,8 +69,9 @@ function AddSkillTypeForm({ onSubmit }: AddSkillTypeFormProps) {
     >
       <TextField
         label="Name:"
-        error={errors.name}
-        registration={register('name')}
+        hasError={!!errors.name}
+        errorMessage={errors.name?.message}
+        inputProps={register('name')}
       />
       <button type="submit">Add skill type</button>
     </Stack>

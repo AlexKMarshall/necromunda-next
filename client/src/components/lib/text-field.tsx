@@ -1,5 +1,4 @@
 import { useId } from 'react-aria'
-import { FieldError, UseFormRegisterReturn } from 'react-hook-form'
 import styled from 'styled-components'
 import { Stack } from 'components/lib'
 import { Required } from 'utility-types'
@@ -7,32 +6,37 @@ import React, { useCallback } from 'react'
 
 type TextFieldProps = {
   label: string
-  error?: FieldError
-  registration: UseFormRegisterReturn
+  hasError: boolean
+  errorMessage?: string
+  inputProps: InputProps
 }
 
 const Input = styled.input`
   border: ${(p) => (p['aria-invalid'] ? '2px solid red' : '')};
 `
 
+type InputProps = React.ComponentPropsWithRef<'input'>
+
 export function TextField({
   label,
-  error,
-  registration,
+  hasError,
+  errorMessage,
+  inputProps,
 }: TextFieldProps): JSX.Element {
   const { getLabelProps, getErrorProps, getFieldControlProps } =
     useFormFieldInput({
       label,
-      error,
+      hasError,
+      errorMessage,
     })
 
   return (
     <FormField
       labelProps={{ ...getLabelProps() }}
       errorProps={{ ...getErrorProps() }}
-      error={error}
+      hasError={hasError}
     >
-      <Input {...getFieldControlProps({ ...registration })} />
+      <Input {...getFieldControlProps(inputProps)} />
     </FormField>
   )
 }
@@ -49,30 +53,32 @@ type FormFieldProps = {
   labelProps: LabelProps
   errorProps: ErrorProps
   children: React.ReactNode
-  error?: FieldError
+  hasError: boolean
 }
 
 function FormField({
   labelProps: { htmlFor, ...labelProps },
   errorProps,
   children,
-  error,
+  hasError,
 }: FormFieldProps) {
   return (
     <Stack variant="small">
       <label {...labelProps} htmlFor={htmlFor} />
       {children}
-      {!!error && <span {...errorProps} />}
+      {hasError && <span {...errorProps} />}
     </Stack>
   )
 }
 
 function useFormFieldInput({
   label,
-  error,
+  hasError = false,
+  errorMessage = '',
 }: {
   label: string
-  error?: FieldError
+  hasError: boolean
+  errorMessage?: string
 }) {
   const fieldId = useId()
   const errorId = useId()
@@ -90,18 +96,18 @@ function useFormFieldInput({
       ...errorProps,
       role: 'alert',
       id: errorId,
-      children: error?.message ?? null,
+      children: errorMessage ?? null,
     }),
-    [error?.message, errorId]
+    [errorId, errorMessage]
   )
   const getFieldControlProps = useCallback(
     (fieldProps?: FieldControlProps) => ({
       ...fieldProps,
       id: fieldId,
-      'aria-invalid': !!error,
-      'aria-describedby': error ? errorId : '',
+      'aria-invalid': hasError,
+      'aria-describedby': hasError ? errorId : '',
     }),
-    [error, errorId, fieldId]
+    [errorId, fieldId, hasError]
   )
 
   return { getLabelProps, getErrorProps, getFieldControlProps }

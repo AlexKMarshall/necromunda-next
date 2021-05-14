@@ -139,13 +139,15 @@ function AddFighterTypeForm({ onSubmit }: AddFighterTypeFormProps) {
     >
       <TextField
         label="Name:"
-        error={errors.name}
-        registration={register('name')}
+        hasError={!!errors.name}
+        errorMessage={errors.name?.message}
+        inputProps={register('name')}
       />
       <TextField
         label="Cost:"
-        error={errors.name}
-        registration={register('cost', { valueAsNumber: true })}
+        hasError={!!errors.name}
+        errorMessage={errors.name?.message}
+        inputProps={register('cost', { valueAsNumber: true })}
       />
       <SelectField
         label="Faction:"
@@ -169,77 +171,89 @@ function AddFighterTypeForm({ onSubmit }: AddFighterTypeFormProps) {
       />
       <TextField
         label="Movement:"
-        error={errors.fighterStats?.movement}
-        registration={register('fighterStats.movement', {
+        hasError={!!errors.fighterStats?.movement}
+        errorMessage={errors.fighterStats?.movement?.message}
+        inputProps={register('fighterStats.movement', {
           valueAsNumber: true,
         })}
       />
       <TextField
         label="Weapon Skill:"
-        error={errors.fighterStats?.weaponSkill}
-        registration={register('fighterStats.weaponSkill', {
+        hasError={!!errors.fighterStats?.weaponSkill}
+        errorMessage={errors.fighterStats?.weaponSkill?.message}
+        inputProps={register('fighterStats.weaponSkill', {
           valueAsNumber: true,
         })}
       />
       <TextField
         label="Ballistic Skill:"
-        error={errors.fighterStats?.ballisticSkill}
-        registration={register('fighterStats.ballisticSkill', {
+        hasError={!!errors.fighterStats?.ballisticSkill}
+        errorMessage={errors.fighterStats?.ballisticSkill?.message}
+        inputProps={register('fighterStats.ballisticSkill', {
           valueAsNumber: true,
         })}
       />
       <TextField
         label="Strength:"
-        error={errors.fighterStats?.strength}
-        registration={register('fighterStats.strength', {
+        hasError={!!errors.fighterStats?.strength}
+        errorMessage={errors.fighterStats?.strength?.message}
+        inputProps={register('fighterStats.strength', {
           valueAsNumber: true,
         })}
       />
       <TextField
         label="Toughness:"
-        error={errors.fighterStats?.toughness}
-        registration={register('fighterStats.toughness', {
+        hasError={!!errors.fighterStats?.toughness}
+        errorMessage={errors.fighterStats?.toughness?.message}
+        inputProps={register('fighterStats.toughness', {
           valueAsNumber: true,
         })}
       />
       <TextField
         label="Wounds:"
-        error={errors.fighterStats?.wounds}
-        registration={register('fighterStats.wounds', { valueAsNumber: true })}
+        hasError={!!errors.fighterStats?.wounds}
+        errorMessage={errors.fighterStats?.wounds?.message}
+        inputProps={register('fighterStats.wounds', { valueAsNumber: true })}
       />
       <TextField
         label="Initiative:"
-        error={errors.fighterStats?.initiative}
-        registration={register('fighterStats.initiative', {
+        hasError={!!errors.fighterStats?.initiative}
+        errorMessage={errors.fighterStats?.initiative?.message}
+        inputProps={register('fighterStats.initiative', {
           valueAsNumber: true,
         })}
       />
       <TextField
         label="Attacks:"
-        error={errors.fighterStats?.attacks}
-        registration={register('fighterStats.attacks', { valueAsNumber: true })}
+        hasError={!!errors.fighterStats?.attacks}
+        errorMessage={errors.fighterStats?.attacks?.message}
+        inputProps={register('fighterStats.attacks', { valueAsNumber: true })}
       />
       <TextField
         label="Leadership:"
-        error={errors.fighterStats?.leadership}
-        registration={register('fighterStats.leadership', {
+        hasError={!!errors.fighterStats?.leadership}
+        errorMessage={errors.fighterStats?.leadership?.message}
+        inputProps={register('fighterStats.leadership', {
           valueAsNumber: true,
         })}
       />
       <TextField
         label="Cool:"
-        error={errors.fighterStats?.cool}
-        registration={register('fighterStats.cool', { valueAsNumber: true })}
+        hasError={!!errors.fighterStats?.cool}
+        errorMessage={errors.fighterStats?.cool?.message}
+        inputProps={register('fighterStats.cool', { valueAsNumber: true })}
       />
       <TextField
         label="Will:"
-        error={errors.fighterStats?.will}
-        registration={register('fighterStats.will', { valueAsNumber: true })}
+        hasError={!!errors.fighterStats?.will}
+        errorMessage={errors.fighterStats?.will?.message}
+        inputProps={register('fighterStats.will', { valueAsNumber: true })}
       />
       <TextField
         label="Intelligence:"
-        error={errors.fighterStats?.intelligence}
-        registration={register('fighterStats.intelligence', {
+        hasError={!!errors.fighterStats?.intelligence}
+        errorMessage={errors.fighterStats?.intelligence?.message}
+        inputProps={register('fighterStats.intelligence', {
           valueAsNumber: true,
         })}
       />

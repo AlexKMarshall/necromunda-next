@@ -1,12 +1,11 @@
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Column } from 'react-table'
-import { useId } from 'react-aria'
 import { Dialog } from '@reach/dialog'
 import '@reach/dialog/styles.css'
 import { CreateSkillDto, createSkillDtoSchema, Skill } from 'schemas'
 import { useQuerySkills, useCreateSkill, useDeleteSkill } from 'hooks/skills'
-import { H1, H2, Stack, TextInput } from 'components/lib'
+import { H1, H2, SelectInput, Stack, TextInput } from 'components/lib'
 import { useQuerySkillTypes } from 'hooks/skill-types'
 import { useModal } from 'hooks/use-modal'
 import { AdminTable } from 'components/admin'
@@ -54,8 +53,6 @@ function AddSkillForm({ onSubmit }: AddSkillFormProps) {
   } = useForm<CreateSkillDto>({
     resolver: zodResolver(createSkillDtoSchema),
   })
-  const typeId = useId()
-  const typeErrorId = useId()
 
   return (
     <Stack
@@ -70,37 +67,16 @@ function AddSkillForm({ onSubmit }: AddSkillFormProps) {
         error={errors.name}
         registration={register('name')}
       />
-      <Stack variant="small">
-        <label htmlFor={typeId}>Type:</label>
-        <select
-          id={typeId}
-          {...register('type.id')}
-          aria-invalid={!!errors.type?.id}
-          aria-describedby={errors.type ? typeErrorId : ''}
-        >
-          {skillTypesQuery.isLoading ? (
-            <option key="skilltypes-loading" value="">
-              Loading...
-            </option>
-          ) : (
-            <>
-              <option key="skilltype-empty" value="">
-                Please select
-              </option>
-              {skillTypesQuery.skillTypes.map((st) => (
-                <option key={st.id} value={st.id}>
-                  {st.name}
-                </option>
-              ))}
-            </>
-          )}
-        </select>
-        {!!errors.type && (
-          <span role="alert" id={typeErrorId}>
-            {errors.type.id?.message}
-          </span>
-        )}
-      </Stack>
+      <SelectInput
+        label="Type:"
+        registration={register('type.id')}
+        error={errors.type?.id}
+        isLoading={skillTypesQuery.isLoading}
+        options={skillTypesQuery.skillTypes.map(({ id, name }) => ({
+          value: id,
+          label: name,
+        }))}
+      />
       <button type="submit">Add skill type</button>
     </Stack>
   )

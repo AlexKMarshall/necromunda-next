@@ -1,7 +1,6 @@
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Column } from 'react-table'
-import { useId } from 'react-aria'
 import { Dialog } from '@reach/dialog'
 import '@reach/dialog/styles.css'
 import {
@@ -9,7 +8,7 @@ import {
   createFighterTypeDtoSchema,
   FighterType,
 } from 'schemas'
-import { H1, H2, Stack, TextInput } from 'components/lib'
+import { H1, H2, SelectInput, Stack, TextInput } from 'components/lib'
 import { useQueryFactions } from 'hooks/factions'
 import { useQueryFighterCategories } from 'hooks/fighter-categories'
 import {
@@ -130,11 +129,6 @@ function AddFighterTypeForm({ onSubmit }: AddFighterTypeFormProps) {
   const queryFactions = useQueryFactions()
   const queryCategories = useQueryFighterCategories()
 
-  const factionFieldId = useId()
-  const factionErrorFieldId = useId()
-  const categoryFieldId = useId()
-  const categoryErrorFieldId = useId()
-
   return (
     <Stack
       as="form"
@@ -153,73 +147,26 @@ function AddFighterTypeForm({ onSubmit }: AddFighterTypeFormProps) {
         error={errors.name}
         registration={register('cost', { valueAsNumber: true })}
       />
-
-      <Stack variant="small">
-        <label htmlFor={factionFieldId}>Faction:</label>
-        <select
-          id={factionFieldId}
-          {...register('faction.id')}
-          aria-invalid={!!errors.faction?.id}
-          aria-describedby={errors.faction?.id ? factionErrorFieldId : ''}
-        >
-          {queryFactions.isLoading ? (
-            <option key="factions-loading" value="">
-              Loading...
-            </option>
-          ) : (
-            <>
-              <option key="factions-empty" value="">
-                Please select
-              </option>
-              {queryFactions.factions.map((f) => (
-                <option key={f.id} value={f.id}>
-                  {f.name}
-                </option>
-              ))}
-            </>
-          )}
-        </select>
-        {!!errors.faction?.id && (
-          <span role="alert" id={factionErrorFieldId}>
-            {errors.faction.id.message}
-          </span>
-        )}
-      </Stack>
-      <Stack variant="small">
-        <label htmlFor={categoryFieldId}>Category:</label>
-
-        <select
-          id={categoryFieldId}
-          {...register('fighterCategory.id')}
-          aria-invalid={!!errors.fighterCategory?.id}
-          aria-describedby={
-            errors.fighterCategory?.id ? categoryErrorFieldId : ''
-          }
-        >
-          {queryCategories.isLoading ? (
-            <option key="categories-loading" value="">
-              Loading...
-            </option>
-          ) : (
-            <>
-              <option key="categories-empty" value="">
-                Please select
-              </option>
-              {queryCategories.fighterCategories.map((f) => (
-                <option key={f.id} value={f.id}>
-                  {f.name}
-                </option>
-              ))}
-            </>
-          )}
-        </select>
-        {!!errors.fighterCategory?.id && (
-          <span role="alert" id={categoryErrorFieldId}>
-            {errors.fighterCategory.id?.message}
-          </span>
-        )}
-      </Stack>
-
+      <SelectInput
+        label="Faction:"
+        registration={register('faction.id')}
+        error={errors.faction?.id}
+        isLoading={queryFactions.isLoading}
+        options={queryFactions.factions.map(({ id, name }) => ({
+          value: id,
+          label: name,
+        }))}
+      />
+      <SelectInput
+        label="Category:"
+        registration={register('fighterCategory.id')}
+        error={errors.fighterCategory?.id}
+        isLoading={queryCategories.isLoading}
+        options={queryCategories.fighterCategories.map(({ id, name }) => ({
+          value: id,
+          label: name,
+        }))}
+      />
       <TextInput
         label="Movement:"
         error={errors.fighterStats?.movement}

@@ -1,13 +1,11 @@
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Column } from 'react-table'
-import { useId } from 'react-aria'
 import { Dialog } from '@reach/dialog'
 import '@reach/dialog/styles.css'
 import { CreateTraitDto, createTraitDtoSchema, Trait } from 'schemas'
 import { useQueryTraits, useCreateTrait, useDeleteTrait } from 'hooks/traits'
-import { H1, H2, Stack } from 'components/lib'
-import { Input } from 'styles/admin'
+import { H1, H2, Stack, TextField } from 'components/lib'
 import { useModal } from 'hooks/use-modal'
 import { AdminTable } from 'components/admin'
 
@@ -52,8 +50,6 @@ function AddTraitForm({ onSubmit }: AddTraitFormProps) {
   } = useForm<CreateTraitDto>({
     resolver: zodResolver(createTraitDtoSchema),
   })
-  const nameId = useId()
-  const nameErrorId = useId()
 
   return (
     <Stack
@@ -63,20 +59,12 @@ function AddTraitForm({ onSubmit }: AddTraitFormProps) {
         onSubmit?.()
       })}
     >
-      <Stack variant="small">
-        <label htmlFor={nameId}>Name:</label>
-        <Input
-          id={nameId}
-          {...register('name')}
-          aria-invalid={!!errors.name}
-          aria-describedby={errors.name ? nameErrorId : ''}
-        />
-        {!!errors.name && (
-          <span role="alert" id={nameErrorId}>
-            {errors.name.message}
-          </span>
-        )}
-      </Stack>
+      <TextField
+        label="Name:"
+        hasError={!!errors.name}
+        errorMessage={errors.name?.message}
+        inputProps={register('name')}
+      />
       <button type="submit">Add trait</button>
     </Stack>
   )

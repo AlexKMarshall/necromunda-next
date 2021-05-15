@@ -1,7 +1,6 @@
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Column } from 'react-table'
-import { useId } from 'react-aria'
 import { Dialog } from '@reach/dialog'
 import '@reach/dialog/styles.css'
 import {
@@ -14,8 +13,7 @@ import {
   useCreateFighterCategory,
   useDeleteFighterCategory,
 } from 'hooks/fighter-categories'
-import { H1, H2, Stack } from 'components/lib'
-import { Input } from 'styles/admin'
+import { H1, H2, Stack, TextField } from 'components/lib'
 import { useModal } from 'hooks/use-modal'
 import { AdminTable } from 'components/admin'
 
@@ -60,8 +58,6 @@ function AddFighterCategoryForm({ onSubmit }: AddFighterCategoryFormProps) {
   } = useForm<CreateFighterCategoryDto>({
     resolver: zodResolver(createFighterCategoryDtoSchema),
   })
-  const nameId = useId()
-  const nameErrorId = useId()
 
   return (
     <Stack
@@ -71,20 +67,12 @@ function AddFighterCategoryForm({ onSubmit }: AddFighterCategoryFormProps) {
         onSubmit?.()
       })}
     >
-      <Stack variant="small">
-        <label htmlFor={nameId}>Name:</label>
-        <Input
-          id={nameId}
-          {...register('name')}
-          aria-invalid={!!errors.name}
-          aria-describedby={errors.name ? nameErrorId : ''}
-        />
-        {!!errors.name && (
-          <span role="alert" id={nameErrorId}>
-            {errors.name.message}
-          </span>
-        )}
-      </Stack>
+      <TextField
+        label="Name:"
+        hasError={!!errors.name}
+        errorMessage={errors.name?.message}
+        inputProps={register('name')}
+      />
       <button type="submit">Add fighter category</button>
     </Stack>
   )

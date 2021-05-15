@@ -3,6 +3,7 @@ import styled from 'styled-components'
 import { Stack } from 'components/lib'
 import { Required } from 'utility-types'
 import React, { useCallback } from 'react'
+import { useFieldError, useFieldLabel } from 'hooks/form-field'
 
 type TextFieldProps = {
   label: string
@@ -14,8 +15,6 @@ type TextFieldProps = {
 const Input = styled.input`
   border: ${(p) => (p['aria-invalid'] ? '2px solid red' : '')};
 `
-
-type InputProps = React.ComponentPropsWithRef<'input'>
 
 export function TextField({
   label,
@@ -74,43 +73,41 @@ function FormField({
 function useFormFieldInput({
   label,
   hasError = false,
-  errorMessage = '',
+  errorMessage,
 }: {
   label: string
-  hasError: boolean
+  hasError?: boolean
   errorMessage?: string
 }) {
-  const fieldId = useId()
-  const errorId = useId()
-
-  const getLabelProps = useCallback(
-    (labelProps?: React.ComponentPropsWithoutRef<'label'>) => ({
-      ...labelProps,
-      htmlFor: fieldId,
-      children: label,
-    }),
-    [fieldId, label]
-  )
-  const getErrorProps = useCallback(
-    (errorProps?: React.ComponentPropsWithoutRef<'span'>) => ({
-      ...errorProps,
-      role: 'alert',
-      id: errorId,
-      children: errorMessage ?? null,
-    }),
-    [errorId, errorMessage]
-  )
-  const getFieldControlProps = useCallback(
-    (fieldProps?: FieldControlProps) => ({
-      ...fieldProps,
-      id: fieldId,
-      'aria-invalid': hasError,
-      'aria-describedby': hasError ? errorId : '',
-    }),
-    [errorId, fieldId, hasError]
-  )
+  const { getErrorProps, errorId } = useFieldError({ errorMessage })
+  const { getFieldControlProps, fieldId } = useInputFieldControl({
+    hasError,
+    errorId,
+  })
+  const { getLabelProps } = useFieldLabel({ fieldId, label })
 
   return { getLabelProps, getErrorProps, getFieldControlProps }
 }
 
-type FieldControlProps = React.ComponentPropsWithRef<'input'>
+type InputProps = React.ComponentPropsWithRef<'input'>
+
+function useInputFieldControl({
+  hasError,
+  errorId,
+}: {
+  hasError: boolean
+  errorId: string
+}) {
+  const fieldId = useId()
+  const getFieldControlProps = useCallback(
+    (fieldProps: InputProps = {}) => ({
+      ...fieldProps,
+      id: fieldId,
+      'aria-invalid': hasError,
+      'aria-describedby': hasError ? errorId : '',
+      defaultValue: '',
+    }),
+    [errorId, fieldId, hasError]
+  )
+  return { getFieldControlProps, fieldId }
+}

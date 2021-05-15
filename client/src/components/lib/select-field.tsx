@@ -3,13 +3,14 @@ import { Required } from 'utility-types'
 import React, { useCallback } from 'react'
 import { Stack } from 'components/lib'
 import { SelectOption } from 'types'
+import { useFieldError, useFieldLabel } from 'hooks/form-field'
 
 type SelectFieldProps = {
   label: string
   options: SelectOption[]
   hasError?: boolean
   errorMessage?: string
-  selectProps?: React.ComponentPropsWithRef<'select'>
+  selectProps?: SelectProps
   isLoading?: boolean
 }
 
@@ -89,34 +90,34 @@ function FormField({
 function useFormFieldSelect({
   label,
   hasError = false,
-  errorMessage = '',
+  errorMessage,
 }: {
   label: string
   hasError: boolean
   errorMessage?: string
 }) {
-  const fieldId = useId()
-  const errorId = useId()
+  const { getErrorProps, errorId } = useFieldError({ errorMessage })
+  const { getFieldControlProps, fieldId } = useSelectFieldControl({
+    hasError,
+    errorId,
+  })
+  const { getLabelProps } = useFieldLabel({ fieldId, label })
 
-  const getLabelProps = useCallback(
-    (labelProps?: React.ComponentPropsWithoutRef<'label'>) => ({
-      ...labelProps,
-      htmlFor: fieldId,
-      children: label,
-    }),
-    [fieldId, label]
-  )
-  const getErrorProps = useCallback(
-    (errorProps?: React.ComponentPropsWithoutRef<'span'>) => ({
-      ...errorProps,
-      role: 'alert',
-      id: errorId,
-      children: errorMessage ?? '',
-    }),
-    [errorId, errorMessage]
-  )
+  return { getLabelProps, getErrorProps, getFieldControlProps, fieldId }
+}
+
+type SelectProps = React.ComponentPropsWithRef<'select'>
+
+function useSelectFieldControl({
+  hasError,
+  errorId,
+}: {
+  hasError: boolean
+  errorId: string
+}) {
+  const fieldId = useId()
   const getFieldControlProps = useCallback(
-    (fieldProps?: FieldControlProps) => ({
+    (fieldProps: SelectProps = {}) => ({
       ...fieldProps,
       id: fieldId,
       'aria-invalid': hasError,
@@ -125,8 +126,5 @@ function useFormFieldSelect({
     }),
     [errorId, fieldId, hasError]
   )
-
-  return { getLabelProps, getErrorProps, getFieldControlProps, fieldId }
+  return { getFieldControlProps, fieldId }
 }
-
-type FieldControlProps = React.ComponentPropsWithRef<'select'>

@@ -79,8 +79,14 @@ model WeaponStats {
   traits            TraitsOnWeaponStats[]
   weapon            Weapon                @relation(fields: [weaponId], references: [id])
   weaponId          String
+  isDefault         Boolean               @default(true)
   isAmmo            Boolean               @default(false)
-  isSoldSeparately  Boolean               @default(false)
+  combiType         CombiType?
+}
+
+enum CombiType {
+  PRIMARY
+  SECONDARY
 }
 
 model Trait {

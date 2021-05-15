@@ -3,9 +3,9 @@ import {
   FighterCategory,
   FighterStats,
   Prisma,
-  Skill,
   SkillType,
   Trait,
+  WeaponType,
 } from '@prisma/client'
 import * as faker from 'faker'
 import { FighterTypeCreateInput } from 'src/fighter-types/fighter-types.service'
@@ -175,4 +175,22 @@ export function buildCreateSkillDto(
     name,
     type: { id: type.id },
   }
+}
+
+export function buildWeaponType(
+  overrides: Partial<WeaponType> = {},
+): WeaponType {
+  return {
+    id: faker.datatype.uuid(),
+    name: faker.unique(faker.hacker.adjective),
+    ...overrides,
+  }
+}
+
+export function buildCreateWeaponTypeDto(
+  overrides: Partial<Prisma.WeaponTypeCreateWithoutWeaponsInput> = {},
+): Prisma.WeaponTypeCreateWithoutWeaponsInput {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const { id, ...weaponType } = buildWeaponType(overrides)
+  return weaponType
 }

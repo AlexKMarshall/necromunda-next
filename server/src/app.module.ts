@@ -6,6 +6,7 @@ import { TraitsModule } from './traits/traits.module'
 import { PrismaModule } from './prisma/prisma.module'
 import { SkillTypesModule } from './skill-types/skill-types.module'
 import { SkillsModule } from './skills/skills.module'
+import { WeaponTypesModule } from './weapon-types/weapon-types.module';
 
 @Module({
   imports: [
@@ -16,6 +17,7 @@ import { SkillsModule } from './skills/skills.module'
     PrismaModule,
     SkillTypesModule,
     SkillsModule,
+    WeaponTypesModule,
   ],
 })
 export class AppModule {}

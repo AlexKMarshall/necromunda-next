@@ -1,7 +1,7 @@
 import 'test/setupTests'
 import { Test, TestingModule } from '@nestjs/testing'
 import { PrismaService } from 'src/prisma/prisma.service'
-import { buildCreateWeaponTypeDto } from 'test/utils/mock-factories'
+import { buildCreateWeaponTypeDto } from 'test/utils/test-factories'
 import { WeaponTypesService } from './weapon-types.service'
 
 const resolve = (error: any) => error

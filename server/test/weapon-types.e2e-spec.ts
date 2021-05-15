@@ -2,7 +2,7 @@ import { Test, TestingModule } from '@nestjs/testing'
 import { INestApplication } from '@nestjs/common'
 import * as supertest from 'supertest'
 import { AppModule } from '../src/app.module'
-import { buildCreateWeaponTypeDto } from './utils/mock-factories'
+import { buildCreateWeaponTypeDto } from './utils/test-factories'
 
 describe('Weapon Type (e2e)', () => {
   let app: INestApplication

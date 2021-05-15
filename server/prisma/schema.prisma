@@ -60,13 +60,13 @@ model Weapon {
 }
 
 model WeaponType {
-  id      String  @id @default(uuid())
-  name    String  @unique
-  weapons Weapon?
+  id      String   @id @default(uuid())
+  name    String   @unique
+  weapons Weapon[]
 }
 
 model WeaponStats {
-  id                String                @id @default(uuid())
+  id                String               @id @default(uuid())
   description       String?
   rangeShort        Int?
   rangeLong         Int?
@@ -76,11 +76,11 @@ model WeaponStats {
   armourPenetration Int?
   damage            Int
   ammo              Int?
-  traits            TraitsOnWeaponStats[]
-  weapon            Weapon                @relation(fields: [weaponId], references: [id])
+  traits            TraitOnWeaponStats[]
+  weapon            Weapon               @relation(fields: [weaponId], references: [id])
   weaponId          String
-  isDefault         Boolean               @default(true)
-  isAmmo            Boolean               @default(false)
+  isDefault         Boolean              @default(true)
+  isAmmo            Boolean              @default(false)
   combiType         CombiType?
 }
 
@@ -90,12 +90,12 @@ enum CombiType {
 }
 
 model Trait {
-  id          String                @id @default(uuid())
-  name        String                @unique
-  weaponStats TraitsOnWeaponStats[]
+  id          String               @id @default(uuid())
+  name        String               @unique
+  weaponStats TraitOnWeaponStats[]
 }
 
-model TraitsOnWeaponStats {
+model TraitOnWeaponStats {
   weaponStats   WeaponStats @relation(fields: [weaponStatsId], references: [id])
   weaponStatsId String
   trait         Trait       @relation(fields: [traitId], references: [id])

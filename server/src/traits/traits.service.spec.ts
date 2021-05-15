@@ -1,6 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing'
 import { PrismaService } from 'src/prisma/prisma.service'
-import { buildCreateTraitDto, buildTrait } from 'test/utils/mock-factories'
+import { buildCreateTraitDto, buildTrait } from 'test/utils/test-factories'
 import { TraitsService } from './traits.service'
 
 const prismaMockFactory = () => ({

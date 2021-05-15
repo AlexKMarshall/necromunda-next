@@ -1,7 +1,7 @@
 import 'test/setupTests'
 import { Test, TestingModule } from '@nestjs/testing'
 import { PrismaService } from 'src/prisma/prisma.service'
-import { buildCreateTraitDto } from 'test/utils/mock-factories'
+import { buildCreateTraitDto } from 'test/utils/test-factories'
 
 const resolve = (error: any) => error
 let testModule: TestingModule

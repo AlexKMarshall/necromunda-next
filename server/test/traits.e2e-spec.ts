@@ -2,7 +2,7 @@ import { Test, TestingModule } from '@nestjs/testing'
 import { INestApplication } from '@nestjs/common'
 import * as supertest from 'supertest'
 import { AppModule } from '../src/app.module'
-import { buildCreateTraitDto } from './utils/mock-factories'
+import { buildCreateTraitDto } from './utils/test-factories'
 
 describe('Traits (e2e)', () => {
   let app: INestApplication

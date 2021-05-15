@@ -4,7 +4,7 @@ import { WeaponTypesService } from './weapon-types.service'
 import {
   buildWeaponType,
   buildCreateWeaponTypeDto,
-} from 'test/utils/mock-factories'
+} from 'test/utils/test-factories'
 
 const prismaMockFactory = () => ({
   weaponType: {

@@ -1,14 +1,23 @@
+/* eslint-disable react/display-name */
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Column } from 'react-table'
 import { Dialog } from '@reach/dialog'
+import VisuallyHidden from '@reach/visually-hidden'
 import '@reach/dialog/styles.css'
 import {
   CreateFighterTypeDto,
   createFighterTypeDtoSchema,
   FighterType,
 } from 'schemas'
-import { H1, H2, SelectField, Stack, TextField } from 'components/lib'
+import {
+  DataTable,
+  H1,
+  H2,
+  SelectField,
+  Stack,
+  TextField,
+} from 'components/lib'
 import { useQueryFactions } from 'hooks/factions'
 import { useQueryFighterCategories } from 'hooks/fighter-categories'
 import {
@@ -18,6 +27,8 @@ import {
 } from 'hooks/fighter-types'
 import { useModal } from 'hooks/use-modal'
 import { AdminTable } from 'components/admin'
+import { useMemo } from 'react'
+import { useId } from '@react-aria/utils'
 
 const fighterTypeColumns: Column<FighterType>[] = [
   { Header: 'Name', accessor: 'name' as const },
@@ -129,6 +140,245 @@ function AddFighterTypeForm({ onSubmit }: AddFighterTypeFormProps) {
   const queryFactions = useQueryFactions()
   const queryCategories = useQueryFighterCategories()
 
+  const mId = useId()
+  const wsId = useId()
+  const bsId = useId()
+  const sId = useId()
+  const tId = useId()
+  const wId = useId()
+  const iId = useId()
+  const aId = useId()
+  const ldId = useId()
+  const clId = useId()
+  const wilId = useId()
+  const intId = useId()
+
+  const statsColumns = useMemo(
+    () => [
+      {
+        Header: (
+          <div id={mId}>
+            <span aria-hidden>M</span>
+            <VisuallyHidden>Movement</VisuallyHidden>
+          </div>
+        ),
+        id: 'm',
+        accessor: 'movement' as const,
+        Cell: () => (
+          <input
+            {...register('fighterStats.movement', { valueAsNumber: true })}
+            style={{ width: '2rem' }}
+            aria-labelledby={mId}
+          />
+        ),
+      },
+      {
+        Header: (
+          <div id={wsId}>
+            <span aria-hidden>WS</span>
+            <VisuallyHidden>Weapon Skill</VisuallyHidden>
+          </div>
+        ),
+        accessor: 'weaponSkill' as const,
+        id: 'ws',
+        Cell: () => (
+          <input
+            {...register('fighterStats.weaponSkill', { valueAsNumber: true })}
+            style={{ width: '2rem' }}
+            aria-labelledby={wsId}
+          />
+        ),
+      },
+      {
+        Header: (
+          <div id={bsId}>
+            <span aria-hidden>BS</span>
+            <VisuallyHidden>Ballistic Skill</VisuallyHidden>
+          </div>
+        ),
+        id: 'bs',
+        accessor: 'ballisticSkill' as const,
+        Cell: () => (
+          <input
+            {...register('fighterStats.ballisticSkill', {
+              valueAsNumber: true,
+            })}
+            style={{ width: '2rem' }}
+            aria-labelledby={bsId}
+          />
+        ),
+      },
+      {
+        Header: (
+          <div id={sId}>
+            <span aria-hidden>S</span>
+            <VisuallyHidden>Strength</VisuallyHidden>
+          </div>
+        ),
+        id: 's',
+        accessor: 'strength' as const,
+        Cell: () => (
+          <input
+            {...register('fighterStats.strength', { valueAsNumber: true })}
+            style={{ width: '2rem' }}
+            aria-labelledby={sId}
+          />
+        ),
+      },
+      {
+        Header: (
+          <div id={tId}>
+            <span aria-hidden>T</span>
+            <VisuallyHidden>Toughness</VisuallyHidden>
+          </div>
+        ),
+        id: 't',
+        accessor: 'toughness' as const,
+        Cell: () => (
+          <input
+            {...register('fighterStats.toughness', { valueAsNumber: true })}
+            style={{ width: '2rem' }}
+            aria-labelledby={tId}
+          />
+        ),
+      },
+      {
+        Header: (
+          <div id={wId}>
+            <span aria-hidden>W</span>
+            <VisuallyHidden>Wounds</VisuallyHidden>
+          </div>
+        ),
+        id: 'w',
+        accessor: 'wounds' as const,
+        Cell: () => (
+          <input
+            {...register('fighterStats.wounds', { valueAsNumber: true })}
+            style={{ width: '2rem' }}
+            aria-labelledby={wId}
+          />
+        ),
+      },
+      {
+        Header: (
+          <div id={iId}>
+            <span aria-hidden>I</span>
+            <VisuallyHidden>Initiative</VisuallyHidden>
+          </div>
+        ),
+        id: 'i',
+        accessor: 'initiative' as const,
+        Cell: () => (
+          <input
+            {...register('fighterStats.initiative', { valueAsNumber: true })}
+            style={{ width: '2rem' }}
+            aria-labelledby={iId}
+          />
+        ),
+      },
+      {
+        Header: (
+          <div id={aId}>
+            <span aria-hidden>A</span>
+            <VisuallyHidden>Attacks</VisuallyHidden>
+          </div>
+        ),
+        id: 'a',
+        accessor: 'attacks' as const,
+        Cell: () => (
+          <input
+            {...register('fighterStats.attacks', { valueAsNumber: true })}
+            style={{ width: '2rem' }}
+            aria-labelledby={aId}
+          />
+        ),
+      },
+      {
+        Header: (
+          <div id={ldId}>
+            <span aria-hidden>LD</span>
+            <VisuallyHidden>Leadership</VisuallyHidden>
+          </div>
+        ),
+        id: 'ld',
+        accessor: 'leadership' as const,
+        Cell: () => (
+          <input
+            {...register('fighterStats.leadership', { valueAsNumber: true })}
+            style={{ width: '2rem' }}
+            aria-labelledby={ldId}
+          />
+        ),
+      },
+      {
+        Header: (
+          <div id={clId}>
+            <span aria-hidden>CL</span>
+            <VisuallyHidden>Cool</VisuallyHidden>
+          </div>
+        ),
+        id: 'cl',
+        accessor: 'cool' as const,
+        Cell: () => (
+          <input
+            {...register('fighterStats.cool', { valueAsNumber: true })}
+            style={{ width: '2rem' }}
+            aria-labelledby={clId}
+          />
+        ),
+      },
+      {
+        Header: (
+          <div id={wilId}>
+            <span aria-hidden>WIL</span>
+            <VisuallyHidden>Will</VisuallyHidden>
+          </div>
+        ),
+        id: 'wil',
+        accessor: 'will' as const,
+        Cell: () => (
+          <input
+            {...register('fighterStats.will', { valueAsNumber: true })}
+            style={{ width: '2rem' }}
+            aria-labelledby={wilId}
+          />
+        ),
+      },
+      {
+        Header: (
+          <div id={intId}>
+            <span aria-hidden>INT</span>
+            <VisuallyHidden>Intelligence</VisuallyHidden>
+          </div>
+        ),
+        id: 'int',
+        accessor: 'intelligence' as const,
+        Cell: () => (
+          <input
+            {...register('fighterStats.intelligence', { valueAsNumber: true })}
+            style={{ width: '2rem' }}
+            aria-labelledby={intId}
+          />
+        ),
+      },
+    ],
+    [
+      aId,
+      bsId,
+      clId,
+      iId,
+      intId,
+      ldId,
+      mId,
+      register,
+      sId,
+      tId,
+      wId,
+      wilId,
+      wsId,
+    ]
+  )
+
   return (
     <Stack
       as="form"
@@ -171,95 +421,27 @@ function AddFighterTypeForm({ onSubmit }: AddFighterTypeFormProps) {
           label: name,
         }))}
       />
-      <TextField
-        label="Movement:"
-        hasError={!!errors.fighterStats?.movement}
-        errorMessage={errors.fighterStats?.movement?.message}
-        inputProps={register('fighterStats.movement', {
-          valueAsNumber: true,
-        })}
-      />
-      <TextField
-        label="Weapon Skill:"
-        hasError={!!errors.fighterStats?.weaponSkill}
-        errorMessage={errors.fighterStats?.weaponSkill?.message}
-        inputProps={register('fighterStats.weaponSkill', {
-          valueAsNumber: true,
-        })}
-      />
-      <TextField
-        label="Ballistic Skill:"
-        hasError={!!errors.fighterStats?.ballisticSkill}
-        errorMessage={errors.fighterStats?.ballisticSkill?.message}
-        inputProps={register('fighterStats.ballisticSkill', {
-          valueAsNumber: true,
-        })}
-      />
-      <TextField
-        label="Strength:"
-        hasError={!!errors.fighterStats?.strength}
-        errorMessage={errors.fighterStats?.strength?.message}
-        inputProps={register('fighterStats.strength', {
-          valueAsNumber: true,
-        })}
-      />
-      <TextField
-        label="Toughness:"
-        hasError={!!errors.fighterStats?.toughness}
-        errorMessage={errors.fighterStats?.toughness?.message}
-        inputProps={register('fighterStats.toughness', {
-          valueAsNumber: true,
-        })}
-      />
-      <TextField
-        label="Wounds:"
-        hasError={!!errors.fighterStats?.wounds}
-        errorMessage={errors.fighterStats?.wounds?.message}
-        inputProps={register('fighterStats.wounds', { valueAsNumber: true })}
-      />
-      <TextField
-        label="Initiative:"
-        hasError={!!errors.fighterStats?.initiative}
-        errorMessage={errors.fighterStats?.initiative?.message}
-        inputProps={register('fighterStats.initiative', {
-          valueAsNumber: true,
-        })}
-      />
-      <TextField
-        label="Attacks:"
-        hasError={!!errors.fighterStats?.attacks}
-        errorMessage={errors.fighterStats?.attacks?.message}
-        inputProps={register('fighterStats.attacks', { valueAsNumber: true })}
-      />
-      <TextField
-        label="Leadership:"
-        hasError={!!errors.fighterStats?.leadership}
-        errorMessage={errors.fighterStats?.leadership?.message}
-        inputProps={register('fighterStats.leadership', {
-          valueAsNumber: true,
-        })}
-      />
-      <TextField
-        label="Cool:"
-        hasError={!!errors.fighterStats?.cool}
-        errorMessage={errors.fighterStats?.cool?.message}
-        inputProps={register('fighterStats.cool', { valueAsNumber: true })}
-      />
-      <TextField
-        label="Will:"
-        hasError={!!errors.fighterStats?.will}
-        errorMessage={errors.fighterStats?.will?.message}
-        inputProps={register('fighterStats.will', { valueAsNumber: true })}
-      />
-      <TextField
-        label="Intelligence:"
-        hasError={!!errors.fighterStats?.intelligence}
-        errorMessage={errors.fighterStats?.intelligence?.message}
-        inputProps={register('fighterStats.intelligence', {
-          valueAsNumber: true,
-        })}
-      />
+      <Stack variant="small">
+        <DataTable columns={statsColumns} data={placeholderFighterStatsArray} />
+      </Stack>
       <button type="submit">Add fighter type</button>
     </Stack>
   )
 }
+
+const blankFighterStats = {
+  id: '',
+  movement: 0,
+  weaponSkill: 0,
+  ballisticSkill: 0,
+  strength: 0,
+  toughness: 0,
+  wounds: 0,
+  initiative: 0,
+  attacks: 0,
+  leadership: 0,
+  cool: 0,
+  will: 0,
+  intelligence: 0,
+}
+const placeholderFighterStatsArray = [blankFighterStats]

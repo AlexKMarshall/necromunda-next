@@ -4,7 +4,6 @@ import { PrismaService } from 'src/prisma/prisma.service'
 import {
   buildCreateSkillDto,
   buildCreateSkillTypeDto,
-  buildSkillType,
 } from 'test/utils/mock-factories'
 import { SkillsService } from './skills.service'
 

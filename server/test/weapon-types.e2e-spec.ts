@@ -2,9 +2,9 @@ import { Test, TestingModule } from '@nestjs/testing'
 import { INestApplication } from '@nestjs/common'
 import * as supertest from 'supertest'
 import { AppModule } from '../src/app.module'
-import { buildCreateTraitDto } from './utils/test-factories'
+import { buildCreateWeaponTypeDto } from './utils/test-factories'
 
-describe('Traits (e2e)', () => {
+describe('Weapon Type (e2e)', () => {
   let app: INestApplication
   let request: supertest.SuperTest<supertest.Test>
 
@@ -23,45 +23,47 @@ describe('Traits (e2e)', () => {
     await app.close()
   })
 
-  it('should CRD a trait', async () => {
-    const endpoint = '/traits'
-    const createTraitDto = buildCreateTraitDto()
-    const createResponse = await request.post(endpoint).send(createTraitDto)
+  it('should CRD a weapon type', async () => {
+    const endpoint = '/weapon-types'
+    const createWeaponTypeDto = buildCreateWeaponTypeDto()
+    const createResponse = await request
+      .post(endpoint)
+      .send(createWeaponTypeDto)
 
-    const { status: createdStatus, body: createdTrait } = createResponse
+    const { status: createdStatus, body: createdWeaponType } = createResponse
     expect(createdStatus).toBe(201)
-    expect(createdTrait).toEqual(
+    expect(createdWeaponType).toEqual(
       expect.objectContaining({
         id: expect.any(String),
-        ...createTraitDto,
+        ...createWeaponTypeDto,
       }),
     )
 
     const readAfterCreateResponse = await request.get(endpoint)
     const {
       status: readAfterCreateStatus,
-      body: readAfterCreateTraits,
+      body: readAfterCreateWeaponTypes,
     } = readAfterCreateResponse
 
     expect(readAfterCreateStatus).toBe(200)
-    expect(readAfterCreateTraits).toContainEqual(createdTrait)
-    expect(readAfterCreateTraits).toHaveLength(1)
+    expect(readAfterCreateWeaponTypes).toContainEqual(createdWeaponType)
+    expect(readAfterCreateWeaponTypes).toHaveLength(1)
 
     const deleteRepsonse = await request.delete(
-      `${endpoint}/${createdTrait.id}`,
+      `${endpoint}/${createdWeaponType.id}`,
     )
-    const { status: deletedStatus, body: deletedTrait } = deleteRepsonse
+    const { status: deletedStatus, body: deletedWeaponType } = deleteRepsonse
 
     expect(deletedStatus).toBe(200)
-    expect(deletedTrait).toEqual(createdTrait)
+    expect(deletedWeaponType).toEqual(createdWeaponType)
 
     const readAfterDeleteResponse = await request.get(endpoint)
     const {
       status: readAfterDeleteStatus,
-      body: readAfterDeleteTraits,
+      body: readAfterDeleteWeaponTypes,
     } = readAfterDeleteResponse
 
     expect(readAfterDeleteStatus).toBe(200)
-    expect(readAfterDeleteTraits).toEqual([])
+    expect(readAfterDeleteWeaponTypes).toEqual([])
   })
 })
